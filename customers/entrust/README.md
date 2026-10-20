@@ -12,10 +12,11 @@ summaries (Revenue Cloud) → Generate Invoices.
 | Folder | What | How it is kept right |
 | --- | --- | --- |
 | `revenue-cloud/` | the Document Check catalog as rc-config JSON + `catalog.toml`; `archive/` is the retired 7 Oct EUR catalog, never applied | **generated** by `build_config.py` beside it — edit the generator, run it, `--check` compares; `tests/test_entrust.py` fails on drift |
-| `m3ter/` | the m3ter product / meters / plan template config | (phase 4b — still in `m3ter-config/json/entrust/`) |
-| `m3sh/` | the m3sh Order Handler and Usage Data workflow exports and their DSL; `python-handlers/` is the pre-m3sh Python half | (exports still in `m3ter-config/json/entrust/m3sh/`) |
-| `snapshots/` | order `00000102`, Acme's bill — what the syncs replay | written by `ReadOrder` / `ReadBill` |
-| `analysis/` | the catalog and quoting recommendation YAMLs (+ `build_quoting_recommendation.py`, `build_structure_chart.py` + `structure-chart/`), `m3ter-to-revenue-cloud.md` (mapping rationale, decisions D1–D7), the two quote-reconstruction workbooks, the Alloy account structure chart | hand-written / generated from the workbooks |
+| `m3ter/` | the m3ter config the tool applies (`document-check-config-vertical-slice.json`, Foris, a smoke test) — `m3ter/README.md` | hand-written JSON; applied with `m3ter-config/demoscripts/create_config.py <path>` |
+| `m3sh/` | the twelve workflow exports (`exports/`), the decompiled Order Handler DSL (`dsl/`) and the pre-m3sh Python half (`python-handlers/`) — `m3sh/README.md` | exports from the m3sh console; DSL by `decompile_workflow.py` |
+| `snapshots/` | `orders/` and `bills/` — what the syncs replay (written by `ReadOrder` / `ReadBill`); `m3ter/` — account dumps and their structure charts | generated |
+| `mapping.py` | the one brick the syncs import: product → plan template, resource → aggregation + segment, which rate card | hand-written; loaded by `--customer entrust` |
+| `analysis/` | the catalog and quoting recommendation YAMLs (+ `build_quoting_recommendation.py`, `build_structure_chart.py` + `structure-chart/`), `m3ter-to-revenue-cloud.md` (mapping rationale, decisions D1–D7), the two quote-reconstruction workbooks | hand-written / generated from the workbooks |
 | `docs/` | the documentation set — open `index.html` | see below |
 | `DECISIONS.md` | every open question in one place | hand-written |
 
