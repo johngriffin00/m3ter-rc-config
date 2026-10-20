@@ -1,2 +1,12 @@
-"""Thin Salesforce SDK used by the syncs (sf CLI token auth, SOQL paging, writes).
-Moves here from m3ter-config/salesforcesdk (plan phase 3)."""
+from .account import Account
+from .auth import SalesforceAuth, SalesforceCliAuth
+from .base import SalesforceObject
+from .contact import Contact
+from .usagesummary import UsageSummary
+
+__all__ = ['SalesforceAuth',
+           'SalesforceCliAuth',
+           'SalesforceObject',
+           'Account',
+           'UsageSummary',
+           'Contact']

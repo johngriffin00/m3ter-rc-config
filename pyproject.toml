@@ -42,3 +42,4 @@ target-version = "py314"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["E501"]   # long lines in the sync bricks are explanatory; not worth reflowing

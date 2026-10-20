@@ -53,8 +53,8 @@ docs/             repo-level docs (the restructure plan)
 parameters/       gitignored credentials
 ```
 
-The directories exist; the contents arrive phase by phase (`docs/restructure-plan.md`
-§ Phases). Until phase 3 the syncs still run from `m3ter-config/demoscripts/`.
+`customers/entrust/` fills in phase by phase (`docs/restructure-plan.md` § Phases);
+the syncs, the Salesforce SDK and the snapshots are here (phase 3, 20 Oct).
 
 ## Install and run
 
@@ -64,7 +64,7 @@ uv run pytest                # tests/test_skeleton.py proves the wiring
 uv run ruff check sync salesforcesdk webhooks tests
 ```
 
-Once the syncs have moved (phase 3):
+The syncs:
 
 ```bash
 set -a; source parameters/m3ter.env; set +a
@@ -74,9 +74,30 @@ rc-config check --config-dir customers/entrust/revenue-cloud     # the Revenue C
 ```
 
 Live runs against the orgs are John's terminal; Claude proves bricks offline against the
-snapshots with stubbed clients (same rule as the m3ter tool).
+snapshots with stubbed clients — `tests/test_replay.py` runs both syncs end to end in
+`--dry-run` from `customers/entrust/snapshots/` with fake m3ter and Salesforce clients that
+answer the reads and refuse every write.
+
+### How the syncs are built
+
+Lego, not scripts. `sync/core/` holds what every sync shares: `Step` (one `run(ctx)`
+brick) and `run_steps` (run the list, stop at the first failure); `BaseSyncContext`
+(snapshot / state / log, lazy m3ter and Salesforce clients); `SalesforceStep`
+(find-or-create by natural key with dry-run honoured); `dates` (both directions:
+Revenue Cloud's inclusive 23:59:59 ↔ m3ter's exclusive midnight) and `soql` helpers.
+Each sync is a package of bricks and one parent script, and keeps the design notes in
+its docstrings — `sync/ordersync/sync_order.py` and `sync/billsync/sync_bill.py` are the
+place to start reading. `sync/ordersync/mapping.py` is the only brick that knows about
+Document Check; it moves to `customers/entrust/` in phase 6.
 
 ## Status
 
-**20 Oct 2026 — skeleton.** Layout, packaging and the dependency wiring exist and are
-tested; nothing has moved yet. Next: `docs/restructure-plan.md` phase 3 (the syncs).
+**20 Oct 2026 — phase 3 done.** `sync/` (ordersync, billsync, core), `salesforcesdk/`,
+the Entrust snapshots and the legacy Python handlers moved here from `m3ter-config`;
+both syncs replay offline from the snapshots (`tests/test_replay.py`, 7 tests). Behaviour
+is unchanged from the 15 Oct / 20 Oct versions except: the two context classes share
+`BaseSyncContext`, the date helpers live in one module, and snapshots are written under
+`customers/entrust/snapshots/`. Not yet run live from here — the next live run (John's
+terminal, `uv run python -m sync.ordersync.sync_order --order 00000102 --dry-run`) is the
+confirmation. Next: `docs/restructure-plan.md` phase 4 (move the Entrust catalog, docs
+and analysis out of `revenue-cloud-config`).

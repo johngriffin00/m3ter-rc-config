@@ -71,8 +71,12 @@ against the org" are different claims.
 
 ## Current state
 
-**20 Oct 2026.** Skeleton only: layout, `pyproject.toml` with the two editable path
-dependencies, `tests/test_skeleton.py`. The syncs still live and run in
-`m3ter-config/demoscripts/{ordersync,billsync}`; the Entrust catalog still lives in
-`revenue-cloud-config/config/entrust`. The move order is `docs/restructure-plan.md`
-§ Phases; next is phase 3 (move the syncs, prove with `--from-file --dry-run`).
+**20 Oct 2026.** Phases 1–3 of `docs/restructure-plan.md` done: the syncs live and
+run here (`sync/ordersync`, `sync/billsync`, shared bricks in `sync/core`), with the
+Salesforce SDK and the Entrust snapshots; `uv run pytest` replays both offline. They
+have not yet been run live from this repo. The Entrust catalog, docs and analysis still
+live in `revenue-cloud-config` (phase 4 next); `mapping.py` is still module-level
+(phase 6). Parked work on the syncs, carried over unchanged: commitment as a m3ter
+Balance, the Commit card's tiers, amendments, the Flask front doors, a granted
+entitlement, the null `GrantBindingTargetId` on the six first UsageSummaries — all in
+`customers/entrust/DECISIONS.md`.

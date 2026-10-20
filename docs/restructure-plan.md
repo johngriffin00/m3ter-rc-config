@@ -1,6 +1,6 @@
 # Restructuring plan — three repos, one loop
 
-20 October 2026 · John Griffin, with Claude · status: agreed 20 Oct; phases 1–2 done, phase 3 next
+20 October 2026 · John Griffin, with Claude · status: agreed 20 Oct; phases 1–3 done, phase 4 next
 
 ## The decision
 
@@ -69,7 +69,7 @@ m3ter-rc-config/
 | `demoscripts/billsync/` | `sync/billsync/` (+ `sf_step.py` → `sync/core/`) | billsync reuses ordersync's context/step — now shared in core |
 | `salesforcesdk/` | `salesforcesdk/` | used only by the syncs and `test_salesforce_connection.py`; later candidate to merge with `rc_config.client` |
 | `demoscripts/test_salesforce_connection.py` | `scripts/` | |
-| `webhooks/app.py`, `handlers/handlerRC.py`, `handlerSalesforce*.py` | `webhooks/` | the other ~17 customer handlers stay |
+| `handlers/handlerRC.py`, `handlerSalesforce*.py` | `customers/entrust/m3sh/python-handlers/` (reference) | `app.py` is a generic one-handler switch and stays with the other ~17 handlers; the front doors here are written fresh |
 | `json/entrust/*.json` (configs, org dumps) | `customers/entrust/m3ter/`, `customers/entrust/snapshots/` | |
 | `json/entrust/orders/`, `json/entrust/bills/` | `customers/entrust/snapshots/` | `--from-file` paths change |
 | `json/entrust/m3sh/` | `customers/entrust/m3sh/exports/` | |
@@ -124,7 +124,7 @@ Tool changes needed in `revenue-cloud-config`:
 
 1. ~~**Hygiene first** (m3ter-config): untrack and rotate the two tokens; rename the project consistently; add packaging. Commit, push.~~ **Done 20 Oct** — `google/token.json`, `webhooks/token.pickle` (and `credentials.json`) scrubbed from all 43 commits with `git filter-repo`, force-pushed; repo renamed consistently; hatchling packaging with `m3sdk`, `m3shsdk`, `m3utils`. Google OAuth grant revocation is John's.
 2. ~~**Skeleton here**: `pyproject.toml` with both editable path deps, `README.md`, `CLAUDE.md`, `.gitignore` (`parameters/`, snapshots of org dumps if they hold keys), `git init`, GitHub repo `johngriffin00/m3ter-rc-config`.~~ **Done 20 Oct** — `uv sync` installs both tools editable; `tests/test_skeleton.py` passes; `main` pushed to GitHub.
-3. **Move the syncs**: copy `ordersync`, `billsync`, `salesforcesdk`, fix imports to `sync.core.*`, run `sync_order.py --from-file … --dry-run` against the moved snapshot as the proof. Delete from the source repo with a commit that names the destination (history stays readable in the source repo's log; no filter-repo).
+3. ~~**Move the syncs**: copy `ordersync`, `billsync`, `salesforcesdk`, fix imports to `sync.core.*`, run `sync_order.py --from-file … --dry-run` against the moved snapshot as the proof. Delete from the source repo with a commit that names the destination (history stays readable in the source repo's log; no filter-repo).~~ **Done 20 Oct** — `tests/test_replay.py` replays both syncs offline with stubbed clients; one de-duplication on the way (`BaseSyncContext`, one `dates` module, `soql` helpers). First live run from here still to do.
 4. **Move Entrust**: configs, generator, analysis, docs, snapshots, m3sh. Proof: `rc-config check --config-dir customers/entrust/revenue-cloud` and `build_config.py --check` pass; `pytest` here passes with `fake_org` from the tool.
 5. **Move the words**: README/CLAUDE sections, then `DECISIONS.md`. Trim the two tool CLAUDE.md "Current state" blocks to tool state.
 6. **Phase 2 code change** (after everything works in place): `--customer entrust` loads `customers/entrust/mapping.py` and `policy.py` instead of the module-level import, so a second customer is a folder, not a fork.
