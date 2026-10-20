@@ -17,16 +17,14 @@ from pathlib import Path
 from m3sdk import M3terAuth, M3terAuthGamma, M3terClient, M3terClientGamma
 
 from salesforcesdk import SalesforceCliAuth
+from sync.core.customer import DEFAULT_CUSTOMER, customer_dir, load_mapping, snapshot_root
 
 SF_API_VERSION = 'v66.0'   # pinned alongside revenue-cloud-config's catalog.toml
-
-# Where ReadOrder / ReadBill save what they read, and what --from-file replays.
-# One customer for now; becomes customers/<name>/snapshots with --customer (plan phase 6).
-SNAPSHOT_ROOT = Path('customers/entrust/snapshots')
 
 
 @dataclass(kw_only=True)
 class BaseSyncContext:
+    customer: str = DEFAULT_CUSTOMER    # customers/<name>/ — mapping.py and snapshots/
     sf_alias: str = 'm3ter'             # `sf` CLI org alias
     dry_run: bool = False               # writing steps print payloads instead of posting
     snapshot: dict = field(default_factory=dict)
@@ -34,6 +32,23 @@ class BaseSyncContext:
     log: list = field(default_factory=list)
     _sf_auth: object = None
     _m3: object = None
+    _mapping: object = None
+
+    # ---- the customer ------------------------------------------------------
+    def __post_init__(self):
+        customer_dir(self.customer)          # fail before any client is built, not three bricks in
+
+    @property
+    def mapping(self):
+        """customers/<customer>/mapping.py — the catalog-specific lookups."""
+        if self._mapping is None:
+            self._mapping = load_mapping(self.customer)
+        return self._mapping
+
+    @property
+    def snapshots(self) -> Path:
+        """Where ReadOrder / ReadBill save what they read, and what --from-file replays."""
+        return snapshot_root(self.customer)
 
     # ---- Salesforce -------------------------------------------------------
     @property

@@ -30,7 +30,6 @@ from m3sdk import ExternalMapping, Plan, PlanTemplate
 
 from sync.core.step import Step
 
-from .mapping import plan_code, plan_template_code
 from .step_account import EXTERNAL_SYSTEM
 
 
@@ -46,7 +45,7 @@ class EnsurePlans(Step):
 
         for item in ctx.snapshot['order_items']:
             product_code = item['Product2']['ProductCode']
-            code = plan_code(product_code, order['OrderNumber'])
+            code = ctx.mapping.plan_code(product_code, order['OrderNumber'])
 
             # 1. Look before you create.
             mappings = ExternalMapping.find(ctx.m3, EXTERNAL_SYSTEM, 'OrderItem', item['Id'])
@@ -61,7 +60,7 @@ class EnsurePlans(Step):
             if plan:
                 self.say(ctx, f'found by code without a mapping: {plan.code} ({plan.id}) — adding mapping')
             else:
-                template_code = plan_template_code(product_code)
+                template_code = ctx.mapping.plan_template_code(product_code)
                 template = templates.get(template_code)
                 if template is None:
                     raise RuntimeError(f'plan template {template_code!r} is not in the m3ter org — '

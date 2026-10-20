@@ -15,7 +15,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from sync.core.context import SF_API_VERSION, SNAPSHOT_ROOT, BaseSyncContext  # noqa: F401  (SF_API_VERSION re-exported)
+from sync.core.context import SF_API_VERSION, BaseSyncContext  # noqa: F401  (SF_API_VERSION re-exported)
 
 
 @dataclass(kw_only=True)
@@ -23,12 +23,13 @@ class BillSyncContext(BaseSyncContext):
     bill_ref: str                       # a Bill id, or an account code/id when latest=True
     latest: bool = False                # bill_ref is an account: take its latest bill
 
-    def save_snapshot(self, directory=SNAPSHOT_ROOT / 'bills') -> Path:
+    def save_snapshot(self, directory: Path | None = None) -> Path:
         """<snapshots>/bills/<accountCode>-<billDate>-<bill id>.json — readable
         name first, the id for uniqueness, so a later run can replay it without m3ter."""
-        Path(directory).mkdir(parents=True, exist_ok=True)
+        directory = Path(directory) if directory else self.snapshots / 'bills'
+        directory.mkdir(parents=True, exist_ok=True)
         bill = self.snapshot['bill']
-        path = Path(directory) / f"{bill['accountCode']}-{bill['billDate']}-{bill['id']}.json"
+        path = directory / f"{bill['accountCode']}-{bill['billDate']}-{bill['id']}.json"
         path.write_text(json.dumps(self.snapshot, indent=2, default=str))
         self.say(f'snapshot written to {path}')
         return path

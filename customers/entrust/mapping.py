@@ -1,8 +1,8 @@
 """The catalog-specific lookups — the only brick that knows about Document Check.
 
-Everything else in ordersync is generic Revenue Cloud -> m3ter plumbing. When
-the catalog grows (a new feature, a new region, a second product) this file
-changes and the steps do not. m3sh kept the equivalent in ExternalMappings of
+Everything in sync/ is generic Revenue Cloud <-> m3ter plumbing; the syncs load this
+file through --customer (sync/core/customer.py). When the catalog grows (a new feature,
+a new region, a second product) this file changes and the steps do not. m3sh kept the equivalent in ExternalMappings of
 type Product#UsageResource; a Python dict is easier to read and to diff.
 
 Salesforce side                          m3ter side
@@ -38,7 +38,7 @@ def plan_template_code(product_code: str) -> str:
         return PLAN_TEMPLATE_BY_PRODUCT[product_code]
     except KeyError:
         raise KeyError(f'no m3ter plan template mapped for Salesforce product {product_code!r} '
-                       f'— add it to ordersync/mapping.py') from None
+                       f'— add it to customers/entrust/mapping.py') from None
 
 
 def aggregation_and_segment(resource_code: str) -> tuple[str, dict]:
@@ -49,7 +49,7 @@ def aggregation_and_segment(resource_code: str) -> tuple[str, dict]:
         return AGGREGATION_BY_FEATURE[feature], SEGMENT_BY_REGION[region]
     except KeyError:
         raise KeyError(f'cannot map usage resource {resource_code!r} (feature {feature!r}, region {region!r}) '
-                       f'— add it to ordersync/mapping.py') from None
+                       f'— add it to customers/entrust/mapping.py') from None
 
 
 def plan_code(product_code: str, order_number: str) -> str:

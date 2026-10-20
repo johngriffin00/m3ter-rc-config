@@ -19,8 +19,8 @@ from sync.billsync.step_link import LinkUsageSummary, UpdateBucket
 from sync.billsync.step_ratablesummary import EnsureUsageRatableSummary
 from sync.billsync.step_ubpi import EnsureUsageBillingPeriodItem
 from sync.billsync.step_usagesummary import EnsureUsageSummary
+from sync.core.customer import load_mapping
 from sync.core.step import run_steps
-from sync.ordersync import mapping
 from sync.ordersync.context import SyncContext
 from sync.ordersync.step_account import EnsureAccount
 from sync.ordersync.step_accountplan import EnsureAccountPlans
@@ -30,6 +30,7 @@ from sync.ordersync.step_pricing import EnsurePricings
 SNAPSHOTS = Path(__file__).resolve().parent.parent / 'customers' / 'entrust' / 'snapshots'
 ORDER = SNAPSHOTS / 'orders' / '00000102.json'
 BILL = next((SNAPSHOTS / 'bills').glob('*.json'))
+mapping = load_mapping('entrust')
 
 
 class NoWrites:

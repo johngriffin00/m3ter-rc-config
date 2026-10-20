@@ -30,12 +30,12 @@ from sync.ordersync.step_plan import EnsurePlans
 from sync.ordersync.step_pricing import EnsurePricings
 
 
-def run(order_ref=None, from_file=None, sf_alias='m3ter', dry_run=False):
+def run(order_ref=None, from_file=None, sf_alias='m3ter', dry_run=False, customer=None):
     if from_file:
-        ctx = SyncContext.from_snapshot(from_file, sf_alias=sf_alias, dry_run=dry_run)
+        ctx = SyncContext.from_snapshot(from_file, sf_alias=sf_alias, dry_run=dry_run, **({'customer': customer} if customer else {}))
         steps = []                                  # snapshot already in hand
     else:
-        ctx = SyncContext(order_ref=order_ref, sf_alias=sf_alias, dry_run=dry_run)
+        ctx = SyncContext(order_ref=order_ref, sf_alias=sf_alias, dry_run=dry_run, **({'customer': customer} if customer else {}))
         steps = [ReadOrder()]
     # The m3ter bricks, in m3sh order. Each one finds-or-creates, so re-runs are safe.
     steps += [
@@ -127,6 +127,7 @@ def main(argv=None):
     p = argparse.ArgumentParser(description='Sync an activated Revenue Cloud order to m3ter')
     p.add_argument('--order', help='OrderNumber (00000102) or Order Id')
     p.add_argument('--from-file', help='replay a saved snapshot instead of querying Salesforce')
+    p.add_argument('--customer', help='customers/<name>/ whose mapping.py and snapshots to use (default entrust)')
     p.add_argument('--sf-org', default='m3ter', help='sf CLI org alias (default m3ter)')
     p.add_argument('--dry-run', action='store_true', help='print m3ter payloads, create nothing')
     p.add_argument('--describe', metavar='SOBJECT', help='list the fields of an sObject and exit')
@@ -139,7 +140,7 @@ def main(argv=None):
         return describe(args.describe, args.sf_org)
     if not (args.order or args.from_file):
         p.error('give --order or --from-file')
-    run(order_ref=args.order, from_file=args.from_file, sf_alias=args.sf_org, dry_run=args.dry_run)
+    run(order_ref=args.order, from_file=args.from_file, sf_alias=args.sf_org, dry_run=args.dry_run, customer=args.customer)
 
 
 if __name__ == '__main__':

@@ -30,7 +30,6 @@ from m3sdk import Aggregation, ExternalMapping, Pricing
 from sync.core.dates import to_m3ter
 from sync.core.step import Step
 
-from .mapping import RATE_CARD, aggregation_and_segment
 from .step_account import EXTERNAL_SYSTEM
 
 
@@ -38,6 +37,7 @@ class EnsurePricings(Step):
     name = 'pricing'
 
     def run(self, ctx):
+        RATE_CARD = ctx.mapping.RATE_CARD
         snap = ctx.snapshot
         aggregations = {a.code: a for a in Aggregation.list(ctx.m3)}
         ctx.state['pricings'] = {}
@@ -77,7 +77,7 @@ class EnsurePricings(Step):
                                    f'(a tiered card? tiered pricing is not modelled yet)')
 
             # 3. Resource -> aggregation + segment, then the payload.
-            agg_code, segment = aggregation_and_segment(resource)
+            agg_code, segment = ctx.mapping.aggregation_and_segment(resource)
             aggregation = aggregations.get(agg_code)
             if aggregation is None:
                 raise RuntimeError(f'aggregation {agg_code!r} is not in the m3ter org')

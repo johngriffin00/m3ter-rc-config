@@ -13,19 +13,20 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from sync.core.context import SF_API_VERSION, SNAPSHOT_ROOT, BaseSyncContext  # noqa: F401  (SF_API_VERSION re-exported)
+from sync.core.context import SF_API_VERSION, BaseSyncContext  # noqa: F401  (SF_API_VERSION re-exported)
 
 
 @dataclass(kw_only=True)
 class SyncContext(BaseSyncContext):
     order_ref: str                      # OrderNumber (e.g. 00000102) or an Order Id
 
-    def save_snapshot(self, directory=SNAPSHOT_ROOT / 'orders') -> Path:
+    def save_snapshot(self, directory: Path | None = None) -> Path:
         """Write the Salesforce snapshot to <snapshots>/orders/<order>.json so a
         later run (or a dry run) can replay it without Salesforce."""
-        Path(directory).mkdir(parents=True, exist_ok=True)
+        directory = Path(directory) if directory else self.snapshots / 'orders'
+        directory.mkdir(parents=True, exist_ok=True)
         number = self.snapshot.get('order', {}).get('OrderNumber', self.order_ref)
-        path = Path(directory) / f'{number}.json'
+        path = directory / f'{number}.json'
         path.write_text(json.dumps(self.snapshot, indent=2))
         self.say(f'snapshot written to {path}')
         return path

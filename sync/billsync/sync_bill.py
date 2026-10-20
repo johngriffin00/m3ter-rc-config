@@ -34,12 +34,12 @@ from sync.billsync.step_usagesummary import EnsureUsageSummary
 from sync.core.step import run_steps
 
 
-def run(bill_ref=None, latest=False, from_file=None, sf_alias='m3ter', dry_run=False):
+def run(bill_ref=None, latest=False, from_file=None, sf_alias='m3ter', dry_run=False, customer=None):
     if from_file:
-        ctx = BillSyncContext.from_snapshot(from_file, sf_alias=sf_alias, dry_run=dry_run)
+        ctx = BillSyncContext.from_snapshot(from_file, sf_alias=sf_alias, dry_run=dry_run, **({'customer': customer} if customer else {}))
         steps = []                                  # snapshot already in hand
     else:
-        ctx = BillSyncContext(bill_ref=bill_ref, latest=latest, sf_alias=sf_alias, dry_run=dry_run)
+        ctx = BillSyncContext(bill_ref=bill_ref, latest=latest, sf_alias=sf_alias, dry_run=dry_run, **({'customer': customer} if customer else {}))
         steps = [ReadBill()]
     steps += [
         Resolve(),            # 2. everything the Salesforce writes will need, netted
@@ -58,19 +58,20 @@ def main(argv=None):
     p.add_argument('--account', help='m3ter Account code (the SF Account Id) or id, used with --latest')
     p.add_argument('--latest', action='store_true', help='take the latest bill for --account')
     p.add_argument('--from-file', help='replay a saved snapshot instead of querying m3ter')
+    p.add_argument('--customer', help='customers/<name>/ whose mapping.py and snapshots to use (default entrust)')
     p.add_argument('--sf-org', default='m3ter', help='sf CLI org alias (default m3ter)')
     p.add_argument('--dry-run', action='store_true', help='do the lookups, print Salesforce payloads, write nothing')
     args = p.parse_args(argv)
 
     if args.from_file:
-        return run(from_file=args.from_file, sf_alias=args.sf_org, dry_run=args.dry_run)
+        return run(from_file=args.from_file, sf_alias=args.sf_org, dry_run=args.dry_run, customer=args.customer)
     if args.latest:
         if not args.account:
             p.error('--latest needs --account <code or id>')
-        return run(bill_ref=args.account, latest=True, sf_alias=args.sf_org, dry_run=args.dry_run)
+        return run(bill_ref=args.account, latest=True, sf_alias=args.sf_org, dry_run=args.dry_run, customer=args.customer)
     if not args.bill:
         p.error('give --bill, --latest --account, or --from-file')
-    run(bill_ref=args.bill, sf_alias=args.sf_org, dry_run=args.dry_run)
+    run(bill_ref=args.bill, sf_alias=args.sf_org, dry_run=args.dry_run, customer=args.customer)
 
 
 if __name__ == '__main__':
