@@ -1,6 +1,6 @@
 # Restructuring plan — three repos, one loop
 
-20 October 2026 · John Griffin, with Claude · status: proposed, not started
+20 October 2026 · John Griffin, with Claude · status: agreed 20 Oct; phases 1–2 done, phase 3 next
 
 ## The decision
 
@@ -122,8 +122,8 @@ Tool changes needed in `revenue-cloud-config`:
 
 ## Phases
 
-1. **Hygiene first** (m3ter-config): untrack and rotate the two tokens; rename the project consistently; add packaging. Commit, push.
-2. **Skeleton here**: `pyproject.toml` with both editable path deps, `README.md`, `CLAUDE.md`, `.gitignore` (`parameters/`, snapshots of org dumps if they hold keys), `git init`, GitHub repo `johngriffin00/m3ter-rc-config`.
+1. ~~**Hygiene first** (m3ter-config): untrack and rotate the two tokens; rename the project consistently; add packaging. Commit, push.~~ **Done 20 Oct** — `google/token.json`, `webhooks/token.pickle` (and `credentials.json`) scrubbed from all 43 commits with `git filter-repo`, force-pushed; repo renamed consistently; hatchling packaging with `m3sdk`, `m3shsdk`, `m3utils`. Google OAuth grant revocation is John's.
+2. ~~**Skeleton here**: `pyproject.toml` with both editable path deps, `README.md`, `CLAUDE.md`, `.gitignore` (`parameters/`, snapshots of org dumps if they hold keys), `git init`, GitHub repo `johngriffin00/m3ter-rc-config`.~~ **Done 20 Oct** — `uv sync` installs both tools editable; `tests/test_skeleton.py` passes; `main` pushed to GitHub.
 3. **Move the syncs**: copy `ordersync`, `billsync`, `salesforcesdk`, fix imports to `sync.core.*`, run `sync_order.py --from-file … --dry-run` against the moved snapshot as the proof. Delete from the source repo with a commit that names the destination (history stays readable in the source repo's log; no filter-repo).
 4. **Move Entrust**: configs, generator, analysis, docs, snapshots, m3sh. Proof: `rc-config check --config-dir customers/entrust/revenue-cloud` and `build_config.py --check` pass; `pytest` here passes with `fake_org` from the tool.
 5. **Move the words**: README/CLAUDE sections, then `DECISIONS.md`. Trim the two tool CLAUDE.md "Current state" blocks to tool state.
