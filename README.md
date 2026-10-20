@@ -53,8 +53,8 @@ docs/             repo-level docs (the restructure plan)
 parameters/       gitignored credentials
 ```
 
-`customers/entrust/` fills in phase by phase (`docs/restructure-plan.md` § Phases);
-the syncs, the Salesforce SDK and the snapshots are here (phase 3, 20 Oct).
+`customers/entrust/` is filled except for the m3ter-side config (`docs/restructure-plan.md`
+phase 4b); `customers/entrust/README.md` is the map of it.
 
 ## Install and run
 
@@ -71,6 +71,7 @@ set -a; source parameters/m3ter.env; set +a
 uv run python -m sync.ordersync.sync_order --order 00000102 [--dry-run] [--from-file customers/entrust/snapshots/orders/00000102.json]
 uv run python -m sync.billsync.sync_bill --bill <id> [--dry-run] [--final]
 rc-config check --config-dir customers/entrust/revenue-cloud     # the Revenue Cloud catalog, from here
+uv run pytest                                                      # 29: the sync replays + the catalog against the simulated org
 ```
 
 Live runs against the orgs are John's terminal; Claude proves bricks offline against the
@@ -99,5 +100,10 @@ is unchanged from the 15 Oct / 20 Oct versions except: the two context classes s
 `BaseSyncContext`, the date helpers live in one module, and snapshots are written under
 `customers/entrust/snapshots/`. Confirmed live the same evening: the order sync replayed
 from the 00000102 snapshot in `--dry-run` against the m3ter org from John's terminal —
-everything found via external mapping, nothing to create. Next: `docs/restructure-plan.md` phase 4 (move the Entrust catalog, docs
-and analysis out of `revenue-cloud-config`).
+everything found via external mapping, nothing to create.
+
+**20 Oct 2026 — phase 4 (Revenue Cloud side) done.** The Entrust catalog config and its
+generator, the documentation set, the analysis models and `tests/test_entrust.py` moved
+here from `revenue-cloud-config`, which gained `rc_config.testing` (the simulated org and
+CLI harness) so the catalog test runs from here against the same fake org. Still in the
+tool repos: the m3ter-side Entrust config (phase 4b). Next: `docs/restructure-plan.md` phase 4b (the m3ter-side Entrust config) and phase 5.

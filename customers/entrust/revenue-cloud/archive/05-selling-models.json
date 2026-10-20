@@ -1,0 +1,29 @@
+{
+  "_comment": "Both pre-seeded and Active in the org (SOQL 2026-10-07). Usage lines sell on Term Monthly (v2 D8); the spend commitment and the customer-success fee sell on Term Annual so they renew with the 12-month contract (decided 2026-10-07; the v2 YAML said One-Time). One-Time exists too but is not used.",
+  "objects": [
+    {
+      "sobject": "ProductSellingModel",
+      "match_fields": [
+        "SellingModelType",
+        "PricingTerm",
+        "PricingTermUnit"
+      ],
+      "records": [
+        {
+          "@id": "PSM_TermMonthly",
+          "@lookup-only": true,
+          "SellingModelType": "TermDefined",
+          "PricingTerm": 1,
+          "PricingTermUnit": "Months"
+        },
+        {
+          "@id": "PSM_TermAnnual",
+          "@lookup-only": true,
+          "SellingModelType": "TermDefined",
+          "PricingTerm": 1,
+          "PricingTermUnit": "Annual"
+        }
+      ]
+    }
+  ]
+}

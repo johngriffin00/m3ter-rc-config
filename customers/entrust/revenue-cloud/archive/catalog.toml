@@ -1,0 +1,20 @@
+# Settings for the Entrust Verification catalog (config/entrust). The numbered JSON
+# files beside this one hold the records; this file holds what isn't a record.
+
+[catalog]
+name = "Entrust Verification"
+
+# Same pin as the Claude catalog: ProductUsageGrant.OverageChargeable (08) is exposed
+# at v66.0 and gone at newer versions (the Developer Console, which runs at the
+# newest version, rejects it — seen 2026-10-07).
+api_version = "66.0"
+
+[decision_tables]
+# Only the four pricing tables: this catalog has no attribute-based rate adjustments.
+refresh = [
+    "Price_Book_Entry_Decision_Table_v2",
+    "Pricebook_Rate_Card_Decision_Table",
+    "Rate_Card_Entries_2",
+    "Rate_Card_Entry_Resolution_Entries_2",
+]
+timeout_seconds = 300

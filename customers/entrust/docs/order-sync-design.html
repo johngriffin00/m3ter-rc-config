@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Order Sync Design</title>
+<meta name="description" content="How the Revenue Cloud order activation → m3ter sync (demoscripts/ordersync) works: overview, code structure chart, and the Salesforce → m3ter object and field mapping tables.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Same palette as entrust-order-handler-structure.html so the two documents read as a pair:
+   blue = Salesforce / Revenue Cloud, teal = m3ter, purple = the Python sync, grey = supporting. */
+:root {
+  --bg:#f7f8fa; --fg:#1c2230; --fg-2:#5b6472; --line:#d9dee6; --card:#ffffff;
+  --sf:#2f6fcf; --sf-bg:#e8f0fb; --m3:#0f8a7a; --m3-bg:#e3f4f0; --ctl:#7a5cc4; --ctl-bg:#efe9fb;
+  --st:#6b7280; --st-bg:#eef0f3; --call:#c2600f; --call-bg:#fbeee2; --warn:#b4530a; --warn-bg:#fff4e8;
+  --accent:#c2600f; --code-bg:#eef0f3;
+  --display:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#13171d; --fg:#e6e9ee; --fg-2:#9aa3b0; --line:#2b323c; --card:#1b2028;
+  --sf:#7fb0f0; --sf-bg:#1a2a44; --m3:#4fcdb8; --m3-bg:#133530; --ctl:#b59cf0; --ctl-bg:#2a2340;
+  --st:#9aa3b0; --st-bg:#242a33; --call:#f0a05a; --call-bg:#3a2816; --warn:#f0a05a; --warn-bg:#3a2816;
+  --accent:#f0a05a; --code-bg:#242a33; color-scheme:dark } }
+:root[data-theme="dark"] {
+  --bg:#13171d; --fg:#e6e9ee; --fg-2:#9aa3b0; --line:#2b323c; --card:#1b2028;
+  --sf:#7fb0f0; --sf-bg:#1a2a44; --m3:#4fcdb8; --m3-bg:#133530; --ctl:#b59cf0; --ctl-bg:#2a2340;
+  --st:#9aa3b0; --st-bg:#242a33; --call:#f0a05a; --call-bg:#3a2816; --warn:#f0a05a; --warn-bg:#3a2816;
+  --accent:#f0a05a; --code-bg:#242a33; color-scheme:dark }
+* { box-sizing:border-box }
+body { background:var(--bg); color:var(--fg); font-family:var(--display); font-size:15px; line-height:1.5; margin:0;
+  padding:24px 16px 64px }
+main { max-width:1080px; margin:0 auto; display:grid; gap:44px }
+h1 { font-size:1.9rem; font-weight:600; margin:0; letter-spacing:-.01em; text-wrap:balance }
+h2 { font-size:1.25rem; font-weight:600; margin:0 0 12px; text-wrap:balance }
+h3 { font-size:1rem; font-weight:600; margin:20px 0 6px }
+p { margin:0 0 10px; max-width:76ch }
+.eyebrow { font-family:var(--mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--fg-2) }
+header p { color:var(--fg-2) }
+code { font-family:var(--mono); font-size:.84em; background:var(--code-bg); padding:1px 5px; border-radius:4px; word-break:break-word }
+pre { font-family:var(--mono); font-size:.8rem; background:var(--code-bg); padding:10px 12px; border-radius:6px; overflow-x:auto; margin:8px 0 }
+.muted { color:var(--fg-2) }
+.sf { color:var(--sf) } .m3 { color:var(--m3) } .ctl { color:var(--ctl) } .warn { color:var(--warn) }
+.card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px }
+.grid2 { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:16px }
+.pill { display:inline-block; font-family:var(--mono); font-size:.72rem; padding:1px 8px; border-radius:999px; border:1px solid currentColor; margin-right:6px }
+.pill.sf { background:var(--sf-bg) } .pill.m3 { background:var(--m3-bg) } .pill.ctl { background:var(--ctl-bg) } .pill.st { background:var(--st-bg); color:var(--st) }
+table { border-collapse:collapse; width:100%; font-size:.88rem; margin:8px 0 4px }
+th, td { text-align:left; vertical-align:top; padding:7px 10px; border-bottom:1px solid var(--line) }
+th { font-weight:600; color:var(--fg-2); font-size:.78rem; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap }
+td code { white-space:nowrap }
+td.wrap code { white-space:normal }
+tr.group td { background:var(--st-bg); font-weight:600; color:var(--fg-2); font-size:.8rem; letter-spacing:.04em; text-transform:uppercase }
+.tablewrap { overflow-x:auto }
+ol.steps { padding-left:20px; margin:0 } ol.steps li { margin-bottom:10px } ol.steps li > strong { font-weight:600 }
+ul { padding-left:20px; margin:0 0 10px } li { margin-bottom:4px }
+figure { margin:0 } figcaption { font-size:.82rem; color:var(--fg-2); margin-top:8px }
+svg { width:100%; height:auto; display:block }
+svg text { font-family:var(--display); font-size:13px; fill:var(--fg) }
+svg text.mono { font-family:var(--mono); font-size:11.5px }
+svg text.small { font-size:11px; fill:var(--fg-2) }
+svg text.title { font-weight:600 }
+svg .box { stroke-width:1.2 }
+svg .box.sf { fill:var(--sf-bg); stroke:var(--sf) } svg .box.m3 { fill:var(--m3-bg); stroke:var(--m3) }
+svg .box.ctl { fill:var(--ctl-bg); stroke:var(--ctl) } svg .box.st { fill:var(--st-bg); stroke:var(--st) }
+svg .box.call { fill:var(--call-bg); stroke:var(--call) }
+svg .edge { fill:none; stroke:var(--fg-2); stroke-width:1.2 }
+svg .edge.data { stroke:var(--sf); stroke-dasharray:4 3 }
+svg .edge.m3 { stroke:var(--m3) }
+svg .lane { fill:none; stroke:var(--line); stroke-dasharray:3 4 }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="eyebrow">m3ter-onboarding-framework-v2 · demoscripts/ordersync · 15 October 2026</div>
+  <h1>Order activation → m3ter sync</h1>
+  <p>How an activated Revenue Cloud order becomes an account, a plan, negotiated pricings and an attached plan in m3ter — the Python port of the m3sh <em>Order Handler</em> workflow set, built as independent steps run by one parent script.</p>
+  <p><span class="pill sf">Salesforce / Revenue Cloud</span><span class="pill ctl">Python sync</span><span class="pill m3">m3ter</span><span class="pill st">supporting</span></p>
+</header>
+
+<!-- ============================================================ 1. OVERVIEW -->
+<section>
+  <h2>1. Overview</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">What it does</h3>
+      <p>Given an activated order, the sync reads the whole order graph out of Salesforce once, then creates in m3ter — in this order — the <strong>Account</strong>, one bespoke <strong>Plan</strong> per order line carrying the line's price as a standing charge, one <strong>Pricing</strong> per usage entitlement carrying the negotiated rate, and the <strong>AccountPlan</strong> that attaches the plan to the account for the asset's lifecycle.</p>
+      <p>Every m3ter step <em>looks before it creates</em>: it checks an <code>ExternalMapping</code> keyed on the Salesforce Id, then falls back to the object's code. Re-running an order therefore finds everything and creates nothing — the same guard the m3sh workflows get from <code>ExternalMappingExistsForSystem</code>.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">How it is run</h3>
+<pre>set -a; source parameters/m3ter.env; set +a
+PYTHONPATH=. uv run demoscripts/ordersync/sync_order.py \
+    --order 00000102 [--dry-run]
+
+--from-file json/entrust/orders/00000102.json   replay a saved snapshot
+--inspect                                        read-only tour of the m3ter org
+--describe &lt;sObject&gt;                             field names, when a query is refused</pre>
+      <p>Invoked by hand today after activating an order; a Flask route in <code>webhooks/</code> calling <code>sync_order.run(order_ref)</code> is the planned second front door. Salesforce auth comes from the local <code>sf</code> CLI session (org alias <code>m3ter</code>); m3ter auth from <code>parameters/m3ter.env</code>, exactly as <code>create_config.py</code> does it. <code>--dry-run</code> still performs every lookup but prints payloads instead of posting them.</p>
+    </div>
+  </div>
+
+  <figure class="card" style="margin-top:16px">
+    <svg viewBox="0 0 1040 250" role="img" aria-label="Flow from a Revenue Cloud order through the sync steps to m3ter objects">
+      <!-- lanes -->
+      <text x="20" y="22" class="small">REVENUE CLOUD — what an activated order leaves behind</text>
+      <text x="420" y="22" class="small">THE SYNC — five bricks, in order</text>
+      <text x="800" y="22" class="small">M3TER — what gets created</text>
+      <line x1="395" y1="30" x2="395" y2="240" class="lane"/>
+      <line x1="775" y1="30" x2="775" y2="240" class="lane"/>
+      <!-- SF objects -->
+      <rect x="20" y="40" width="150" height="34" rx="6" class="box sf"/><text x="95" y="62" text-anchor="middle" class="mono">Order · Account</text>
+      <rect x="20" y="86" width="150" height="34" rx="6" class="box sf"/><text x="95" y="108" text-anchor="middle" class="mono">OrderItem</text>
+      <rect x="20" y="132" width="150" height="34" rx="6" class="box sf"/><text x="95" y="154" text-anchor="middle" class="mono">TransactionUsageEntitl.</text>
+      <rect x="20" y="178" width="150" height="34" rx="6" class="box sf"/><text x="95" y="200" text-anchor="middle" class="mono">OrderItemRateCardEntry</text>
+      <rect x="200" y="132" width="150" height="34" rx="6" class="box sf"/><text x="275" y="154" text-anchor="middle" class="mono">Asset</text>
+      <rect x="200" y="178" width="150" height="34" rx="6" class="box sf"/><text x="275" y="200" text-anchor="middle" class="mono">UsageEntitlementBucket</text>
+      <path d="M170 103 L200 103 L200 149" class="edge data"/>
+      <path d="M170 149 L200 149" class="edge data"/>
+      <text x="95" y="236" text-anchor="middle" class="small">6 entitlements, 12 rate rows on order 00000102</text>
+      <!-- steps -->
+      <rect x="420" y="40" width="330" height="30" rx="6" class="box ctl"/><text x="430" y="60" class="mono">1  ReadOrder        → ctx.snapshot (saved JSON)</text>
+      <rect x="420" y="78" width="330" height="30" rx="6" class="box ctl"/><text x="430" y="98" class="mono">2  EnsureAccount    → Account + mapping</text>
+      <rect x="420" y="116" width="330" height="30" rx="6" class="box ctl"/><text x="430" y="136" class="mono">3  EnsurePlans      → Plan (bespoke) + mapping</text>
+      <rect x="420" y="154" width="330" height="30" rx="6" class="box ctl"/><text x="430" y="174" class="mono">4  EnsurePricings   → Pricing ×6 + mappings</text>
+      <rect x="420" y="192" width="330" height="30" rx="6" class="box ctl"/><text x="430" y="212" class="mono">5  EnsureAccountPlans → AccountPlan + mapping</text>
+      <path d="M350 149 L420 55" class="edge data"/>
+      <!-- m3ter objects -->
+      <rect x="800" y="78" width="220" height="30" rx="6" class="box m3"/><text x="810" y="98" class="mono">Account  001Ws00005YYRPSIA5</text>
+      <rect x="800" y="116" width="220" height="30" rx="6" class="box m3"/><text x="810" y="136" class="mono">Plan  vc_doc_check_00000102</text>
+      <rect x="800" y="154" width="220" height="30" rx="6" class="box m3"/><text x="810" y="174" class="mono">Pricing ×6  (plan-level)</text>
+      <rect x="800" y="192" width="220" height="30" rx="6" class="box m3"/><text x="810" y="212" class="mono">AccountPlan  14 Oct → 14 Nov</text>
+      <path d="M750 93 L800 93" class="edge m3"/><path d="M750 131 L800 131" class="edge m3"/>
+      <path d="M750 169 L800 169" class="edge m3"/><path d="M750 207 L800 207" class="edge m3"/>
+      <text x="910" y="60" text-anchor="middle" class="small">pre-existing: product, meters, aggregations, plan template</text>
+    </svg>
+    <figcaption>One order line fans out to six usage entitlements (three features × two regions) and twelve rate-card rows; the sync folds them back into one account, one plan, six pricings and one attachment.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================================================ 2. STRUCTURE -->
+<section>
+  <h2>2. Structure of the Python code</h2>
+  <p>Lego, not a script: each step is a class with one <code>run(ctx)</code> method; <code>sync_order.py</code> is the parent that builds the context and runs the list. A step reads what it needs from <code>ctx.snapshot</code> and <code>ctx.state</code>, writes what it found or created back into <code>ctx.state</code> under its own key, and never queries Salesforce itself — the snapshot is read once, up front.</p>
+
+  <figure class="card">
+    <svg viewBox="0 0 1040 560" role="img" aria-label="Structure chart of the ordersync package: orchestrator, context, step classes, catalog mapping, SDKs">
+      <!-- orchestrator -->
+      <rect x="320" y="16" width="400" height="56" rx="8" class="box ctl"/>
+      <text x="520" y="38" text-anchor="middle" class="title">sync_order.py</text>
+      <text x="520" y="58" text-anchor="middle" class="mono">run() · main() CLI · inspect_m3ter() · describe()</text>
+      <!-- context + step base -->
+      <rect x="60" y="110" width="300" height="74" rx="8" class="box ctl"/>
+      <text x="210" y="132" text-anchor="middle" class="title">context.py · SyncContext</text>
+      <text x="210" y="151" text-anchor="middle" class="mono">snapshot · state · log · dry_run</text>
+      <text x="210" y="169" text-anchor="middle" class="mono">sf_auth (lazy) · m3 (lazy)</text>
+      <rect x="680" y="110" width="300" height="74" rx="8" class="box ctl"/>
+      <text x="830" y="132" text-anchor="middle" class="title">step.py · Step, run_steps()</text>
+      <text x="830" y="151" text-anchor="middle" class="mono">run(ctx) · say() · create_or_pretend()</text>
+      <text x="830" y="169" text-anchor="middle" class="small">dry-run and logging live here, once</text>
+      <path d="M420 72 L210 110" class="edge"/><path d="M620 72 L830 110" class="edge"/>
+      <path d="M520 72 L520 222" class="edge"/>
+      <!-- steps row -->
+      <g>
+        <rect x="20" y="222" width="188" height="92" rx="8" class="box ctl"/>
+        <text x="114" y="244" text-anchor="middle" class="title">sf_order.py</text>
+        <text x="114" y="262" text-anchor="middle" class="mono">ReadOrder</text>
+        <text x="114" y="282" text-anchor="middle" class="small">8 SOQL queries →</text>
+        <text x="114" y="298" text-anchor="middle" class="small">ctx.snapshot, saved JSON</text>
+
+        <rect x="222" y="222" width="188" height="92" rx="8" class="box ctl"/>
+        <text x="316" y="244" text-anchor="middle" class="title">step_account.py</text>
+        <text x="316" y="262" text-anchor="middle" class="mono">EnsureAccount</text>
+        <text x="316" y="282" text-anchor="middle" class="small">find mapping → by code →</text>
+        <text x="316" y="298" text-anchor="middle" class="small">create Account + mapping</text>
+
+        <rect x="424" y="222" width="188" height="92" rx="8" class="box ctl"/>
+        <text x="518" y="244" text-anchor="middle" class="title">step_plan.py</text>
+        <text x="518" y="262" text-anchor="middle" class="mono">EnsurePlans</text>
+        <text x="518" y="282" text-anchor="middle" class="small">per OrderItem: bespoke Plan</text>
+        <text x="518" y="298" text-anchor="middle" class="small">from template, standing charge</text>
+
+        <rect x="626" y="222" width="188" height="92" rx="8" class="box ctl"/>
+        <text x="720" y="244" text-anchor="middle" class="title">step_pricing.py</text>
+        <text x="720" y="262" text-anchor="middle" class="mono">EnsurePricings</text>
+        <text x="720" y="282" text-anchor="middle" class="small">per TUE: rate row on RATE_CARD</text>
+        <text x="720" y="298" text-anchor="middle" class="small">→ Pricing on the plan</text>
+
+        <rect x="828" y="222" width="192" height="92" rx="8" class="box ctl"/>
+        <text x="924" y="244" text-anchor="middle" class="title">step_accountplan.py</text>
+        <text x="924" y="262" text-anchor="middle" class="mono">EnsureAccountPlans</text>
+        <text x="924" y="282" text-anchor="middle" class="small">per OrderItem: Asset lifecycle</text>
+        <text x="924" y="298" text-anchor="middle" class="small">→ AccountPlan</text>
+      </g>
+      <line x1="114" y1="222" x2="924" y2="222" class="edge"/>
+      <text x="520" y="214" text-anchor="middle" class="small">run_steps(ctx, [ReadOrder, EnsureAccount, EnsurePlans, EnsurePricings, EnsureAccountPlans]) — stops at the first failure</text>
+      <!-- state flow between steps -->
+      <path d="M208 268 L222 268" class="edge data"/><path d="M410 268 L424 268" class="edge data"/>
+      <path d="M612 268 L626 268" class="edge data"/><path d="M814 268 L828 268" class="edge data"/>
+      <text x="20" y="334" class="small">ctx.state flows left to right:  snapshot  →  account  →  plans{OrderItemId}  →  pricings{TUEId}  →  account_plans{OrderItemId}</text>
+      <!-- supporting -->
+      <rect x="330" y="366" width="200" height="60" rx="8" class="box st"/>
+      <text x="430" y="388" text-anchor="middle" class="title">mapping.py</text>
+      <text x="430" y="406" text-anchor="middle" class="small">the only catalog-specific brick</text>
+      <text x="430" y="420" text-anchor="middle" class="mono">product→template · resource→agg+segment · RATE_CARD</text>
+      <rect x="560" y="366" width="200" height="60" rx="8" class="box st"/>
+      <text x="660" y="388" text-anchor="middle" class="title">dates.py</text>
+      <text x="660" y="406" text-anchor="middle" class="small">Salesforce +0000 → m3ter Z</text>
+      <text x="660" y="420" text-anchor="middle" class="mono">to_m3ter() · exclusive_end() (+1 s)</text>
+      <path d="M518 314 L430 366" class="edge"/><path d="M720 314 L470 366" class="edge"/>
+      <path d="M720 314 L640 366" class="edge"/><path d="M924 314 L690 366" class="edge"/>
+      <!-- SDKs -->
+      <rect x="60" y="470" width="400" height="70" rx="8" class="box sf"/>
+      <text x="260" y="492" text-anchor="middle" class="title">salesforcesdk/</text>
+      <text x="260" y="511" text-anchor="middle" class="mono">SalesforceCliAuth  (token from `sf org auth show-access-token`)</text>
+      <text x="260" y="529" text-anchor="middle" class="mono">SalesforceObject.query_all()  (paging, raises on SOQL error, v66.0)</text>
+      <rect x="580" y="470" width="400" height="70" rx="8" class="box m3"/>
+      <text x="780" y="492" text-anchor="middle" class="title">m3sdk/</text>
+      <text x="780" y="511" text-anchor="middle" class="mono">M3terAuth · M3terClient · Account · PlanTemplate · Plan</text>
+      <text x="780" y="529" text-anchor="middle" class="mono">Aggregation · Pricing · AccountPlan · ExternalMapping.find()</text>
+      <path d="M114 314 L200 470" class="edge data"/>
+      <path d="M316 314 L700 470" class="edge m3"/><path d="M518 314 L740 470" class="edge m3"/>
+      <path d="M720 314 L780 470" class="edge m3"/><path d="M924 314 L860 470" class="edge m3"/>
+    </svg>
+    <figcaption>Purple is the sync's own code; grey the two supporting bricks; blue and teal the SDKs it calls. Only <code>ReadOrder</code> touches Salesforce; only steps 2–5 touch m3ter, and each goes through <code>create_or_pretend()</code> so a dry run is one flag, not five.</figcaption>
+  </figure>
+
+  <h3>Files</h3>
+  <div class="tablewrap"><table>
+    <tr><th>File</th><th>Role</th><th>Key contents</th></tr>
+    <tr><td><code>sync_order.py</code></td><td>Parent script</td><td class="wrap"><code>run(order_ref | from_file, sf_alias, dry_run)</code> builds the context and the step list; <code>main()</code> is the CLI; <code>inspect_m3ter()</code> and <code>describe()</code> are read-only helpers.</td></tr>
+    <tr><td><code>context.py</code></td><td>State</td><td class="wrap"><code>SyncContext</code> — the m3sh "state": <code>snapshot</code> (frozen Salesforce read), <code>state</code> (what m3ter steps found/created), <code>log</code>, <code>dry_run</code>; both API clients are lazy properties; <code>save_snapshot()</code> / <code>from_snapshot()</code>.</td></tr>
+    <tr><td><code>step.py</code></td><td>Brick contract</td><td class="wrap"><code>Step.run(ctx)</code>; <code>create_or_pretend(ctx, cls, **payload)</code> posts or prints; <code>run_steps()</code> runs the list in order and stops at the first failure.</td></tr>
+    <tr><td><code>sf_order.py</code></td><td>Step 1</td><td class="wrap"><code>ReadOrder</code> — eight SOQL queries into <code>ctx.snapshot</code>; every field proven in the RC README or an m3sh workflow.</td></tr>
+    <tr><td><code>step_account.py</code></td><td>Step 2</td><td class="wrap"><code>EnsureAccount</code>, <code>build_payload()</code>; defines <code>EXTERNAL_SYSTEM = 'Salesforce'</code>.</td></tr>
+    <tr><td><code>step_plan.py</code></td><td>Step 3</td><td class="wrap"><code>EnsurePlans</code> — one bespoke plan per order line from the product's template.</td></tr>
+    <tr><td><code>step_pricing.py</code></td><td>Step 4</td><td class="wrap"><code>EnsurePricings</code> — one plan-level pricing per entitlement from the configured card.</td></tr>
+    <tr><td><code>step_accountplan.py</code></td><td>Step 5</td><td class="wrap"><code>EnsureAccountPlans</code> — attach for the asset lifecycle.</td></tr>
+    <tr><td><code>mapping.py</code></td><td>Catalog</td><td class="wrap"><code>PLAN_TEMPLATE_BY_PRODUCT</code>, <code>AGGREGATION_BY_FEATURE</code>, <code>SEGMENT_BY_REGION</code>, <code>RATE_CARD</code>, <code>plan_code()</code>. A new feature, region or product is a dict entry here, nowhere else.</td></tr>
+    <tr><td><code>dates.py</code></td><td>Dates</td><td class="wrap"><code>to_m3ter()</code>, <code>exclusive_end()</code>.</td></tr>
+  </table></div>
+
+  <h3>The run, step by step</h3>
+  <ol class="steps">
+    <li><strong>ReadOrder</strong> — resolves <code>--order</code> (8-digit OrderNumber or an Id), then reads Order → Account → Contacts → OrderItems → TransactionUsageEntitlements → Assets → UsageEntitlementBuckets → OrderItemRateCardEntries → AssetRateCardEntries, strips Salesforce's <code>attributes</code> noise and writes <code>json/entrust/orders/&lt;OrderNumber&gt;.json</code>. Warns if the order is not <code>Activated</code>.</li>
+    <li><strong>EnsureAccount</strong> — <code>ExternalMapping.find('Salesforce','Account', AccountId)</code>; else an account whose code is the AccountId (adopt it and add the mapping); else create. Mapping key: Salesforce/Account.</li>
+    <li><strong>EnsurePlans</strong> — for each OrderItem: mapping lookup; else by code <code>&lt;product&gt;_&lt;OrderNumber&gt;</code>; else create from the template <code>mapping.py</code> names, bespoke to the account. Mapping key: Salesforce/OrderItem.</li>
+    <li><strong>EnsurePricings</strong> — indexes the rate rows on <code>RATE_CARD</code> by (OrderItemId, resource code); for each TUE: mapping lookup; else resolve aggregation + segment, require a non-null <code>NegotiatedRate</code>, create one pricing on the line's plan. Mapping key: Salesforce/TransactionUsageEntitlement.</li>
+    <li><strong>EnsureAccountPlans</strong> — for each OrderItem: its asset (via the TUEs); mapping lookup; else create the AccountPlan with the asset's lifecycle dates. Mapping key: Salesforce/Asset.</li>
+  </ol>
+</section>
+
+<!-- ============================================================ 3. MAPPING TABLES -->
+<section>
+  <h2>3. Mapping tables — Salesforce → m3ter</h2>
+  <p>Everything the sync reads, and where each field ends up. "—" means read for context or cross-checking only; a field in the <em>parked</em> table is read but not yet mapped.</p>
+
+  <h3>3.1 Objects</h3>
+  <div class="tablewrap"><table>
+    <tr><th>Revenue Cloud object</th><th>Cardinality on 00000102</th><th>m3ter object</th><th>Step</th><th>ExternalMapping key</th></tr>
+    <tr><td><code class="sf">Account</code></td><td>1</td><td><code class="m3">Account</code></td><td>2</td><td><code>Salesforce / Account / &lt;Account Id&gt;</code></td></tr>
+    <tr><td><code class="sf">Order</code></td><td>1</td><td>— (trigger; its number names the plan)</td><td>1</td><td>—</td></tr>
+    <tr><td><code class="sf">OrderItem</code></td><td>1</td><td><code class="m3">Plan</code> (bespoke) + <code class="m3">AccountPlan</code></td><td>3, 5</td><td><code>Salesforce / OrderItem / &lt;OrderItem Id&gt;</code> → Plan</td></tr>
+    <tr><td><code class="sf">TransactionUsageEntitlement</code></td><td>6</td><td><code class="m3">Pricing</code> (on the line's plan)</td><td>4</td><td><code>Salesforce / TransactionUsageEntitlement / &lt;TUE Id&gt;</code></td></tr>
+    <tr><td><code class="sf">OrderItemRateCardEntry</code></td><td>12 (6 per card)</td><td>→ the <code class="m3">Pricing</code>'s rate</td><td>4</td><td>— (keyed through the TUE)</td></tr>
+    <tr><td><code class="sf">Asset</code></td><td>1</td><td><code class="m3">AccountPlan</code> dates</td><td>5</td><td><code>Salesforce / Asset / &lt;Asset Id&gt;</code></td></tr>
+    <tr><td><code class="sf">Contact</code></td><td>4</td><td>→ <code class="m3">Account.emailAddress</code></td><td>2</td><td>—</td></tr>
+    <tr><td><code class="sf">UsageEntitlementBucket</code></td><td>12</td><td>— (parked)</td><td>1</td><td>—</td></tr>
+    <tr><td><code class="sf">AssetRateCardEntry</code></td><td>12</td><td>— (cross-check of the OrderItem copy)</td><td>1</td><td>—</td></tr>
+  </table></div>
+
+  <h3>3.2 Account <span class="muted">(step 2 · <code>step_account.py</code>)</span></h3>
+  <div class="tablewrap"><table>
+    <tr><th>m3ter <code>Account</code> field</th><th>Salesforce source</th><th>Rule</th></tr>
+    <tr><td><code>code</code></td><td><code>Account.Id</code></td><td>18-char Id, guaranteed unique; the Entrust convention.</td></tr>
+    <tr><td><code>name</code></td><td><code>Account.Name</code></td><td>as is</td></tr>
+    <tr><td><code>emailAddress</code></td><td><code>Contact.Email</code></td><td>first contact (by CreatedDate) with an email; m3ter requires one and an Account has none. Fallback <code>no-contact@&lt;id&gt;.invalid</code> with a warning.</td></tr>
+    <tr><td><code>currency</code></td><td><code>OrderItemRateCardEntry.RateUnitOfMeasure.UnitCode</code></td><td>the unit the negotiated rates are expressed in (USD); omitted → org default</td></tr>
+    <tr><td><code>address.addressLine1</code></td><td><code>Account.BillingStreet</code></td><td rowspan="5">copied when present; the <code>address</code> object is omitted entirely if all are empty</td></tr>
+    <tr><td><code>address.locality</code></td><td><code>Account.BillingCity</code></td></tr>
+    <tr><td><code>address.region</code></td><td><code>Account.BillingState</code></td></tr>
+    <tr><td><code>address.postCode</code></td><td><code>Account.BillingPostalCode</code></td></tr>
+    <tr><td><code>address.country</code></td><td><code>Account.BillingCountry</code></td></tr>
+    <tr><td><code>customFields.sfAccountId</code></td><td><code>Account.Id</code></td><td rowspan="2">visible in the m3ter console; the ExternalMapping is the machine-readable link</td></tr>
+    <tr><td><code>customFields.sfAccountName</code></td><td><code>Account.Name</code></td></tr>
+  </table></div>
+
+  <h3>3.3 Plan <span class="muted">(step 3 · <code>step_plan.py</code>, one per OrderItem)</span></h3>
+  <div class="tablewrap"><table>
+    <tr><th>m3ter <code>Plan</code> field</th><th>Salesforce source</th><th>Rule</th></tr>
+    <tr><td><code>planTemplateId</code></td><td><code>OrderItem.Product2.ProductCode</code></td><td><code>mapping.PLAN_TEMPLATE_BY_PRODUCT</code>: <code>VC-DOC-CHECK</code> → <code>usd_default_pricing</code>; the template must already exist in the org</td></tr>
+    <tr><td><code>code</code></td><td><code>Product2.ProductCode</code> + <code>Order.OrderNumber</code></td><td><code>vc_doc_check_00000102</code> (lower-case, <code>-</code>→<code>_</code>)</td></tr>
+    <tr><td><code>name</code></td><td><code>Product2.Name</code>, <code>Order.OrderNumber</code>, account name</td><td><em>Document Check Plan 00000102 (Acme)</em></td></tr>
+    <tr><td><code>accountId</code></td><td>— (m3ter Account from step 2)</td><td rowspan="2">bespoke: attachable to this account only, immutable after create</td></tr>
+    <tr><td><code>bespoke</code></td><td>—</td></tr>
+    <tr><td><code>standingCharge</code></td><td><code>OrderItem.UnitPrice × OrderItem.Quantity</code></td><td>1,000 USD per billing cycle — first-pass stand-in for the commitment</td></tr>
+    <tr><td><code>standingChargeDescription</code></td><td><code>Product2.Name</code>, <code>Order.OrderNumber</code></td><td><em>Document Check commitment, order 00000102</em> — shows on the bill line</td></tr>
+    <tr><td><code>customFields.sfOrderId</code></td><td><code>Order.Id</code></td><td rowspan="5">traceability back to Salesforce</td></tr>
+    <tr><td><code>customFields.sfOrderNumber</code></td><td><code>Order.OrderNumber</code></td></tr>
+    <tr><td><code>customFields.sfOrderItemId</code></td><td><code>OrderItem.Id</code></td></tr>
+    <tr><td><code>customFields.sfQuoteId</code></td><td><code>Order.QuoteId</code></td></tr>
+    <tr><td><code>customFields.sfProductCode</code></td><td><code>Product2.ProductCode</code></td></tr>
+  </table></div>
+
+  <h3>3.4 Pricing <span class="muted">(step 4 · <code>step_pricing.py</code>, one per TransactionUsageEntitlement)</span></h3>
+  <div class="tablewrap"><table>
+    <tr><th>m3ter <code>Pricing</code> field</th><th>Salesforce source</th><th>Rule</th></tr>
+    <tr><td><code>planId</code></td><td><code>TUE.OrderItemId</code></td><td>the plan step 3 made for that order line</td></tr>
+    <tr><td><code>aggregationId</code></td><td><code>TUE.UsageResource.Code</code> — FEATURE part</td><td><code>mapping.AGGREGATION_BY_FEATURE</code>: BOOST → <code>document_report_standard_hybrid_count</code>, FLASH → <code>…auto_count</code>, SHERLOCK → <code>…manual_count</code></td></tr>
+    <tr><td><code>segment</code></td><td><code>TUE.UsageResource.Code</code> — REGION part</td><td><code>mapping.SEGMENT_BY_REGION</code>: USA → <code>{"country": "USA"}</code>, ANY → <code>{}</code> (the catch-all segment)</td></tr>
+    <tr><td><code>pricingBands[0].unitPrice</code></td><td><code>OrderItemRateCardEntry.NegotiatedRate</code></td><td>the row on <code>mapping.RATE_CARD</code> (Base) for the same OrderItem + resource; a negotiated <strong>0.0 is a real price</strong>; <code>null</code> (the Tier card) stops the run</td></tr>
+    <tr><td><code>pricingBands[0].lowerLimit / fixedPrice</code></td><td>—</td><td>0 / 0 — one flat band</td></tr>
+    <tr><td><code>startDate</code></td><td><code>TUE.EffectiveStartDateTime</code></td><td>→ ISO Z via <code>dates.to_m3ter</code></td></tr>
+    <tr><td><code>endDate</code></td><td>—</td><td>omitted: the AccountPlan carries the term and the plan is bespoke</td></tr>
+    <tr><td><code>type</code></td><td>—</td><td><code>DEBIT</code></td></tr>
+    <tr><td><code>description</code></td><td><code>TUE.UsageResource.Name</code>, <code>Order.OrderNumber</code></td><td><em>Document Check - Boost - USA negotiated rate, order 00000102</em></td></tr>
+    <tr><td><code>code</code></td><td><code>TUE.Id</code></td><td><code>pricing_&lt;TUE Id&gt;</code></td></tr>
+  </table></div>
+  <p class="muted">Rate-card choice: order 00000102 carried both cards on every resource with <code>IsChosenRate = false</code> on all twelve rows. <code>RATE_CARD</code> picks <em>Document Check Rate Card - List (Base)</em>; the step warns if Salesforce ever marks a row on a different card as chosen. The choice is being moved to quote time on the Revenue Cloud side.</p>
+
+  <h3>3.5 AccountPlan <span class="muted">(step 5 · <code>step_accountplan.py</code>, one per OrderItem)</span></h3>
+  <div class="tablewrap"><table>
+    <tr><th>m3ter <code>AccountPlan</code> field</th><th>Salesforce source</th><th>Rule</th></tr>
+    <tr><td><code>accountId</code></td><td>— (step 2)</td><td></td></tr>
+    <tr><td><code>planId</code></td><td>— (step 3, by <code>OrderItem.Id</code>)</td><td></td></tr>
+    <tr><td><code>startDate</code></td><td><code>Asset.LifecycleStartDate</code></td><td>→ ISO Z; the asset is found through <code>TUE.AssetId</code> (exactly one per line)</td></tr>
+    <tr><td><code>endDate</code></td><td><code>Asset.LifecycleEndDate</code></td><td>+1 second: Revenue Cloud's inclusive 23:59:59 → m3ter's exclusive midnight (<code>dates.exclusive_end</code>); omitted if the asset has no end</td></tr>
+    <tr><td><code>code</code></td><td><code>Asset.Id</code></td><td><code>accountplan_&lt;Asset Id&gt;</code></td></tr>
+    <tr><td><code>customFields.sfAssetId / sfOrderItemId / sfOrderNumber</code></td><td><code>Asset.Id</code>, <code>OrderItem.Id</code>, <code>Order.OrderNumber</code></td><td>traceability</td></tr>
+    <tr><td><code>childBillingMode</code></td><td>—</td><td>not set → m3ter default (<code>PARENT_BREAKDOWN</code>)</td></tr>
+  </table></div>
+
+  <h3>3.6 Catalog mapping <span class="muted">(<code>mapping.py</code>)</span></h3>
+  <div class="grid2">
+    <div class="tablewrap"><table>
+      <tr><th>Resource code</th><th>Aggregation</th><th>Segment</th></tr>
+      <tr><td><code>RES-DOC-CHECK-BOOST-USA</code></td><td><code>document_report_standard_hybrid_count</code></td><td><code>{country: USA}</code></td></tr>
+      <tr><td><code>RES-DOC-CHECK-BOOST-ANY</code></td><td><code>document_report_standard_hybrid_count</code></td><td><code>{}</code></td></tr>
+      <tr><td><code>RES-DOC-CHECK-FLASH-USA</code></td><td><code>document_report_standard_auto_count</code></td><td><code>{country: USA}</code></td></tr>
+      <tr><td><code>RES-DOC-CHECK-FLASH-ANY</code></td><td><code>document_report_standard_auto_count</code></td><td><code>{}</code></td></tr>
+      <tr><td><code>RES-DOC-CHECK-SHERLOCK-USA</code></td><td><code>document_report_standard_manual_count</code></td><td><code>{country: USA}</code></td></tr>
+      <tr><td><code>RES-DOC-CHECK-SHERLOCK-ANY</code></td><td><code>document_report_standard_manual_count</code></td><td><code>{}</code></td></tr>
+    </table></div>
+    <div class="tablewrap"><table>
+      <tr><th>Salesforce product</th><th>m3ter plan template</th><th>m3ter product</th></tr>
+      <tr><td><code>VC-DOC-CHECK</code></td><td><code>usd_default_pricing</code></td><td><code>verification_check</code></td></tr>
+      <tr><th colspan="3" style="padding-top:14px">Constant</th></tr>
+      <tr><td><code>RATE_CARD</code></td><td colspan="2"><code>Document Check Rate Card - List (Base)</code></td></tr>
+      <tr><td><code>EXTERNAL_SYSTEM</code></td><td colspan="2"><code>Salesforce</code> (the m3sh spelling)</td></tr>
+    </table></div>
+  </div>
+  <p class="muted">Pre-existing in the m3ter org and never created by the sync: product <code>verification_check</code>, the three meters and aggregations (global, segmented on <code>country</code>), plan template <code>usd_default_pricing</code> with its six list-price pricings.</p>
+
+  <h3>3.7 Read but not yet mapped <span class="muted">(parked)</span></h3>
+  <div class="tablewrap"><table>
+    <tr><th>Salesforce</th><th>What it holds</th><th>Intended m3ter use</th></tr>
+    <tr><td><code>OrderItemRateCardEntry</code> rows on the <em>Commit (Tier)</em> card + <code>AssetRateAdjustment</code></td><td>tier bands (0–10k / 10k–25k / 25k+, Override values) copied onto the asset</td><td><code>pricingBands</code> with <code>cumulative: true</code> (tiered) once the card choice is made at quote time</td></tr>
+    <tr><td><code>OrderItem.UnitPrice</code> (1,000 USD)</td><td>the commitment stand-in, today a standing charge</td><td><code>Commitment</code> or <code>Balance</code> + transaction, replacing the m3sh Balance / Balance Cloner steps</td></tr>
+    <tr><td><code>UsageEntitlementBucket</code> (12, two-level tree)</td><td>consumption pots; <code>ParentId</code> is a bucket or the <code>UsageEntitlementAccount</code></td><td>Ids on the AccountPlan as custom fields (m3sh stores <code>UEBId</code>) if usage is ever written back</td></tr>
+    <tr><td><code>TUE.EntitlementQuantity / TransactionQuantity / UsageModelType</code></td><td>0 / 1 / <code>Anchor</code> on every row — pure overage</td><td>would drive Balance/grant logic for non-zero grants</td></tr>
+    <tr><td><code>Order.QuoteId</code>, <code>Order.ActivatedDate</code></td><td>context</td><td>Quote Id is already on the plan's custom fields</td></tr>
+  </table></div>
+</section>
+
+<!-- ============================================================ 4. DECISIONS -->
+<section>
+  <h2>4. Decisions and the rules behind them</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Plan per OrderItem, not per Order</h3>
+      <p>An m3ter Plan belongs to one PlanTemplate, which belongs to one Product. An order with two products needs two plans, and each line has its own asset dates. For this catalog every order still yields exactly one plan.</p>
+      <h3>Bespoke plan, plan-level pricings</h3>
+      <p>A negotiated rate in m3ter is a Pricing on a Plan that overrides the PlanTemplate's for the same aggregation and segment. Creating the plan with <code>accountId</code> makes it attachable to that account only, so one customer's rates can never reach another. The template's list-price pricings are untouched. m3sh attaches a shared plan instead — fine at list price, not with negotiated rates. Entrust production uses the same per-contract plan pattern (<code>checks_&lt;opportunityId&gt;</code>).</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Dates</h3>
+      <p>Revenue Cloud ends a lifecycle at 23:59:59 of the last day (inclusive); m3ter dates are exclusive. The AccountPlan therefore ends at midnight of the following day — what m3sh does with <code>dateAdd(…, 1, "SECONDS")</code>.</p>
+      <h3>m3ter rules to remember</h3>
+      <ul>
+        <li>Only one active AccountPlan per Product per Account unless the org allows overlapping plans — a renewal must start after the previous AccountPlan ends.</li>
+        <li>A Pricing's <code>segment</code> must be one the aggregation declares; <code>{}</code> is the catch-all.</li>
+        <li><code>Account.emailAddress</code> is required on create.</li>
+        <li><code>cumulative: true</code> is tiered pricing, <code>false</code> volume pricing — irrelevant with one band, deliberate once tiers arrive.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="muted" style="margin-top:16px">Proof: <code>json/entrust/orders/00000102.json</code> (the Salesforce snapshot) and <code>json/entrust/001Ws00005YYRPSIA5-config.json</code> (the m3ter dump of Acme after the sync). Companion document: <code>entrust-order-handler-structure.html</code>, the m3sh workflows this port follows.</p>
+</section>
+
+</main>
+</body>
+</html>

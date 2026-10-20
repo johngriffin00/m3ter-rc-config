@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>End-to-End Flow</title>
+<meta name="description" content="One diagram of the whole Entrust loop as built: the Document Check catalog and order activation in Revenue Cloud, the order sync to m3ter, usage and the bill in m3ter, the bill sync back, and Billing's invoice. Swim lanes per system, one box per object or step, each lane marked built, designed or to do.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Same palette as the design pages: blue = Salesforce / Revenue Cloud, teal = m3ter, purple = the Python syncs, grey = supporting / legacy, orange = open. */
+:root {
+  --bg:#f7f8fa; --fg:#1c2230; --fg-2:#5b6472; --line:#d9dee6; --card:#ffffff;
+  --sf:#2f6fcf; --sf-bg:#e8f0fb; --sf-lane:#eef3fb; --m3:#0f8a7a; --m3-bg:#e3f4f0; --m3-lane:#edf7f4; --ctl:#7a5cc4; --ctl-bg:#efe9fb; --ctl-lane:#f4f0fc;
+  --st:#6b7280; --st-bg:#eef0f3; --bill:#b4530a; --bill-bg:#fbeee2; --bill-lane:#fdf5ee; --warn:#b4530a; --warn-bg:#fff4e8; --ok:#1f7a3f; --ok-bg:#e3f3e8;
+  --accent:#c2600f; --code-bg:#eef0f3;
+  --display:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#13171d; --fg:#e6e9ee; --fg-2:#9aa3b0; --line:#2b323c; --card:#1b2028;
+  --sf:#7fb0f0; --sf-bg:#1a2a44; --sf-lane:#161e2c; --m3:#4fcdb8; --m3-bg:#133530; --m3-lane:#142824; --ctl:#b59cf0; --ctl-bg:#2a2340; --ctl-lane:#1f1b2e;
+  --st:#9aa3b0; --st-bg:#242a33; --bill:#f0a05a; --bill-bg:#3a2816; --bill-lane:#271e16; --warn:#f0a05a; --warn-bg:#3a2816; --ok:#6fd49a; --ok-bg:#163a26;
+  --accent:#f0a05a; --code-bg:#242a33; color-scheme:dark } }
+:root[data-theme="dark"] {
+  --bg:#13171d; --fg:#e6e9ee; --fg-2:#9aa3b0; --line:#2b323c; --card:#1b2028;
+  --sf:#7fb0f0; --sf-bg:#1a2a44; --sf-lane:#161e2c; --m3:#4fcdb8; --m3-bg:#133530; --m3-lane:#142824; --ctl:#b59cf0; --ctl-bg:#2a2340; --ctl-lane:#1f1b2e;
+  --st:#9aa3b0; --st-bg:#242a33; --bill:#f0a05a; --bill-bg:#3a2816; --bill-lane:#271e16; --warn:#f0a05a; --warn-bg:#3a2816; --ok:#6fd49a; --ok-bg:#163a26;
+  --accent:#f0a05a; --code-bg:#242a33; color-scheme:dark }
+* { box-sizing:border-box }
+body { background:var(--bg); color:var(--fg); font-family:var(--display); font-size:15px; line-height:1.5; margin:0; padding:24px 16px 64px }
+main { max-width:1400px; margin:0 auto; display:grid; gap:28px }
+h1 { font-size:1.9rem; font-weight:600; margin:0; letter-spacing:-.01em; text-wrap:balance }
+h2 { font-size:1.25rem; font-weight:600; margin:0 0 12px; text-wrap:balance }
+h3 { font-size:1rem; font-weight:600; margin:16px 0 6px }
+p { margin:0 0 10px; max-width:80ch }
+.eyebrow { font-family:var(--mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--fg-2) }
+header p { color:var(--fg-2) }
+code { font-family:var(--mono); font-size:.84em; background:var(--code-bg); padding:1px 5px; border-radius:4px; word-break:break-word }
+.muted { color:var(--fg-2) }
+.card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px }
+.grid3 { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px }
+.pill { display:inline-block; font-family:var(--mono); font-size:.72rem; padding:1px 8px; border-radius:999px; border:1px solid currentColor; margin-right:6px }
+.pill.sf { background:var(--sf-bg); color:var(--sf) } .pill.m3 { background:var(--m3-bg); color:var(--m3) } .pill.ctl { background:var(--ctl-bg); color:var(--ctl) }
+.pill.bill { background:var(--bill-bg); color:var(--bill) } .pill.st { background:var(--st-bg); color:var(--st) }
+.legend { display:flex; flex-wrap:wrap; gap:14px 22px; font-size:12.5px; color:var(--fg-2); align-items:center }
+.legend i { display:inline-block; width:30px; height:16px; border-radius:4px; vertical-align:middle; margin-right:6px; border:1.5px solid var(--fg-2); background:var(--card) }
+.legend i.design { border-style:dashed } .legend i.todo { border-style:dotted; opacity:.75 } .legend i.legacy { background:var(--st-bg); border-color:var(--st) }
+figure { margin:0 } figcaption { font-size:.82rem; color:var(--fg-2); margin-top:10px }
+.diagram { overflow-x:auto }
+svg { display:block; width:100%; height:auto; min-width:900px }
+svg text { font-family:var(--display); font-size:12px; fill:var(--fg) }
+svg text.mono { font-family:var(--mono); font-size:11px }
+svg text.small { font-size:10px; fill:var(--fg-2) }
+svg text.lane { font-size:11px; font-weight:600; fill:#fff; letter-spacing:.06em }
+svg text.lbl { font-size:10.5px; font-weight:600; fill:var(--fg-2) }
+svg .box { stroke-width:1.3 }
+svg .box.sf { fill:var(--sf-bg); stroke:var(--sf) } svg .box.m3 { fill:var(--m3-bg); stroke:var(--m3) }
+svg .box.ctl { fill:var(--ctl-bg); stroke:var(--ctl) } svg .box.bill { fill:var(--bill-bg); stroke:var(--bill) }
+svg .box.st { fill:var(--st-bg); stroke:var(--st) } svg .box.warn { fill:var(--warn-bg); stroke:var(--warn) }
+svg .box.design { stroke-dasharray:5 3 } svg .box.todo { stroke-dasharray:2 3; opacity:.8 }
+svg .edge { fill:none; stroke:var(--fg-2); stroke-width:1.2; marker-end:url(#arrow) }
+svg .edge.soft { stroke-dasharray:4 3 }
+svg .lanebg { stroke:var(--line); stroke-width:1 }
+svg .hot .box { stroke-width:2.6 }
+svg g.node { cursor:default }
+ul { padding-left:20px; margin:0 0 10px } li { margin-bottom:5px }
+a { color:inherit }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="eyebrow">revenue-cloud-config · documents/entrust · 20 October 2026</div>
+  <h1>Entrust on Revenue Cloud — the loop, end to end</h1>
+  <p>What we have built, in the shape of the product team's conversion diagram: one lane per system, one box per object or step, arrows for what creates what. Blue is Revenue Cloud, teal is m3ter, purple is our Python, orange is Billing. Solid boxes exist and were read back from the org; dashed ones are designed and not built; dotted ones are the step still to run. Hover a box to light up its arrows; click a lane's title for its pages.</p>
+  <p><span class="pill sf">Revenue Cloud</span><span class="pill ctl">Python sync</span><span class="pill m3">m3ter</span><span class="pill bill">Billing</span><span class="pill st">legacy / supporting</span></p>
+</header>
+
+<figure class="card">
+  <div class="legend">
+    <span><i></i>built and verified in the org</span><span><i class="design"></i>designed, not built</span><span><i class="todo"></i>not yet run</span><span><i class="legacy"></i>the platform's own path, bypassed</span><span>solid arrow = creates / writes · dashed arrow = reads / resolves</span>
+  </div>
+  <div class="diagram"><svg id="d" viewBox="0 0 1400 1400" role="img" aria-label="Swim-lane diagram of the Entrust loop: Revenue Cloud catalog and order, order sync, m3ter plan and pricing, m3ter usage and bill, bill sync, Revenue Cloud billing and invoice"></svg></div>
+  <figcaption>Order 00000102 is the worked example throughout: one Document Check line, six usage resources, both rate cards, 1,000 USD. Numbers on the boxes are the row counts in the org on 20 October 2026. The lanes read top to bottom in the order things happen; the two Python lanes are where this project's code lives, and the bill-sync lane is the one still to write.</figcaption>
+</figure>
+
+<section class="grid3">
+  <div class="card">
+    <h3 style="margin-top:0">Where the two diagrams agree</h3>
+    <p>Their RCA lane is our top lane: order, order item, asset, <code>TransactionUsageEntitlement</code>, the asset's rate-card entries and adjustments, and the grants. Their RCB lane is our bottom one: billing schedules created at activation, period items, invoice lines, the invoice, and the write-back on posting. Their "Liable Summary (UBPI) New → ReadyForInvoicing" is exactly the record our bill sync writes.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Where they differ</h3>
+    <p>Their middle — RatingAccount, AccountRatePlan, AccountGrant, Wallets, RatingPeriodItem — is the platform's own rating runtime (RCR), which rates usage inside Revenue Cloud. Ours is m3ter: the order sync creates the account, plan, pricings and attachment there, m3ter meters and rates, and the bill sync carries the rated result back as liable summaries. Our loop never needs <code>TransactionJournal</code> or the Orchestrate Usage Management flow, which is why that row is grey.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">What is still open</h3>
+    <p>Which rate card a committed customer's line uses (both reach the asset today). Parent or child bucket on the liable summary. Whether a liable summary invoices without a usage summary behind it. Rates per country as region bands instead of USA / ANY. And the commitment itself — custom quote-line fields in their design, a Balance in m3ter — which is the dashed box in the m3ter lane.</p>
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+  const svg = document.getElementById('d');
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (t, a, kids) => { const e = document.createElementNS(NS, t); for (const [k, v] of Object.entries(a || {})) e.setAttribute(k, v); (kids || []).forEach(k => e.append(k)); return e; };
+  const txt = (x, y, lines, cls, anchor) => { const t = el('text', { x, y, class: cls || '', 'text-anchor': anchor || 'middle' }); lines.forEach((l, i) => t.append(el('tspan', { x, dy: i ? 15 : 0, style: l.length > 34 ? 'font-size:9.2px' : '' }, [l]))); return t; };
+
+  // ---- layout: six columns; lanes stacked from a list of row counts
+  const BW = 194, BH = 76, COLX = [90, 306, 522, 738, 954, 1170], PAD_T = 34, PAD_B = 18, ROWGAP = 46, LANEGAP = 36;
+  const LANES = [
+    { id: 'rca', code: 'RCA',       title: 'Revenue Cloud — catalog, quote, order and activation',          color: 'var(--sf)',   bg: 'var(--sf-lane)',   rows: 3, page: 'catalog-setup-guide' },
+    { id: 'os',  code: 'ORDER SYNC', title: 'Order sync — Python, built (demoscripts/ordersync)',           color: 'var(--ctl)',  bg: 'var(--ctl-lane)',  rows: 1, page: 'order-sync-design' },
+    { id: 'm3r', code: 'M3TER',     title: 'm3ter — account, plan, pricing and attachment',                 color: 'var(--m3)',   bg: 'var(--m3-lane)',   rows: 1, page: 'order-sync-design' },
+    { id: 'm3u', code: 'M3TER',     title: 'm3ter — usage and the bill (step 4: not yet run)',              color: 'var(--m3)',   bg: 'var(--m3-lane)',   rows: 1, page: 'usage-and-bill' },
+    { id: 'bs',  code: 'BILL SYNC', title: 'Bill sync — Python, designed and not built (demoscripts/billsync)', color: 'var(--ctl)', bg: 'var(--ctl-lane)', rows: 1, page: 'bill-sync-design' },
+    { id: 'uo',  code: 'RCB',       title: 'Revenue Cloud — the usage objects (the platform’s own path, bypassed; the bill sync writes them)', color: 'var(--st)', bg: 'var(--st-bg)', rows: 1, page: 'billing-data-model' },
+    { id: 'rcb', code: 'RCB',       title: 'Revenue Cloud Billing — schedules, the invoice run, the invoice', color: 'var(--bill)', bg: 'var(--bill-lane)', rows: 2, page: 'billing-data-model' },
+  ];
+  let y = 54;
+  for (const l of LANES) { l.y = y; l.h = PAD_T + l.rows * BH + (l.rows - 1) * ROWGAP + PAD_B; l.rowY = [...Array(l.rows)].map((_, i) => l.y + PAD_T + i * (BH + ROWGAP)); y += l.h + LANEGAP; }
+  svg.setAttribute('viewBox', `0 0 1400 ${y + 8}`);
+  const LANE = Object.fromEntries(LANES.map(l => [l.id, l]));
+  // nodes: id, lane, row, column, kind (sf/m3/ctl/bill/st), status ('' | design | todo), three lines
+  const N = [
+    ['cat_p',   'rca', 0, 0, 'sf', '', ['Product2 Document Check', 'VC-DOC-CHECK · Anchor', 'Feature Type attribute (selector)']],
+    ['cat_r',   'rca', 0, 1, 'sf', '', ['UsageResource ×6', 'feature × region (USA / ANY)', 'VERIFICATION-CHECK unit']],
+    ['cat_pur', 'rca', 0, 2, 'sf', '', ['ProductUsageResource ×6', 'Grant ×6 (quantity 0) · policies', 'Self binding policy']],
+    ['cat_rc',  'rca', 0, 3, 'sf', '', ['RateCard ×2 on the price book', 'List: 6 rates · Commit: 18 tiers', 'entries Negotiable, Term Monthly']],
+    ['cat_pbe', 'rca', 0, 4, 'sf', '', ['PricebookEntry 0.00 USD', 'Term Monthly', 'the money is on the cards']],
+    ['cat_dt',  'rca', 0, 5, 'sf', '', ['Entrust Catalog · category', 'product index rebuilt', '7 decision tables refreshed']],
+    ['q',       'rca', 1, 0, 'sf', '', ['Quote: Entrust Test Quote 1', 'line × 1 · Flash · 14 Oct–13 Nov', 'unit price 1,000 (by hand)']],
+    ['qlrce',   'rca', 1, 1, 'sf', '', ['QuoteLineRateCardEntry ×12', 'both cards · NegotiatedRate on List', 'IsChosenRate false on all']],
+    ['ord',     'rca', 1, 2, 'sf', '', ['Order 00000102', 'Activated 14 Oct 2026', 'Bill To + addresses set']],
+    ['asset',   'rca', 1, 3, 'sf', '', ['Asset: Document Check', 'lifecycle 14 Oct → 13 Nov', 'Order to Asset flow']],
+    ['tue',     'rca', 1, 4, 'sf', '', ['TransactionUsageEntitlement ×6', 'UsageEntitlementAccount ×1', 'buckets: 6 parents + 6 children']],
+    ['bsg',     'rca', 1, 5, 'sf', '', ['BillingScheduleGroup ×7', 'BillingSchedule ×7, all ReadyForInvoicing', 'Order to Billing Schedule flow']],
+    ['arce',    'rca', 2, 3, 'sf', '', ['AssetRateCardEntry ×12', 'AssetRateAdjustment ×18', 'negotiated rates carried']],
+    ['renew',   'rca', 2, 4, 'sf', '', ['Renewal Forecast Opportunity', '(auto-created on activation)', '']],
+    ['os1', 'os', 0, 0, 'ctl', '', ['1  ReadOrder', '8 SOQL → ctx.snapshot', 'orders/00000102.json']],
+    ['os2', 'os', 0, 1, 'ctl', '', ['2  EnsureAccount', 'mapping → by code → create', 'key Salesforce / Account']],
+    ['os3', 'os', 0, 2, 'ctl', '', ['3  EnsurePlans', 'one bespoke Plan per OrderItem', 'from template, standing charge']],
+    ['os4', 'os', 0, 3, 'ctl', '', ['4  EnsurePricings', 'one Pricing per TUE', 'List-card NegotiatedRate']],
+    ['os5', 'os', 0, 4, 'ctl', '', ['5  EnsureAccountPlans', 'Asset lifecycle → AccountPlan', 'exclusive end (+1 s)']],
+    ['osm', 'os', 0, 5, 'ctl', '', ['ExternalMapping guard', 'look before create, every step', 'Account · OrderItem · TUE · Asset']],
+    ['m_acc', 'm3r', 0, 0, 'm3', '', ['Account', 'code = Salesforce Account Id', 'email from the first contact']],
+    ['m_pre', 'm3r', 0, 1, 'm3', '', ['pre-existing: product + meters', 'verification_check · 3 meters', '3 aggregations (country segment)']],
+    ['m_plan','m3r', 0, 2, 'm3', '', ['Plan vc_doc_check_00000102', 'bespoke to the account', 'standing charge 1,000 USD']],
+    ['m_pr',  'm3r', 0, 3, 'm3', '', ['Pricing ×6', 'aggregation × segment (USA / {})', 'code pricing_<TUE Id>']],
+    ['m_ap',  'm3r', 0, 4, 'm3', '', ['AccountPlan', '14 Oct → 14 Nov (exclusive)', 'code accountplan_<Asset Id>']],
+    ['m_bal', 'm3r', 0, 5, 'm3', 'design', ['Balance / Commitment (later)', 'the 1,000 USD commitment', 'from custom quote-line fields']],
+    ['u_ev',  'm3u', 0, 0, 'm3', 'todo', ['Usage events', 'meters document_report_standard_*', 'hybrid / auto / manual + country']],
+    ['u_agg', 'm3u', 0, 1, 'm3', 'todo', ['Aggregation per period', 'count per meter × segment', 'on the AccountPlan’s cycle']],
+    ['u_rate','m3u', 0, 2, 'm3', 'todo', ['Rate against the Pricing', 'bands → unit price', 'grants / Balance drawdown']],
+    ['u_bill','m3u', 0, 3, 'm3', 'todo', ['Bill', 'USAGE ×6 + STANDING_CHARGE', 'service period · locked']],
+    ['u_hook','m3u', 0, 4, 'm3', 'todo', ['Webhook', 'billing.bill.created / updated', '→ sync_bill.run(bill_id)']],
+    ['bs1', 'bs', 0, 0, 'ctl', 'design', ['1  ReadBill', 'USAGE lines + Pricing + AccountPlan', '→ ctx.snapshot']],
+    ['bs2', 'bs', 0, 1, 'ctl', 'design', ['2–3  Resolve account and lines', 'pricing → TUE → asset → child bucket', 'reverse mapping · 2 SOQL']],
+    ['bs4', 'bs', 0, 2, 'ctl', 'design', ['4  NetLines', 'total / overage / debited', 'pass-through until Balances']],
+    ['bs5', 'bs', 0, 3, 'ctl', 'design', ['5  UsageSummary · 6  Ratable', 'natural key, per line', 'create at New, update sans Status']],
+    ['bs7', 'bs', 0, 4, 'ctl', 'design', ['7  Liable summary (UBPI)', 'InProgress while the bill is open', 'ReadyForInvoicing when locked']],
+    ['bs8', 'bs', 0, 5, 'ctl', 'design', ['8  LinkAndBucket', 'back-links on a new summary', 'bucket overwrite only with --bucket']],
+    ['l_flow','uo', 0, 0, 'st', '', ['Orchestrate Usage Management', 'scheduled flow: active, never', 'scheduled · One Click demo flow']],
+    ['l_tj',  'uo', 0, 1, 'st', '', ['TransactionJournal', 'raw usage (0 rows)', 'not written: m3ter owns events']],
+    ['l_us',  'uo', 0, 2, 'st', '', ['UsageSummary', 'Create Usage Summary DPE', '6 rows written directly, 20 Oct']],
+    ['l_urs', 'uo', 0, 3, 'st', '', ['UsageRatableSummary', 'rating procedure · decision tables', '(0 rows)']],
+    ['l_ubpi','uo', 0, 4, 'bill', 'design', ['UsageBillingPeriodItem ×6', 'the liable summary · ReadyForInvoicing', 'asset = bucket = account target']],
+    ['b_bs',  'rcb', 0, 0, 'bill', '', ['BillingSchedule ×7', 'from activation (lane 1)', 'flat due 14 Oct · usage ×6 never close']],
+    ['b_gen', 'rcb', 0, 1, 'bill', '', ['Generate Invoices (Account)', 'or Billing Batch Scheduler', '→ Invoice Batch Run']],
+    ['b_bpi', 'rcb', 0, 2, 'bill', '', ['BillingPeriodItem', 'RelatedUsageBillPeriodItemId', '→ InvoiceLine (1 flat + 6 usage)']],
+    ['b_inv', 'rcb', 0, 3, 'bill', '', ['Invoice DOC-000000001', 'Draft · 1,000 + 100 mock tax', 'Net 30 · US legal entity']],
+    ['b_post','rcb', 0, 4, 'bill', 'todo', ['Post', 'schedule advances · UBPI Invoiced', 'void reverts to ReadyForInvoicing']],
+    ['b_rtel','rcb', 0, 5, 'bill', '', ['Revenue Transaction Error Log', 'on Account / Order / run', 'why an invoice did not appear']],
+    ['b_pol', 'rcb', 1, 0, 'bill', '', ['Billing policy → treatment → item', 'org default: USA - Advance', '(the product names none)']],
+    ['b_le',  'rcb', 1, 1, 'bill', '', ['Legal entity · payment term', 'Default Legal Entity - US', 'Default Payment Term (Net 30)']],
+    ['b_tax', 'rcb', 1, 2, 'bill', '', ['Tax treatment → engine', 'Default Tax Policy', 'RLM_MockTaxAdapter (10%)']],
+  ];
+  // edges: from, to, kind ('' creates/writes, 'soft' reads/resolves), label (vertical and gutter edges only)
+  const E = [
+    ['cat_p', 'cat_r', 'soft'], ['cat_r', 'cat_pur', ''], ['cat_pur', 'cat_rc', 'soft'], ['cat_rc', 'cat_pbe', 'soft'], ['cat_pbe', 'cat_dt', ''],
+    ['cat_p', 'q', '', 'quoted'], ['q', 'qlrce', ''], ['qlrce', 'ord', ''], ['ord', 'asset', ''], ['asset', 'tue', ''], ['tue', 'bsg', ''],
+    ['asset', 'arce', '', 'copies'], ['tue', 'renew', 'soft'],
+    ['ord', 'os1', '', 'activated order'], ['os1', 'os2', ''], ['os2', 'os3', ''], ['os3', 'os4', ''], ['os4', 'os5', ''], ['os5', 'osm', 'soft'],
+    ['os2', 'm_acc', '', 'creates'], ['os3', 'm_plan', '', 'creates'], ['os4', 'm_pr', '', 'creates ×6'], ['os5', 'm_ap', '', 'creates'], ['m_pre', 'm_plan', 'soft'],
+    ['m_acc', 'u_ev', '', 'metered'], ['m_ap', 'u_bill', '', 'billed under'], ['u_ev', 'u_agg', ''], ['u_agg', 'u_rate', ''], ['u_rate', 'u_bill', ''], ['u_bill', 'u_hook', ''],
+    ['m_pr', 'u_rate', 'soft', 'rates'], ['m_bal', 'u_rate', 'soft', 'draws down'],
+    ['u_hook', 'bs7', 'soft', 'triggers'], ['u_bill', 'bs1', '', 'the bill'],
+    ['bs1', 'bs2', ''], ['bs2', 'bs4', ''], ['bs4', 'bs5', ''], ['bs5', 'bs7', ''], ['bs7', 'bs8', ''],
+    ['bs5', 'l_us', '', 'writes'], ['bs5', 'l_urs', ''], ['bs7', 'l_ubpi', '', 'writes ×6'],
+    ['l_tj', 'l_us', 'soft'], ['l_us', 'l_urs', 'soft'], ['l_urs', 'l_ubpi', 'soft'], ['l_flow', 'l_tj', 'soft'],
+    ['l_ubpi', 'b_gen', '', 'read by the run'], ['b_bs', 'b_gen', ''], ['b_gen', 'b_bpi', ''], ['b_bpi', 'b_inv', ''], ['b_inv', 'b_post', ''], ['b_post', 'b_rtel', 'soft'],
+    ['b_pol', 'b_bs', 'soft', 'resolved'], ['b_le', 'b_bs', 'soft'], ['b_tax', 'b_bpi', 'soft', 'estimated tax'],
+  ];
+
+  // ---- draw lanes
+  const defs = el('defs', {}, [el('marker', { id: 'arrow', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, [el('path', { d: 'M0,0 L10,5 L0,10 z', fill: 'var(--fg-2)' })])]);
+  svg.append(defs);
+  for (const l of LANES) {
+    const g = el('g', {});
+    g.append(el('rect', { x: 26, y: l.y, width: 1348, height: l.h, rx: 6, fill: l.bg, class: 'lanebg' }));
+    g.append(el('rect', { x: 26, y: l.y, width: 46, height: l.h, rx: 6, fill: l.color }));
+    g.append(el('text', { x: 49, y: l.y + l.h / 2, class: 'lane', 'text-anchor': 'middle', transform: `rotate(-90 49 ${l.y + l.h / 2})` }, [l.code]));
+    const a = el('a', { href: 'index.html#' + l.page, target: '_top' });
+    a.append(el('text', { x: 90, y: l.y + 20, class: 'small', style: 'font-weight:600; fill:' + l.color + '; paint-order:stroke; stroke:' + l.bg + '; stroke-width:5px', 'text-anchor': 'start' }, [l.title + '  ↗']));
+    g.append(a); svg.append(g);
+  }
+  // ---- nodes
+  const pos = {};
+  const nodeG = el('g', {});
+  for (const [id, lane, row, col, kind, status, lines] of N) {
+    const x = COLX[col], y0 = LANE[lane].rowY[row];
+    pos[id] = { x, y: y0, w: BW, h: BH };
+    const g = el('g', { class: 'node', 'data-id': id });
+    g.append(el('rect', { x, y: y0, width: BW, height: BH, rx: 7, class: 'box ' + kind + (status ? ' ' + status : '') }));
+    g.append(el('text', { x: x + BW / 2, y: y0 + 22, 'text-anchor': 'middle', style: 'font-weight:600; font-size:' + (lines[0].length > 26 ? '11px' : '12px') }, [lines[0]]));
+    g.append(txt(x + BW / 2, y0 + 40, lines.slice(1).filter(Boolean), 'small'));
+    nodeG.append(g);
+  }
+  // ---- edges: neighbours in a row are straight; everything else runs through the gap between the two rows
+  const edgeG = el('g', {});
+  const edgeOf = {};
+  E.forEach(([a, b, kind, label]) => {
+    const A = pos[a], B = pos[b];
+    let d, lx, ly, anchor = 'start';
+    if (Math.abs(A.y - B.y) < 1) {
+      const dir = B.x > A.x ? 1 : -1, x1 = dir > 0 ? A.x + A.w : A.x, x2 = dir > 0 ? B.x : B.x + B.w, yy = A.y + A.h / 2;
+      d = `M${x1} ${yy} L${x2} ${yy}`; lx = (x1 + x2) / 2; ly = yy - 6; anchor = 'middle';
+    } else {
+      const down = B.y > A.y;
+      const xa = A.x + A.w / 2, xb = B.x + B.w / 2;
+      const y1 = down ? A.y + A.h : A.y, y2 = down ? B.y : B.y + B.h;
+      const gy = (y1 + y2) / 2;
+      d = Math.abs(xa - xb) < 1 ? `M${xa} ${y1} L${xa} ${y2}` : `M${xa} ${y1} L${xa} ${gy} L${xb} ${gy} L${xb} ${y2}`;
+      lx = xa + 6; ly = (Math.abs(xa - xb) < 1 ? gy : (y1 + gy) / 2) + 4;
+      if (Math.abs(xa - xb) >= 1) { lx = (xa + xb) / 2; ly = gy - 5; anchor = 'middle'; }
+    }
+    const p = el('path', { d, class: 'edge' + (kind ? ' ' + kind : '') });
+    edgeG.append(p); (edgeOf[a] = edgeOf[a] || []).push(p); (edgeOf[b] = edgeOf[b] || []).push(p);
+    if (label) edgeG.append(el('text', { x: lx, y: ly, class: 'lbl', 'text-anchor': anchor, 'paint-order': 'stroke', stroke: 'var(--card)', 'stroke-width': 4 }, [label]));
+  });
+  svg.append(edgeG); svg.append(nodeG);
+  // ---- hover: light up a node's edges
+  nodeG.querySelectorAll('g.node').forEach(g => {
+    const id = g.dataset.id;
+    g.addEventListener('pointerenter', () => { g.classList.add('hot'); (edgeOf[id] || []).forEach(p => { p.style.stroke = 'var(--accent)'; p.style.strokeWidth = '2.4'; }); });
+    g.addEventListener('pointerleave', () => { g.classList.remove('hot'); (edgeOf[id] || []).forEach(p => { p.style.stroke = ''; p.style.strokeWidth = ''; }); });
+  });
+})();
+</script>
+</main>
+</body>
+</html>

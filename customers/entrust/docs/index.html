@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrust on Revenue Cloud</title>
+<meta name="description" content="The end-to-end documentation set for Entrust on Revenue Cloud: catalog and pricing, the Document Check product, the order sync to m3ter, usage and billing, and the bill sync back. One page per step, in sequence.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Same palette as the design pages: blue = Salesforce / Revenue Cloud, teal = m3ter, purple = Python, grey = supporting. */
+:root {
+  --bg:#f7f8fa; --fg:#1c2230; --fg-2:#5b6472; --line:#d9dee6; --card:#ffffff; --side:#ffffff;
+  --sf:#2f6fcf; --sf-bg:#e8f0fb; --m3:#0f8a7a; --m3-bg:#e3f4f0; --ctl:#7a5cc4; --ctl-bg:#efe9fb;
+  --st:#6b7280; --st-bg:#eef0f3; --warn:#b4530a; --warn-bg:#fff4e8; --ok:#1f7a3f; --ok-bg:#e3f3e8;
+  --accent:#c2600f; --code-bg:#eef0f3;
+  --display:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sidebar:320px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#13171d; --fg:#e6e9ee; --fg-2:#9aa3b0; --line:#2b323c; --card:#1b2028; --side:#1b2028;
+  --sf:#7fb0f0; --sf-bg:#1a2a44; --m3:#4fcdb8; --m3-bg:#133530; --ctl:#b59cf0; --ctl-bg:#2a2340;
+  --st:#9aa3b0; --st-bg:#242a33; --warn:#f0a05a; --warn-bg:#3a2816; --ok:#6fd49a; --ok-bg:#163a26;
+  --accent:#f0a05a; --code-bg:#242a33; color-scheme:dark } }
+:root[data-theme="dark"] {
+  --bg:#13171d; --fg:#e6e9ee; --fg-2:#9aa3b0; --line:#2b323c; --card:#1b2028; --side:#1b2028;
+  --sf:#7fb0f0; --sf-bg:#1a2a44; --m3:#4fcdb8; --m3-bg:#133530; --ctl:#b59cf0; --ctl-bg:#2a2340;
+  --st:#9aa3b0; --st-bg:#242a33; --warn:#f0a05a; --warn-bg:#3a2816; --ok:#6fd49a; --ok-bg:#163a26;
+  --accent:#f0a05a; --code-bg:#242a33; color-scheme:dark }
+* { box-sizing:border-box }
+html, body { height:100%; margin:0 }
+body { background:var(--bg); color:var(--fg); font-family:var(--display); font-size:14px; line-height:1.5; display:flex; flex-direction:column }
+a { color:inherit }
+code { font-family:var(--mono); font-size:.86em; background:var(--code-bg); padding:1px 5px; border-radius:4px }
+button { font:inherit; color:inherit; cursor:pointer }
+:focus-visible { outline:2px solid var(--sf); outline-offset:2px }
+
+/* ---------- top bar ---------- */
+.top { flex:none; display:flex; align-items:center; gap:14px; padding:10px 18px; background:var(--side); border-bottom:1px solid var(--line) }
+.top h1 { margin:0; font-size:15px; font-weight:600; letter-spacing:-.005em; white-space:nowrap }
+.top .eyebrow { font-family:var(--mono); font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--fg-2); white-space:nowrap }
+.top .where { flex:1; min-width:0; font-size:13px; color:var(--fg-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.top .where b { color:var(--fg); font-weight:600 }
+.btn { height:30px; padding:0 10px; border:1px solid var(--line); border-radius:6px; background:var(--card); white-space:nowrap; font-size:13px }
+.btn:hover { border-color:var(--fg-2) }
+.btn[disabled] { opacity:.4; cursor:default }
+.btn.menu { display:none }
+
+/* ---------- layout ---------- */
+.shell { flex:1; min-height:0; display:flex }
+nav { flex:none; width:var(--sidebar); overflow-y:auto; background:var(--side); border-right:1px solid var(--line); padding:14px 0 24px }
+nav .grp { padding:6px 14px 2px }
+nav .grp > .h { display:flex; align-items:baseline; gap:9px; padding:8px 6px 4px; color:var(--fg); font-weight:600; font-size:13.5px; text-wrap:balance }
+nav .n { flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--fg-2); color:var(--fg-2); font:600 11px/19px var(--mono); text-align:center; position:relative; top:3px }
+nav .n.done { background:var(--ok-bg); border-color:var(--ok); color:var(--ok) }
+nav .n.design { background:var(--ctl-bg); border-color:var(--ctl); color:var(--ctl) }
+nav .n.todo { border-style:dashed }
+nav .item { display:block; width:100%; text-align:left; margin:2px 0; padding:7px 10px 7px 37px; border:1px solid transparent; border-radius:7px; background:none; color:var(--fg) }
+nav .item:hover { background:var(--st-bg) }
+nav .item[aria-current="page"] { background:var(--sf-bg); border-color:var(--sf) }
+nav .item .t { display:flex; align-items:center; gap:8px; font-weight:500; font-size:13.5px }
+nav .item .sub { font-family:var(--mono); font-size:.72rem; color:var(--fg-2); margin-right:2px }
+nav .item .d { display:block; font-size:12px; color:var(--fg-2); margin-top:2px; line-height:1.4 }
+.tag { display:inline-block; font-family:var(--mono); font-size:.66rem; letter-spacing:.04em; text-transform:uppercase; padding:0 6px; border-radius:999px; border:1px solid currentColor; line-height:16px; margin-left:auto; flex:none }
+.tag.done { color:var(--ok); background:var(--ok-bg) } .tag.design { color:var(--ctl); background:var(--ctl-bg) }
+.tag.todo { color:var(--warn); background:var(--warn-bg) } .tag.earlier { color:var(--st); background:var(--st-bg) }
+nav .side { padding:16px 20px 0; font-size:12px; color:var(--fg-2) }
+nav .side a { color:var(--fg-2) }
+
+.view { flex:1; min-width:0; position:relative; background:var(--bg) }
+.view iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:var(--bg) }
+.view .page { position:absolute; inset:0; overflow-y:auto; padding:28px 20px 60px }
+.page main { max-width:960px; margin:0 auto; display:grid; gap:28px }
+.page h2 { font-size:1.7rem; font-weight:600; margin:0; letter-spacing:-.01em; text-wrap:balance }
+.page h3 { font-size:1.05rem; font-weight:600; margin:0 0 8px }
+.page p { margin:0 0 10px; max-width:78ch }
+.card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px }
+.card.open { border-color:var(--warn); background:var(--warn-bg) }
+.grid2 { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px }
+.steps { list-style:none; margin:0; padding:0; display:grid; gap:10px }
+.steps li { display:grid; grid-template-columns:30px 1fr; gap:12px; align-items:start }
+.steps .n { width:26px; height:26px; border-radius:50%; border:1.5px solid var(--fg-2); color:var(--fg-2); font:600 12px/23px var(--mono); text-align:center }
+.steps .n.done { background:var(--ok-bg); border-color:var(--ok); color:var(--ok) }
+.steps .n.design { background:var(--ctl-bg); border-color:var(--ctl); color:var(--ctl) }
+.steps .n.todo { border-style:dashed }
+.steps b { font-weight:600 }
+.steps a { color:var(--sf); text-decoration:none } .steps a:hover { text-decoration:underline }
+.pill { display:inline-block; font-family:var(--mono); font-size:.72rem; padding:1px 8px; border-radius:999px; border:1px solid currentColor; margin-right:6px }
+.pill.sf { background:var(--sf-bg); color:var(--sf) } .pill.m3 { background:var(--m3-bg); color:var(--m3) } .pill.ctl { background:var(--ctl-bg); color:var(--ctl) }
+svg { width:100%; height:auto; display:block }
+svg text { font-family:var(--display); font-size:13px; fill:var(--fg) }
+svg text.mono { font-family:var(--mono); font-size:11.5px }
+svg text.small { font-size:11px; fill:var(--fg-2) }
+svg .box { stroke-width:1.2 }
+svg .box.sf { fill:var(--sf-bg); stroke:var(--sf) } svg .box.m3 { fill:var(--m3-bg); stroke:var(--m3) } svg .box.ctl { fill:var(--ctl-bg); stroke:var(--ctl) }
+svg .box.todo { fill:var(--warn-bg); stroke:var(--warn); stroke-dasharray:4 3 }
+svg .edge { fill:none; stroke:var(--fg-2); stroke-width:1.2 }
+.muted { color:var(--fg-2) }
+
+@media (max-width: 860px) {
+  .top { gap:10px; padding:8px 12px }
+  .top .where { display:none }
+  .btn.menu { display:inline-block }
+  nav { position:absolute; left:0; top:0; bottom:0; z-index:5; width:min(var(--sidebar), 88vw); transform:translateX(-102%); transition:transform .15s; box-shadow:6px 0 24px rgba(0,0,0,.12) }
+  nav.open { transform:none }
+  .shell { position:relative }
+}
+@media (prefers-reduced-motion: reduce) { nav { transition:none } }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <button class="btn menu" id="menu" aria-label="Open the contents">☰ Contents</button>
+  <div>
+    <div class="eyebrow">revenue-cloud-config · documents/entrust</div>
+    <h1>Entrust on Revenue Cloud — the documentation set</h1>
+  </div>
+  <div class="where" id="where"></div>
+  <button class="btn" id="prev" title="Previous page (←)">← Prev</button>
+  <button class="btn" id="next" title="Next page (→)">Next →</button>
+  <a class="btn" id="raw" href="#" target="_blank" rel="noopener" style="text-decoration:none; line-height:28px">Open page on its own ↗</a>
+</div>
+
+<div class="shell">
+  <nav id="nav" aria-label="Contents"></nav>
+  <div class="view" id="view"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  /* The sequence. Each page is a self-contained HTML file in this folder; the reader loads it in an iframe.
+     status: done = written and current · design = written, the code is not · todo = not yet written */
+  const GROUPS = [
+    { n: 0, title: 'The whole loop, on one diagram', status: 'done', pages: [
+      { id: 'end-to-end', file: 'end-to-end-flow.html', title: 'End-to-End Flow', status: 'done',
+        desc: 'Swim lanes per system in the shape of the product team\u2019s conversion diagram: catalog and activation, order sync, m3ter, the bill, bill sync, Billing \u2014 each box built, designed or still to run.' } ] },
+    { n: 1, title: 'Understand the Revenue Cloud product & pricing setup', status: 'done', pages: [
+      { id: 'catalog-data-model', file: 'claude-catalog-data-model.html', title: 'Claude Catalog Data Model', status: 'done',
+        desc: 'Interactive ERD of the 25 catalog, pricing, usage and rating objects the config builds — every field, every relationship, the load order.' } ] },
+    { n: 2, title: 'Set up the Document Check product, applying what 1 taught', status: 'done', pages: [
+      { id: 'console-walkthrough', file: 'document-check-console-walkthrough.html', title: 'Document Check Console Walkthrough', sub: '2.1', status: 'done',
+        desc: 'Building the Salesforce team’s design by hand in the console, step by step, with the SOQL to see what each step made.' },
+      { id: 'catalog-setup-guide', file: 'verification-catalog-setup-guide.html', title: 'Document Check Catalog Setup', sub: '2.2', status: 'done',
+        desc: 'The same build record by record, as rc-config describes it: object map, the thirteen config files, apply and verify, the test quote and order, landmines.' } ] },
+    { n: 3, title: 'Sync Revenue Cloud → m3ter (orders)', status: 'done', pages: [
+      { id: 'order-handler-structure', file: 'entrust-order-handler-structure.html', title: 'Entrust Order Handler', sub: '3.1', status: 'done',
+        desc: 'The existing m3sh workflows: how the eight exported workflows turn a Salesforce order into m3ter accounts, plans and balances.' },
+      { id: 'order-sync-design', file: 'order-sync-design.html', title: 'Order activation → m3ter sync', sub: '3.2', status: 'done',
+        desc: 'The Python port (demoscripts/ordersync): five bricks, the Salesforce → m3ter mapping tables, and the decisions behind them.' } ] },
+    { n: 4, title: 'Usage into m3ter, and running a bill', status: 'todo', pages: [
+      { id: 'usage-and-bill', file: null, title: 'Usage into m3ter and the first bill', status: 'todo',
+        desc: 'Placeholder: how usage events reach m3ter, how the plan rates them, and what the resulting bill looks like.' } ] },
+    { n: 5, title: 'Understand the Revenue Cloud Billing data model', status: 'done', pages: [
+      { id: 'billing-data-model', file: 'claude-billing-data-model.html', title: 'Claude Billing Data Model', status: 'done',
+        desc: 'Interactive ERD of the 29 objects between an activated order and a posted invoice, with a stage strip: setup → order → activation → usage → invoice.' } ] },
+    { n: 6, title: 'Sync m3ter → Revenue Cloud Billing (bills)', status: 'design', pages: [
+      { id: 'usage-data-structure', file: 'entrust-usage-data-structure.html', title: 'Entrust Usage Data Sync', sub: '6.1', status: 'done',
+        desc: 'The existing m3sh workflows: how four exported workflows turn one m3ter bill into Revenue Cloud’s usage chain, and what to settle before porting them.' },
+      { id: 'bill-sync-design', file: 'bill-sync-design.html', title: 'm3ter bill → Revenue Cloud sync', sub: '6.2', status: 'design',
+        desc: 'The Python port (demoscripts/billsync), designed and not yet built: eight bricks, the m3ter → Salesforce mapping tables, the open decisions.' } ] },
+  ];
+  const PAGES = GROUPS.flatMap(g => g.pages.map(p => ({ ...p, group: g })));
+  const BY_ID = Object.fromEntries(PAGES.map(p => [p.id, p]));
+  const TAG = { done: 'written', design: 'design', todo: 'not yet', earlier: 'earlier' };
+
+  const nav = document.getElementById('nav'), view = document.getElementById('view'), where = document.getElementById('where');
+  const prev = document.getElementById('prev'), next = document.getElementById('next'), raw = document.getElementById('raw');
+  const h = (tag, attrs, ...kids) => { const el = document.createElement(tag); for (const [k, v] of Object.entries(attrs || {})) { if (k === 'class') el.className = v; else if (k.startsWith('on')) el.addEventListener(k.slice(2), v); else el.setAttribute(k, v); } for (const kid of kids.flat()) if (kid != null) el.append(kid.nodeType ? kid : document.createTextNode(kid)); return el; };
+
+  function renderNav(current) {
+    nav.replaceChildren(
+      h('div', { class: 'grp' }, h('button', { class: 'item', 'aria-current': current === 'home' ? 'page' : null, onclick: () => go('home') }, h('span', { class: 't' }, 'Overview — the whole story on one page'))),
+      ...GROUPS.map(g => h('div', { class: 'grp' },
+        h('div', { class: 'h' }, h('span', { class: 'n ' + g.status }, String(g.n)), h('span', null, g.title)),
+        ...g.pages.map(p => h('button', { class: 'item', 'aria-current': current === p.id ? 'page' : null, onclick: () => go(p.id) },
+          h('span', { class: 't' }, p.sub ? h('span', { class: 'sub' }, p.sub) : null, p.title, h('span', { class: 'tag ' + p.status }, TAG[p.status])),
+          h('span', { class: 'd' }, p.desc))))),
+      h('div', { class: 'side' }, 'Every page is a file in this folder and works on its own; the ', h('code', null, 'README.md'), ' at the repo root is the running log behind them.'));
+    // remove the null attributes h() set as the string "null"
+    nav.querySelectorAll('[aria-current="null"]').forEach(el => el.removeAttribute('aria-current'));
+  }
+
+  function home() {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const S = (tag, attrs, ...kids) => { const el = document.createElementNS(svgNS, tag); for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v); for (const kid of kids.flat()) el.append(kid.nodeType ? kid : document.createTextNode(kid)); return el; };
+    const box = (x, y, w, t, cls, sub) => [S('rect', { x, y, width: w, height: sub ? 46 : 34, rx: 6, class: 'box ' + cls }), S('text', { x: x + w / 2, y: y + 21, 'text-anchor': 'middle', class: 'mono' }, t), sub ? S('text', { x: x + w / 2, y: y + 37, 'text-anchor': 'middle', class: 'small' }, sub) : null];
+    const svg = S('svg', { viewBox: '0 0 960 180', role: 'img', 'aria-label': 'The six steps: catalog, product, order sync, usage and bill, billing model, bill sync' },
+      S('text', { x: 10, y: 18, class: 'small' }, 'REVENUE CLOUD'), S('text', { x: 10, y: 118, class: 'small' }, 'M3TER'),
+      box(10, 30, 180, '1  catalog & pricing', 'sf', 'data model'), box(205, 30, 180, '2  Document Check', 'sf', 'console walkthrough'),
+      box(400, 30, 180, '5  billing model', 'sf', 'schedules → invoice'), box(595, 30, 175, '7  invoice', 'sf', 'Generate Invoices'),
+      box(205, 125, 180, '3  order sync', 'ctl', 'RC → m3ter'), box(400, 125, 180, '4  usage & bill', 'todo', 'in m3ter · to write'),
+      box(595, 125, 175, '6  bill sync', 'ctl', 'm3ter → RC · design'),
+      S('path', { d: 'M190 47 L205 47', class: 'edge' }), S('path', { d: 'M295 64 L295 125', class: 'edge' }), S('path', { d: 'M385 142 L400 142', class: 'edge' }),
+      S('path', { d: 'M580 142 L595 142', class: 'edge' }), S('path', { d: 'M682 125 L682 64', class: 'edge' }), S('path', { d: 'M580 47 L595 47', class: 'edge' }));
+    const li = (n, status, text, id) => h('li', null, h('span', { class: 'n ' + status }, String(n)), h('span', null, ...text, id ? [' ', h('a', { href: '#' + id }, '→ ' + BY_ID[id].title)] : null));
+    return h('div', { class: 'page' }, h('main', null,
+      h('div', null, h('h2', null, 'Entrust on Revenue Cloud, end to end'),
+        h('p', { class: 'muted', style: 'margin-top:8px' }, 'A customer buys Document Checks. Revenue Cloud holds the catalog, prices the quote and activates the order; m3ter meters the checks and rates them; the bill comes back into Revenue Cloud as usage lines on the invoice. These pages follow that loop in the order it was built — read them in sequence, or jump in with the contents on the left (← and → move through the set).')),
+      h('div', { class: 'card' }, svg,
+        h('p', { class: 'muted', style: 'font-size:12.5px; margin:10px 0 0' }, 'Every object and step on one page: ', h('a', { href: '#end-to-end' }, '→ the end-to-end flow diagram'), '.'),
+        h('p', { class: 'muted', style: 'font-size:12.5px; margin:10px 0 0' }, h('span', { class: 'pill sf' }, 'Revenue Cloud'), h('span', { class: 'pill ctl' }, 'Python sync'), h('span', { class: 'pill m3' }, 'm3ter'), ' Step 7 is a click in Revenue Cloud, not a document.')),
+      h('div', { class: 'card' }, h('h3', null, 'The sequence'),
+        h('ol', { class: 'steps' },
+          li(1, 'done', ['Understand how Revenue Cloud models a product and its prices — the catalog, pricing, usage and rating objects and how they hang together.'], 'catalog-data-model'),
+          li(2, 'done', ['Build the Document Check product the Salesforce team designed: by hand in the console, then as config the tool verifies record by record.'], 'catalog-setup-guide'),
+          li(3, 'done', ['Carry an activated order into m3ter: first the existing m3sh workflows, then the Python port that replaces them.'], 'order-sync-design'),
+          li(4, 'todo', ['Put usage into m3ter against that plan and run a bill. Not written yet.'], null),
+          li(5, 'done', ['Understand what order activation leaves behind for Billing, where usage goes, and how an invoice is generated.'], 'billing-data-model'),
+          li(6, 'design', ['Carry the m3ter bill back as Revenue Cloud liable summaries so the invoice carries the usage: the m3sh workflows, then the designed port.'], 'bill-sync-design'))),
+      h('div', { class: 'grid2' },
+        h('div', { class: 'card' }, h('h3', null, 'Where things stand (20 Oct 2026)'),
+          h('p', null, 'Order 00000102 is activated with its asset, wallet and seven billing schedules; a draft invoice DOC-000000001 bills the 1,000 USD flat line. The order sync has created the Acme account, plan, six pricings and the attachment in m3ter. Six usage summaries have been written for the first period. The bill sync is designed and waits on the first m3ter bill.')),
+        h('div', { class: 'card open' }, h('h3', null, 'Open questions the next steps answer'),
+          h('p', null, 'Which commitment card a quote line uses (both reach the asset today). Whether a liable summary must point at the parent or the child bucket. Whether a liable summary with no usage summary behind it is invoiced. Rates per country as region bands rather than USA / ANY.')))));
+  }
+
+  function placeholder(p) {
+    return h('div', { class: 'page' }, h('main', null,
+      h('div', null, h('span', { class: 'tag todo', style: 'margin:0 0 10px' }, 'not yet written'), h('h2', null, p.title)),
+      h('div', { class: 'card open' }, h('h3', null, 'What this page will cover'),
+        h('ul', null,
+          h('li', null, 'How usage events for Document Checks reach m3ter (the meter, the ingest path, the fields each event carries) against the plan the order sync attached.'),
+          h('li', null, 'How m3ter rates them: the aggregations per feature, the country segment, the negotiated pricings, and where a commitment Balance would sit.'),
+          h('li', null, 'Running the first bill for Acme and reading it: line items, service period, the quantities and amounts the bill sync (step 6) will carry back.')),
+        h('p', { class: 'muted' }, 'Until it exists, the m3ter side is described in passing by ', h('a', { href: '#order-sync-design' }, 'the order sync'), ' (what it creates in m3ter) and ', h('a', { href: '#usage-data-structure' }, 'the usage data workflows'), ' (what a bill contains when it arrives).'))));
+  }
+
+  let current = null;
+  function go(id) { if (location.hash !== '#' + id) location.hash = id; else route(); }
+  function route() {
+    const id = (location.hash || '#home').slice(1);
+    const p = BY_ID[id];
+    current = p ? id : 'home';
+    renderNav(current);
+    view.replaceChildren(!p ? home() : p.file ? h('iframe', { src: p.file, title: p.title }) : placeholder(p));
+    const i = p ? PAGES.indexOf(p) : -1;
+    prev.disabled = i <= 0 && !p ? true : false;
+    prev.onclick = () => go(i <= 0 ? 'home' : PAGES[i - 1].id);
+    next.disabled = i >= PAGES.length - 1;
+    next.onclick = () => go(i < 0 ? PAGES[0].id : PAGES[i + 1].id);
+    raw.href = p && p.file ? p.file : '#home'; raw.style.visibility = p && p.file ? 'visible' : 'hidden';
+    where.replaceChildren(p ? h('span', null, 'Step ', h('b', null, String(p.group.n) + (p.sub ? ' · ' + p.sub : '')), ' — ', h('b', null, p.title)) : 'Overview');
+    document.title = (p ? p.title + ' · ' : '') + 'Entrust on Revenue Cloud';
+    nav.classList.remove('open');
+  }
+  window.addEventListener('hashchange', route);
+  window.addEventListener('keydown', ev => { if (ev.target.closest('input, textarea')) return; if (ev.key === 'ArrowLeft' && !prev.disabled) prev.click(); if (ev.key === 'ArrowRight' && !next.disabled) next.click(); });
+  document.getElementById('menu').addEventListener('click', () => nav.classList.toggle('open'));
+  route();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Document Check Console Walkthrough</title>
+<style>
+  :root { --ink:#1b1f24; --muted:#5c6670; --line:#d9dee3; --bg:#ffffff; --panel:#f5f7f9; --accent:#0b5cad; --code:#f0f3f6; }
+  @media (prefers-color-scheme: dark) { :root { --ink:#e6e9ed; --muted:#9aa4ae; --line:#333a42; --bg:#14181c; --panel:#1c2128; --accent:#6cb2ff; --code:#1f252c; } }
+  html { background:var(--bg); }
+  body { margin:0; color:var(--ink); background:var(--bg); font:16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+  .wrap { display:grid; grid-template-columns: 260px minmax(0,1fr); gap:40px; max-width:1240px; margin:0 auto; padding:32px 24px 80px; }
+  nav { position:sticky; top:24px; align-self:start; font-size:14px; border-right:1px solid var(--line); padding-right:16px; max-height:calc(100vh - 48px); overflow:auto; }
+  nav ul { list-style:none; padding-left:0; margin:0; }
+  nav li { margin:6px 0; }
+  nav a { color:var(--muted); text-decoration:none; }
+  nav a:hover { color:var(--accent); }
+  main { min-width:0; }
+  h1 { font-size:30px; line-height:1.2; margin:0 0 8px; }
+  h2 { font-size:22px; margin:44px 0 12px; padding-top:12px; border-top:1px solid var(--line); }
+  h3 { font-size:17px; margin:28px 0 8px; }
+  p, li { max-width:78ch; }
+  code { font:13.5px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:var(--code); padding:1px 5px; border-radius:4px; }
+  pre { background:var(--code); border:1px solid var(--line); border-radius:6px; padding:12px 14px; overflow:auto; }
+  pre code { background:none; padding:0; white-space:pre; }
+  table { border-collapse:collapse; width:100%; margin:14px 0 20px; font-size:14.5px; }
+  th, td { border:1px solid var(--line); padding:7px 10px; vertical-align:top; text-align:left; }
+  th { background:var(--panel); }
+  tr:nth-child(even) td { background:color-mix(in srgb, var(--panel) 50%, var(--bg)); }
+  blockquote { border-left:3px solid var(--accent); margin:0; padding:2px 14px; color:var(--muted); }
+  a { color:var(--accent); }
+  @media (max-width: 900px) { .wrap { grid-template-columns:1fr; gap:16px; padding:16px; } nav { position:static; border-right:0; border-bottom:1px solid var(--line); padding:0 0 12px; max-height:none; } }
+  @media print { nav { display:none; } .wrap { display:block; } h2 { page-break-before:always; } pre { white-space:pre-wrap; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav aria-label="Contents"><div class="toc">
+<ul>
+<li><a href="#document-check-console-walkthrough">Document Check Console Walkthrough</a><ul>
+<li><a href="#before-you-start">Before you start</a></li>
+<li><a href="#step-0-the-unit-of-measure">Step 0 — The unit of measure</a></li>
+<li><a href="#step-1-the-feature-attribute-and-the-product">Step 1 — The feature attribute and the product</a></li>
+<li><a href="#step-2-usage-resources-one-per-feature-and-region">Step 2 — Usage resources, one per feature and region</a></li>
+<li><a href="#step-3-bind-the-resources-product-usage-resources-0-quantity-grants-policies-binding-policy">Step 3 — Bind the resources: product usage resources, 0-quantity grants, policies, binding policy</a></li>
+<li><a href="#step-4-rate-cards-list-no-commit-low-commit-full-commit">Step 4 — Rate cards: LIST, NO COMMIT, LOW COMMIT, FULL COMMIT</a></li>
+<li><a href="#step-5-the-commitment-three-custom-fields">Step 5 — The commitment: three custom fields</a></li>
+<li><a href="#step-6-refresh-the-decision-tables-and-the-catalog-index">Step 6 — Refresh the decision tables and the catalog index</a></li>
+<li><a href="#step-7-quote-order-asset-what-m3ter-will-read">Step 7 — Quote, order, asset: what m3ter will read</a></li>
+<li><a href="#checks">Checks</a></li>
+<li><a href="#tearing-it-down">Tearing it down</a></li>
+<li><a href="#back-to-rc-config">Back to rc-config</a></li>
+<li><a href="#appendix-the-platforms-own-commitment-not-in-their-design">Appendix — The platform's own commitment (not in their design)</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+<main>
+<h1 id="document-check-console-walkthrough">Document Check Console Walkthrough</h1>
+<p>13 October 2026 (v2, evening) · John Griffin · shared editable copy: the Claude doc "Document Check Console Walkthrough" · source of the design: <code>documents/entrust/Entrust Product and Pricing Requirements.pdf</code> (the Salesforce team's solution notes)</p>
+<p>A click-by-click build, in the m3ter-arm-260 org's own UI, of the Entrust Document Check product the way the Salesforce team has designed it: one Anchor product with a Feature Type attribute, one usage resource per feature and region, three rate cards (one per commitment model), the commitment as custom quote-line fields, and a quote → order → asset that carries the rates m3ter will read.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p><strong>The design we are matching</strong> (from the requirements notes and their five screenshots, 13 Oct):</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Their build</th>
+<th>What it means for this walkthrough</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Product</td>
+<td>One <strong>Anchor</strong>, Term <strong>Monthly</strong>, quantity 1, <strong>list price 0.00</strong>, Binding Type <em>Self</em></td>
+<td>One product serves all three selling models (confirmed by John); the list price stays 0 by design</td>
+</tr>
+<tr>
+<td>Feature choice</td>
+<td>A product attribute on the configuration screen, <em>Document Check – Feature Type</em>: Flash / Boost / Sherlock</td>
+<td>A classification with a picklist attribute; it is a <strong>selector for the usage resource</strong>, not price-impacting — all pricing lives on the resource (confirmed)</td>
+</tr>
+<tr>
+<td>Usage resources</td>
+<td>One per <strong>feature × country/region</strong>: <em>Document Check – Boost – USA</em>, <em>Document Check – Sherlock – USA</em> … (regions A–G later, by custom metadata)</td>
+<td>Four to start: Boost / Sherlock / Flash × USA, plus Boost × ANY as the second region; the pattern repeats</td>
+</tr>
+<tr>
+<td>Grants</td>
+<td>Each resource bound to the product with a grant of <strong>0 checks</strong>, Charge Overage <em>Yes</em></td>
+<td>All usage is overage, rated from the cards — exactly what <code>QB-DB</code> does for Compute Time</td>
+</tr>
+<tr>
+<td>Rate cards</td>
+<td>Named by commitment model: <em>Document Check – NO COMMIT</em> is a <strong>Tier</strong> card (Override 0.65 / 0.50 / 0.40 over 0–10k / 10k–25k / 25k+), with a Base entry supplying the <em>Current Rate</em> (5.75)</td>
+<td>Three cards: LIST (Base), NO COMMIT (Tier), LOW COMMIT (Tier); FULL COMMIT is a flat Base rate. Which card applies per <em>Willingness to Commit</em> is <strong>theirs to design later</strong> — this build proves the cards exist and reach the line</td>
+</tr>
+<tr>
+<td>The money</td>
+<td><strong>Not</strong> a platform Commit grant ("monetary commitments are not supported downstream"): custom fields <em>Estimated Usage Amount</em>, <em>Willingness to Commit</em> (default 100%), <em>Commitment Amount</em></td>
+<td>Step 5 creates the fields; the formula that fills <em>Commitment Amount</em> is their open question and out of scope here</td>
+</tr>
+<tr>
+<td>Downstream</td>
+<td>Order Product → <em>Order Product Rate Card Entries</em>; Asset → <em>Asset Rate Card Entries</em> go to m3ter; subscription/one-time products excluded</td>
+<td>Step 7 reads both objects back; it also answers their "Negotiated Rate shows 0" question</td>
+</tr>
+<tr>
+<td>Unquoted usage</td>
+<td>Bind every resource to the product, so the asset carries a default rate for all of them</td>
+<td>Confirmed as the intended answer; Step 3 binds all four</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What changed from the morning's version</strong>: no annual list price on the Anchor, no Commit grant on a USD resource (kept as an appendix), Term Monthly instead of Term Annual, the feature attribute is back, resources are named feature-first their way, and there are three rate cards instead of two.</p>
+<p><strong>Values used throughout</strong> (consistent with their naming; codes are ours — nothing a quote shows carries an m3ter identifier):</p>
+<table>
+<thead>
+<tr>
+<th>Thing</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Product</td>
+<td>Document Check, code <code>VC-DOC-CHECK</code>, Family Services, Usage Model Type Anchor, Configure During Sale Allowed</td>
+</tr>
+<tr>
+<td>Classification / attribute</td>
+<td>Classification <code>Document Check</code> (<code>PC-DOC-CHECK</code>); picklist <code>Document Check Feature Types</code> (<code>PL-DOC-CHECK-FEATURE</code>) with values Flash / Boost / Sherlock; attribute <code>Feature Type</code> (<code>ATTR-DOC-CHECK-FEATURE</code>)</td>
+</tr>
+<tr>
+<td>Selling model</td>
+<td>Term Monthly (pre-seeded)</td>
+</tr>
+<tr>
+<td>List price</td>
+<td>0.00 USD on the Standard Price Book</td>
+</tr>
+<tr>
+<td>Unit of measure</td>
+<td>Class <code>Verification Usage</code> (<code>UOM-CLASS-VERIFICATION-USAGE</code>), unit <code>Verification Check</code> (<code>VERIFICATION-CHECK</code>)</td>
+</tr>
+<tr>
+<td>Usage resources</td>
+<td><code>Document Check - Boost - USA</code> (<code>RES-DOC-CHECK-BOOST-USA</code>), <code>Document Check - Sherlock - USA</code> (<code>RES-DOC-CHECK-SHERLOCK-USA</code>), <code>Document Check - Flash - USA</code> (<code>RES-DOC-CHECK-FLASH-USA</code>), <code>Document Check - Boost - ANY</code> (<code>RES-DOC-CHECK-BOOST-ANY</code>)</td>
+</tr>
+<tr>
+<td>Rate cards</td>
+<td><code>Document Check - LIST</code> (Base), <code>Document Check - NO COMMIT</code> (Tier), <code>Document Check - LOW COMMIT</code> (Tier), <code>Document Check - FULL COMMIT</code> (Base, flat); all Effective From 1/1/2025 12:00 PM, all on the Standard Price Book</td>
+</tr>
+<tr>
+<td>Custom fields (Quote Line Item and Order Product)</td>
+<td><code>Estimated_Usage_Amount__c</code> Number(16,2), <code>Willingness_To_Commit__c</code> Picklist (100% default, 75%, 50%, 25%, 10%, 0%), <code>Commitment_Amount__c</code> Currency(16,2)</td>
+</tr>
+<tr>
+<td>Dates</td>
+<td>Effective Start Date 1/1/2025 12:00 PM on every record that asks for one</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Already in the org, never create again:</strong> the Standard Price Book, the nine selling models, the <em>Currency</em> class with the USD unit, the <em>Default Usage Overage Policy</em>, the rating-frequency policies. <strong>Still in the org from 7 Oct and worth clearing first</strong> (README § "Where we left off" has the Apex): 11 <code>RES-VC-*</code> resources with orphaned product-usage-resource rows and <em>Rate Card D</em> with 11 Active entries. They do not collide with the codes above, but they clutter every list.</p>
+<p><strong>Order matters.</strong> Unit class → unit → attribute picklist → attribute → classification → product → resources → bindings, grants, policies → rate cards → entries → tiers → custom fields → decision-table refresh + catalog index → quote. Lifecycle records are created Draft and activated afterwards; an activated rate-card entry never returns to Draft.</p>
+<p><strong>Watching it in SOQL.</strong> Each step ends with a <em>See what you made</em> block: paste the queries into Workbench (queries → SOQL Query, tick <em>Bulk</em> off) or the Developer Console Query Editor. They select the descriptive fields, not counts, so you can read the record back the way the form showed it. Two habits: <code>WHERE CreatedDate = TODAY</code> finds everything you made today on any object, and a <code>Name</code> that a form shows (<code>PUR-000000012</code>) is not always queryable at the console's API version — the queries below avoid the ones that are refused.</p>
+<h2 id="step-0-the-unit-of-measure">Step 0 — The unit of measure</h2>
+<p>The usage resources need a class and a unit. Order and fields matter — learned on 13 Oct when a unit saved on its own could not be activated from the UI.</p>
+<ol>
+<li>App Launcher → <strong>Unit of Measure Classes</strong> → <strong>New</strong>: Name <code>Verification Usage</code>, Code <code>UOM-CLASS-VERIFICATION-USAGE</code>, Type <strong>Usage</strong>, Status <strong>Draft</strong> (the only status it accepts on insert), Default Unit Of Measure blank → Save.</li>
+<li>App Launcher → <strong>Units of Measure</strong> → <strong>New</strong>: Name <code>Verification Check</code>, Unit Code <code>VERIFICATION-CHECK</code>, Type <strong>Count</strong>, <strong>Unit of Measure Class = Verification Usage</strong>, Status <strong>Active</strong> → Save. The class must be on the unit at creation; a unit saved without one has no status and <em>Activate</em> does nothing to it.</li>
+<li>Back on the class: Default Unit Of Measure = Verification Check, Status <strong>Active</strong> → Save.</li>
+</ol>
+<p>If a unit is already stuck without a class, repair it by Apex (Developer Console → Debug → Open Execute Anonymous Window): set <code>UnitOfMeasureClassId</code> and <code>Status = 'Active'</code> on the unit, <code>update</code>, then <code>Status = 'Active'</code> on the class, <code>update</code>. Two rules for later steps: a rate-card entry's <strong>Rate Unit Of Measure is USD</strong>, never this unit (the form refuses: <em>"Select a rate unit of measure that's linked to a Token or Currency unit of measure class"</em>), and the class and unit point at each other, so a teardown blanks the class's default unit before deleting either.</p>
+<p><strong>See what you made (Step 0)</strong></p>
+<pre><code class="language-sql">SELECT Id, Name, Code, Type, Status, DefaultUnitOfMeasure.UnitCode FROM UnitOfMeasureClass WHERE Code = 'UOM-CLASS-VERIFICATION-USAGE'
+SELECT Id, Name, UnitCode, Type, Status, Scale, UnitOfMeasureClass.Code, UnitOfMeasureClass.Status FROM UnitOfMeasure WHERE UnitCode = 'VERIFICATION-CHECK'
+</code></pre>
+<p>Expect the class Active with default unit <code>VERIFICATION-CHECK</code>, and the unit Active, Type Count, class <code>UOM-CLASS-VERIFICATION-USAGE</code> — a unit with a blank class here is the one the UI cannot activate.</p>
+<h2 id="step-1-the-feature-attribute-and-the-product">Step 1 — The feature attribute and the product</h2>
+<p>The product is an Anchor based on a classification that carries one required picklist attribute, <em>Feature Type</em>. The rep picks Flash / Boost / Sherlock on the configuration screen; the value is written to the quote line as a <code>QuoteLineItemAttribute</code> and selects which usage resource the usage lands on. It does not price anything itself. This is the 7 Oct recipe with the attribute re-keyed from country to feature.</p>
+<p><strong>1a. The picklist and the attribute</strong> (App Launcher → the object name → New):</p>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Attribute Picklist</td>
+<td>Name / Code / Data Type / Status</td>
+<td><code>Document Check Feature Types</code> / <code>PL-DOC-CHECK-FEATURE</code> / Text / Active</td>
+</tr>
+<tr>
+<td>Attribute Picklist Value (×3, from the picklist's Related tab)</td>
+<td>Name / Code / Value / Sequence / Status</td>
+<td><code>Flash</code> / <code>FLASH</code> / <code>Flash</code> / 1 / Active; <code>Boost</code> / <code>BOOST</code> / <code>Boost</code> / 2 / Active; <code>Sherlock</code> / <code>SHERLOCK</code> / <code>Sherlock</code> / 3 / Active (no default — the rep must choose)</td>
+</tr>
+<tr>
+<td>Attribute Definition</td>
+<td>Name / Label / Code / Developer Name / Data Type / Picklist / Active</td>
+<td><code>Feature Type</code> / <code>Document Check - Feature Type</code> / <code>ATTR-DOC-CHECK-FEATURE</code> / <code>Document_Check_Feature_Type</code> / Picklist / Document Check Feature Types / ticked</td>
+</tr>
+</tbody>
+</table>
+<p>A destroyed attribute definition keeps its Developer Name for 15 days; if the org stores <code>Document_Check_Feature_Type1</code>, accept it — nothing reads it (project landmine).</p>
+<p><strong>1b. The classification</strong>: App Launcher → <strong>Product Classifications</strong> → <strong>New</strong>: Name <code>Document Check</code>, Code <code>PC-DOC-CHECK</code>, Status Active → Save. On its Related tab → <strong>Product Classification Attributes → New</strong>: Attribute Definition <em>Feature Type</em>, Sequence 1, Status Active, <strong>Required ticked, Price Impacting unticked</strong> → Save, then open the row and save it once more (the org ignores <em>Required</em> on insert and keeps it on update — 7 Oct landmine).</p>
+<p><strong>1c. The product</strong>: App Launcher → <strong>Products</strong> → <strong>New</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Product Name</td>
+<td><code>Document Check</code></td>
+<td>Appears on the quote line and the configuration screen</td>
+</tr>
+<tr>
+<td>Product Code</td>
+<td><code>VC-DOC-CHECK</code></td>
+<td>Commercial name only</td>
+</tr>
+<tr>
+<td>Product Type</td>
+<td>blank</td>
+<td><code>Base</code> would make it a variation parent that cannot be sold</td>
+</tr>
+<tr>
+<td>Quantity Unit Of Measure</td>
+<td>Each</td>
+<td>As <code>QB-DB</code></td>
+</tr>
+<tr>
+<td>Product Currency</td>
+<td>USD - U.S. Dollar</td>
+<td></td>
+</tr>
+<tr>
+<td>Product Family</td>
+<td>Services</td>
+<td></td>
+</tr>
+<tr>
+<td>Active</td>
+<td>ticked</td>
+<td></td>
+</tr>
+<tr>
+<td>Configure During Sale</td>
+<td><strong>Allowed</strong></td>
+<td>Opens the configuration screen where the attribute is chosen</td>
+</tr>
+<tr>
+<td>Based On</td>
+<td><strong>Document Check</strong> (the classification)</td>
+<td>Inherits the Feature Type attribute</td>
+</tr>
+<tr>
+<td>Is Assetizable</td>
+<td>ticked</td>
+<td></td>
+</tr>
+<tr>
+<td>Usage Model Type</td>
+<td><strong>Anchor</strong></td>
+<td>Their Product Type on <em>Manage Usage Resources</em> is Anchor</td>
+</tr>
+</tbody>
+</table>
+<p>Save, then on the product: <strong>Related List Quick Links → Product Selling Model Option → New</strong>: Product Selling Model <strong>Term Monthly</strong>, Default ticked → Save. Then <strong>Price Books → Add Standard Price</strong>: Active ticked, Product Selling Model <strong>Term Monthly</strong>, List Price <code>0</code>, Currency USD → Save. The <em>Inherited Attributes</em> quick link should now show <em>Feature Type</em>. A price-book entry without a selling model leaves Billing Frequency blank on the quote and cannot be fixed afterwards, so check the row.</p>
+<p>Optional: <strong>Categories → New</strong>, a <em>Document Checks</em> category in an <em>Entrust Catalog</em> (App Launcher → Product Catalogs → New, then Product Categories → New). Without it the product is only reachable on a quote through <em>Add Product</em> search, which is enough.</p>
+<p><strong>See what you made (Step 1)</strong></p>
+<pre><code class="language-sql">-- 1a the picklist, its values, the attribute
+SELECT Id, Name, Code, DataType, Status FROM AttributePicklist WHERE Code = 'PL-DOC-CHECK-FEATURE'
+SELECT Id, Name, Code, Value, Sequence, IsDefault, Status FROM AttributePicklistValue WHERE Picklist.Code = 'PL-DOC-CHECK-FEATURE' ORDER BY Sequence
+SELECT Id, Name, Label, Code, DeveloperName, DataType, IsActive, Picklist.Code FROM AttributeDefinition WHERE Code = 'ATTR-DOC-CHECK-FEATURE'
+
+-- 1b the classification and its attribute row
+SELECT Id, Name, Code, Status FROM ProductClassification WHERE Code = 'PC-DOC-CHECK'
+SELECT Id, Name, AttributeDefinition.Code, Sequence, Status, IsRequired, IsPriceImpacting FROM ProductClassificationAttr WHERE ProductClassification.Code = 'PC-DOC-CHECK'
+
+-- 1c the product, its selling model, its price-book entry, its catalog placement
+SELECT Id, Name, ProductCode, Family, IsActive, IsAssetizable, UsageModelType, ConfigureDuringSale, BasedOn.Code, QuantityUnitOfMeasure FROM Product2 WHERE ProductCode = 'VC-DOC-CHECK'
+SELECT Id, Name, ProductSellingModel.Name, ProductSellingModel.SellingModelType, IsDefault, Status FROM ProductSellingModelOption WHERE Product2.ProductCode = 'VC-DOC-CHECK'
+SELECT Id, Pricebook2.Name, ProductSellingModel.Name, UnitPrice, CurrencyIsoCode, IsActive, UseStandardPrice FROM PricebookEntry WHERE Product2.ProductCode = 'VC-DOC-CHECK'
+SELECT Id, Product.ProductCode, ProductCategory.Name, ProductCategory.Catalog.Name, IsPrimaryCategory FROM ProductCategoryProduct WHERE Product.ProductCode = 'VC-DOC-CHECK'
+</code></pre>
+<p>The <code>DeveloperName</code> may come back suffixed (<code>Document_Check_Feature_Type1</code>) if an earlier attribute with that name was destroyed in the last 15 days; <code>IsRequired</code> must read <code>true</code> — if it is <code>false</code>, re-save the classification-attribute row once more. On the price-book entry, <code>ProductSellingModel.Name</code> must not be blank.</p>
+<h2 id="step-2-usage-resources-one-per-feature-and-region">Step 2 — Usage resources, one per feature and region</h2>
+<p>Their rule: a usage resource for every combination of attributes that prices differently — feature (Flash / Boost / Sherlock) and country or region. Four to start. App Launcher → <strong>Usage Resources</strong> → <strong>New</strong>, same form each time:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Code</th>
+<th>Status</th>
+<th>Unit of Measure Class</th>
+<th>Default Unit Of Measure</th>
+<th>Category</th>
+<th>Usage Definition Product</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Document Check - Boost - USA</code></td>
+<td><code>RES-DOC-CHECK-BOOST-USA</code></td>
+<td>Draft</td>
+<td>Verification Usage</td>
+<td>Verification Check</td>
+<td>Usage</td>
+<td>Document Check</td>
+</tr>
+<tr>
+<td><code>Document Check - Sherlock - USA</code></td>
+<td><code>RES-DOC-CHECK-SHERLOCK-USA</code></td>
+<td>Draft</td>
+<td>Verification Usage</td>
+<td>Verification Check</td>
+<td>Usage</td>
+<td>Document Check</td>
+</tr>
+<tr>
+<td><code>Document Check - Flash - USA</code></td>
+<td><code>RES-DOC-CHECK-FLASH-USA</code></td>
+<td>Draft</td>
+<td>Verification Usage</td>
+<td>Verification Check</td>
+<td>Usage</td>
+<td>Document Check</td>
+</tr>
+<tr>
+<td><code>Document Check - Boost - ANY</code></td>
+<td><code>RES-DOC-CHECK-BOOST-ANY</code></td>
+<td>Draft</td>
+<td>Verification Usage</td>
+<td>Verification Check</td>
+<td>Usage</td>
+<td>Document Check</td>
+</tr>
+</tbody>
+</table>
+<p>Token Resource blank. Save &amp; New between them; then open each and set <strong>Status = Active</strong>. <em>Usage Definition Product</em> looks optional and is not: a rate-card entry for the resource is refused without it ("no usage product related to the selected usage resource").</p>
+<p>The region mechanism (which countries fall into A–G, and which resource a quote's country selects) is theirs to build with custom metadata; the resource naming above leaves room for it (<code>- USA</code>, <code>- ANY</code>, later <code>- REGION-B</code> …).</p>
+<p><strong>See what you made (Step 2)</strong></p>
+<pre><code class="language-sql">SELECT Id, Name, Code, Category, Status, UnitOfMeasureClass.Code, DefaultUnitOfMeasure.UnitCode, UsageDefinitionProduct.ProductCode FROM UsageResource WHERE Code LIKE 'RES-DOC-CHECK-%' ORDER BY Code
+</code></pre>
+<p>Four rows, all Active, class and unit from Step 0, <code>UsageDefinitionProduct.ProductCode = VC-DOC-CHECK</code> on every one — a blank there is what makes the rate-card entry fail in Step 4.</p>
+<h2 id="step-3-bind-the-resources-product-usage-resources-0-quantity-grants-policies-binding-policy">Step 3 — Bind the resources: product usage resources, 0-quantity grants, policies, binding policy</h2>
+<p>Four <em>Product Usage Resource</em> rows, each with a <strong>Grant of 0 checks</strong> and a policy that charges overage — that is what makes <em>Manage Usage Resources</em> show "0 Checks" and an <em>Applicable Rate</em> for every resource, as in their screenshot, and what makes the asset carry a default rate for unquoted usage.</p>
+<ol>
+<li>On the product, <strong>Related List Quick Links → Show All → Product Usage Resources → New</strong>, four times: Status <strong>Active</strong>, Product <em>Document Check</em>, Usage Resource = each of the four, Effective Start Date 1/1/2025 12:00 PM, Optional unticked → Save. Note each <code>PUR-…</code> number.</li>
+<li>Open each PUR → Related → <strong>Product Usage Grants → New</strong>:</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Label</td>
+<td><code>Document Check - &lt;feature&gt; - &lt;region&gt; grant</code></td>
+</tr>
+<tr>
+<td>Status</td>
+<td>Draft, then Active</td>
+</tr>
+<tr>
+<td>Drawdown Order</td>
+<td>Expiring First</td>
+</tr>
+<tr>
+<td>Product Usage Resource</td>
+<td>the PUR</td>
+</tr>
+<tr>
+<td>Quantity</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td>Unit Of Measure Class</td>
+<td>Verification Usage</td>
+</tr>
+<tr>
+<td>Unit Of Measure</td>
+<td>Verification Check</td>
+</tr>
+<tr>
+<td>Usage Definition Products</td>
+<td>Document Check</td>
+</tr>
+<tr>
+<td>Type</td>
+<td><strong>Grant</strong></td>
+</tr>
+<tr>
+<td>Validity Period Term / Unit</td>
+<td>blank / <strong>None</strong> (their screenshot shows <em>Validity Period Unit: None</em>)</td>
+</tr>
+<tr>
+<td>Effective Start Date</td>
+<td>1/1/2025, 12:00 PM</td>
+</tr>
+</tbody>
+</table>
+<p>Save, re-open, Status <strong>Active</strong>.</p>
+<ol>
+<li>Still on each PUR → Related → <strong>Product Usage Resource Policies → New</strong>: Usage Overage Policy <strong>Default Usage Overage Policy</strong> (this is <em>Charge Overage: Yes</em> on the quote), Rating Frequency Policy blank (as theirs), the rest blank → Save.</li>
+<li>App Launcher → <strong>Usage Product Grant Binding Policies</strong> → <strong>New</strong>: Name <code>Document Check Grant Binding</code>, Product <em>Document Check</em>, Grant Binding Type <strong>Self</strong> → Save. Without it <em>Manage Usage Resources</em> shows empty resource tables (project landmine); with it the header shows <em>Binding Type: Self</em>, as in their screenshot.</li>
+<li>Product → <strong>More → Usage Product Validator → Validate</strong>. Expect <em>"Validation complete! Your product is configured and ready to use."</em></li>
+</ol>
+<p><strong>See what you made (Step 3)</strong></p>
+<pre><code class="language-sql">-- the four bindings (no Name column on this object at the console's API version)
+SELECT Id, Product.ProductCode, UsageResource.Code, Status, EffectiveStartDate, IsOptional FROM ProductUsageResource WHERE Product.ProductCode = 'VC-DOC-CHECK' ORDER BY UsageResource.Code
+
+-- the four 0-quantity grants
+SELECT Id, Label, Type, Quantity, UnitOfMeasure.UnitCode, UnitOfMeasureClass.Code, ValidityPeriodTerm, ValidityPeriodUnit, DrawdownOrder, Status, ProductUsageResource.UsageResource.Code, UsageDefinitionProduct.ProductCode FROM ProductUsageGrant WHERE ProductUsageResource.Product.ProductCode = 'VC-DOC-CHECK' ORDER BY ProductUsageResource.UsageResource.Code
+
+-- the four policies
+SELECT Id, ProductUsageResource.UsageResource.Code, UsageOveragePolicy.Name, RatingFrequencyPolicy.Name, UsageCommitmentPolicy.Name FROM ProductUsageResourcePolicy WHERE ProductUsageResource.Product.ProductCode = 'VC-DOC-CHECK'
+
+-- the binding policy
+SELECT Id, Name, Product2.ProductCode, GrantBindingType FROM UsagePrdGrantBindingPolicy WHERE Product2.ProductCode = 'VC-DOC-CHECK'
+</code></pre>
+<p>Grants: <code>Type = Grant</code>, <code>Quantity = 0</code>, <code>ValidityPeriodUnit = None</code>, Active. Policies: <code>Default Usage Overage Policy</code>, the other two blank. Binding: one row, <code>Self</code>. If <code>IsOptional</code> is refused at your API version, drop it from the first query.</p>
+<h2 id="step-4-rate-cards-list-no-commit-low-commit-full-commit">Step 4 — Rate cards: LIST, NO COMMIT, LOW COMMIT, FULL COMMIT</h2>
+<p>Their screenshot of <em>Manage Usage Resources</em> shows two things on one resource: a <em>Current Rate</em> of 5.75 USD (from a Base entry) and <em>Tiered Rates</em> 0.65 / 0.50 / 0.40 (from the <em>Document Check – NO COMMIT</em> Tier entry). Build those two cards first and get the quote to show exactly that; then add the other two cards and watch what the quote picks — that is the experiment behind their open question (one product, three selling models).</p>
+<p>Do this in the <strong>Rate Management</strong> app (App Launcher → Rate Management): a rate card there has a <strong>Rate Card Entries</strong> tab, and <em>New</em> on a Tier card is a two-page wizard — page 1 the entry (no Rate field; Rate Negotiation defaults to Negotiable), <strong>Next</strong> the tiers (Lower Bound, Upper Bound, Adjustment Type, Adjustment Value, <strong>Add Tier</strong>). In the Revenue Cloud app the plain form appears instead and the tiers are added from the entry's Related tab → <em>Rate Adjustments By Tier → New</em>. Same records either way.</p>
+<p><strong>4a. <code>Document Check - LIST</code> (Base)</strong> — Rate Cards → New: Name, Rate Card Type <strong>Base</strong>, Effective From 1/1/2025 12:00 PM → Save. Then one entry per resource:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Boost – USA</th>
+<th>Sherlock – USA</th>
+<th>Flash – USA</th>
+<th>Boost – ANY</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Usage Resource</td>
+<td>the resource</td>
+<td>the resource</td>
+<td>the resource</td>
+<td>the resource</td>
+</tr>
+<tr>
+<td>Product</td>
+<td>Document Check</td>
+<td>Document Check</td>
+<td>Document Check</td>
+<td>Document Check</td>
+</tr>
+<tr>
+<td>Product Selling Model</td>
+<td>Term Monthly</td>
+<td>Term Monthly</td>
+<td>Term Monthly</td>
+<td>Term Monthly</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>Draft</td>
+<td>Draft</td>
+<td>Draft</td>
+<td>Draft</td>
+</tr>
+<tr>
+<td>Rate Unit Of Measure</td>
+<td><strong>USD</strong></td>
+<td>USD</td>
+<td>USD</td>
+<td>USD</td>
+</tr>
+<tr>
+<td>Rate (USD per check)</td>
+<td><code>5.75</code></td>
+<td><code>6.50</code></td>
+<td><code>2.00</code></td>
+<td><code>6.25</code></td>
+</tr>
+<tr>
+<td>Rate Negotiation</td>
+<td>Negotiable</td>
+<td>Negotiable</td>
+<td>Negotiable</td>
+<td>Negotiable</td>
+</tr>
+<tr>
+<td>Effective From</td>
+<td>1/1/2025, 12:00 PM</td>
+<td>same</td>
+<td>same</td>
+<td>same</td>
+</tr>
+</tbody>
+</table>
+<p><strong>4b. <code>Document Check - NO COMMIT</code> (Tier)</strong> — Rate Cards → New, Rate Card Type <strong>Tier</strong>. One entry per resource exactly as above but <strong>no Rate</strong>, then the tiers (their numbers for Boost – USA; scale the others):</p>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Tier</th>
+<th>Lower Bound</th>
+<th>Upper Bound</th>
+<th>Adjustment Type</th>
+<th>Adjustment Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Boost – USA</td>
+<td>1</td>
+<td>0</td>
+<td>10000</td>
+<td>Override</td>
+<td>0.65</td>
+</tr>
+<tr>
+<td>Boost – USA</td>
+<td>2</td>
+<td>10000</td>
+<td>25000</td>
+<td>Override</td>
+<td>0.50</td>
+</tr>
+<tr>
+<td>Boost – USA</td>
+<td>3</td>
+<td>25000</td>
+<td>blank</td>
+<td>Override</td>
+<td>0.40</td>
+</tr>
+<tr>
+<td>Sherlock – USA</td>
+<td>1 / 2 / 3</td>
+<td>0 / 10000 / 25000</td>
+<td>10000 / 25000 / blank</td>
+<td>Override</td>
+<td>1.60 / 1.30 / 1.10</td>
+</tr>
+<tr>
+<td>Flash – USA</td>
+<td>1 / 2 / 3</td>
+<td>0 / 10000 / 25000</td>
+<td>10000 / 25000 / blank</td>
+<td>Override</td>
+<td>0.45 / 0.35 / 0.30</td>
+</tr>
+<tr>
+<td>Boost – ANY</td>
+<td>1 / 2 / 3</td>
+<td>0 / 10000 / 25000</td>
+<td>10000 / 25000 / blank</td>
+<td>Override</td>
+<td>0.75 / 0.60 / 0.50</td>
+</tr>
+</tbody>
+</table>
+<p><strong>4c. Activate and link, then check the quote (Step 6 + 7) before going further.</strong> Open each entry → Status <strong>Active</strong> (LIST first, then NO COMMIT). App Launcher → <strong>Price Book Rate Cards</strong> → New: Standard Price Book + <em>Document Check - LIST</em>; again for <em>Document Check - NO COMMIT</em>.</p>
+<p><strong>4d. The other two commitment models</strong> — after the quote shows 5.75 with the three tiers:</p>
+<ul>
+<li><code>Document Check - LOW COMMIT</code> (Tier): same entries, steeper graduated tiers (Boost – USA: 0.55 / 0.45 / 0.38).</li>
+<li><code>Document Check - FULL COMMIT</code> (Base): same entries with the flat, most-discounted rate (Boost – USA <code>0.40</code>).</li>
+</ul>
+<p>Link both to the Standard Price Book, refresh the tables, re-open the quote and record in the README which Base rate and which tier set the line shows. Two Base cards and two Tier cards on one price book for the same product and resource is the situation their <em>Willingness to Commit</em> mechanism will have to resolve; today the org's own rule decides, and knowing that rule is the point of 4d.</p>
+<p>Rules that held all day: <em>Rate Unit Of Measure</em> is the unit the rate is expressed in (USD); a Tier card entry takes no Rate; bounds chain (upper of one = lower of the next, last upper blank); <em>Override</em> replaces the base rate for the band, <em>Percentage 0</em> keeps it; entries never return to Draft.</p>
+<p><strong>See what you made (Step 4)</strong></p>
+<pre><code class="language-sql">-- the cards
+SELECT Id, Name, Type, EffectiveFrom, EffectiveTo FROM RateCard WHERE Name LIKE 'Document Check - %' ORDER BY Type, Name
+
+-- every entry, with the card it sits on
+SELECT Id, Name, RateCard.Name, RateCard.Type, UsageResource.Code, ProductSellingModel.Name, Rate, RateUnitOfMeasure.UnitCode, RateNegotiation, Status, EffectiveFrom FROM RateCardEntry WHERE Product.ProductCode = 'VC-DOC-CHECK' ORDER BY RateCard.Name, UsageResource.Code
+
+-- the tiers, grouped by resource
+SELECT Id, Name, RateCardEntry.RateCard.Name, RateCardEntry.UsageResource.Code, LowerBound, UpperBound, AdjustmentType, AdjustmentValue, RateCardEntryStatus FROM RateAdjustmentByTier WHERE RateCardEntry.Product.ProductCode = 'VC-DOC-CHECK' ORDER BY RateCardEntry.RateCard.Name, RateCardEntry.UsageResource.Code, LowerBound
+
+-- the price-book links
+SELECT Id, Name, PriceBook.Name, RateCard.Name, RateCard.Type FROM PriceBookRateCard WHERE RateCard.Name LIKE 'Document Check - %'
+</code></pre>
+<p>Base entries carry a <code>Rate</code>; Tier entries show it blank and their tiers underneath; <code>RateUnitOfMeasure.UnitCode</code> is <code>USD</code> everywhere; <code>RateCardEntryStatus</code> on a tier mirrors its entry. After 4d, the second query is where you watch the four cards side by side.</p>
+<h2 id="step-5-the-commitment-three-custom-fields">Step 5 — The commitment: three custom fields</h2>
+<p>Their design keeps the money off the platform's commitment objects and in three custom fields on the line, shown on the configuration screen and as line-editor columns: <em>Estimated Usage Amount</em> where quantity normally sits, <em>Commitment Amount</em> in the summary total, <em>Willingness to Commit</em> as a percentage picklist. The formula that fills <em>Commitment Amount</em> (estimated usage × the flat rate × willingness) is their open question — the fields are built here, the calculation is not.</p>
+<p><strong>5a. Fields</strong> — Setup → Object Manager → <strong>Quote Line Item</strong> → Fields &amp; Relationships → <strong>New</strong>, three times; then the same three on <strong>Order Product</strong> (<code>OrderItem</code>) so the values travel with <em>Create Order</em>:</p>
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th>API Name</th>
+<th>Type</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Estimated Usage Amount</td>
+<td><code>Estimated_Usage_Amount__c</code></td>
+<td>Number</td>
+<td>Length 16, Decimal Places 2</td>
+</tr>
+<tr>
+<td>Willingness to Commit</td>
+<td><code>Willingness_To_Commit__c</code></td>
+<td>Picklist</td>
+<td>Values <code>100%</code>, <code>75%</code>, <code>50%</code>, <code>25%</code>, <code>10%</code>, <code>0%</code>; default <code>100%</code>; restrict to values</td>
+</tr>
+<tr>
+<td>Commitment Amount</td>
+<td><code>Commitment_Amount__c</code></td>
+<td>Currency</td>
+<td>Length 16, Decimal Places 2</td>
+</tr>
+</tbody>
+</table>
+<p>Field-level security: visible to System Administrator at least; add to the page layouts when the wizard offers it. The org has no custom fields on Quote Line Item today beyond the <code>RLM_*</code> ones Salesforce ships, so there is nothing to collide with.</p>
+<p><strong>5b. Columns in the quote line editor</strong> — the editor's columns are set in <strong>Lightning App Builder on the Quote record page: select the Quote Line Editor component and add the three fields to its column list</strong> (verify the exact property name in the org when you get there; this is the one step of the guide not yet clicked through). Their mockup shows <em>Estimated Usage Amount</em> and <em>Commitment Amount</em> as columns beside Start Date and List Price. Showing them on the <strong>product configuration screen</strong> (their first mockup) is a configurator customization and stays with their team.</p>
+<p><strong>See what you made (Step 5)</strong> — custom fields are metadata, so the query is against the schema, not a record:</p>
+<pre><code class="language-sql">SELECT EntityDefinition.QualifiedApiName, QualifiedApiName, Label, DataType FROM FieldDefinition WHERE EntityDefinition.QualifiedApiName IN ('QuoteLineItem', 'OrderItem') AND QualifiedApiName LIKE '%__c' ORDER BY EntityDefinition.QualifiedApiName, QualifiedApiName
+</code></pre>
+<p>Six rows of yours among the <code>RLM_*</code> fields Salesforce ships. (<code>FieldDefinition</code> queries need the console's <em>Use Tooling API</em> box unticked — it is a standard object here.)</p>
+<h2 id="step-6-refresh-the-decision-tables-and-the-catalog-index">Step 6 — Refresh the decision tables and the catalog index</h2>
+<p>Nothing from steps 1–5 reaches a quote until these run.</p>
+<ol>
+<li><strong>Revenue Cloud app → Home</strong> → <strong>Click here to Build Catalog Index</strong> (new product + classification + attribute); wait for it to finish.</li>
+<li><strong>Refresh Pricing Decision Tables</strong> (Incremental Refresh on) — covers <code>Price_Book_Entry_Decision_Table_v2</code>, <code>Pricebook_Rate_Card_Decision_Table</code> and the attribute tables.</li>
+<li><strong>Setup → Decision Tables</strong>, one at a time: <code>Rate_Card_Entries_2</code>, <code>Rate_Card_Entry_Resolution_Entries_2</code>, <code>Rate_Adjustment_by_Tier_Entries_2</code>, <code>Rate_Adjustment_by_Tier_Resolution_Decision_Table</code>, <code>Tier_based_Rate_Adjustment_by_Rate_Card_Entry_ID</code>.</li>
+<li>Check: <code>SELECT DeveloperName, RefreshStatus, LastSyncDate FROM DecisionTable WHERE DeveloperName LIKE 'Rate_%' OR DeveloperName LIKE 'Price%' OR DeveloperName LIKE 'Tier%'</code> — all <em>Completed</em>, synced after your edits. About 100 refreshes an hour; a refresh with nothing changed moves no timestamp.</li>
+</ol>
+<p><strong>See what happened (Step 6)</strong></p>
+<pre><code class="language-sql">SELECT DeveloperName, RefreshStatus, LastSyncDate, LastIncrementalSyncDate, RefreshFailureReason FROM DecisionTable WHERE DeveloperName LIKE 'Rate_%' OR DeveloperName LIKE 'Price%' OR DeveloperName LIKE 'Tier%' OR DeveloperName LIKE 'Attribute%' ORDER BY DeveloperName
+</code></pre>
+<p>A refresh may move only <code>LastIncrementalSyncDate</code>; <code>RefreshFailureReason</code> blank is what you want.</p>
+<h2 id="step-7-quote-order-asset-what-m3ter-will-read">Step 7 — Quote, order, asset: what m3ter will read</h2>
+<ol>
+<li><strong>Quotes → New</strong>: Quote Name <code>DOCCHECK-2026</code>, Opportunity <em>Alloy - auto-renewal May 2025</em> (Account <code>001Ws000066vHLnIAM</code>), Start Date 1/1/2026, <code>RLM_TermMonths__c</code> 12, Currency USD → Save.</li>
+<li><strong>Add Product</strong> → <code>Document Check</code> → Return → pick it. Because the product is <em>Configure During Sale: Allowed</em> with a required attribute, the <strong>configuration screen</strong> opens (or use <em>Configure</em> on the row): choose <strong>Feature Type = Boost</strong>, quantity 1 → Save &amp; Exit. Expect on the line: Product Selling Model <em>Term Monthly</em>, List Price <em>0.00</em>, the warning triangle gone once the attribute is set.</li>
+<li>Row action → <strong>Manage Usage Resources</strong>. Expect the header <em>Product Type Anchor · PSM Term Monthly · Quantity 1 · List Price USD 0.00 · Binding Type Self</em> and four resources, each <em>0 Checks</em> with an <em>Applicable Rate</em> — Boost – USA <strong>5.75 USD</strong> with a tiers icon. Click it → <strong>Rates</strong>: <em>Current Rate 5.75 USD</em>, <em>Tiered Rates</em> Tier 1–3 Override 0.65 / 0.50 / 0.40, <em>Charge Overage Yes</em>. That is their screenshot, reproduced.</li>
+<li>Negotiate one: pencil beside <em>Current Rate</em>, enter <code>0.60</code>, save. Now read back: <code>SELECT UsageResource.Code, RateCard.Name, NegotiatedRate, IsChosenRate FROM QuoteLineRateCardEntry WHERE QuoteLineItem.Quote.Name = 'DOCCHECK-2026'</code>. <strong>This answers their "Negotiated Rate shows 0" question</strong>: <code>NegotiatedRate</code> is populated only on the resource whose <em>Current Rate</em> the rep edited; every other row carries no negotiated rate and the price is the linked <code>RateCardEntry.Rate</code> plus its <code>RateAdjustmentByTier</code> rows. An integration must read both (7 Oct proved the same on the Alloy quote: seven negotiated, five blank).</li>
+<li><strong>Create Order</strong> (quote header action → Create Single Order → Finish), open the order → <strong>Activate</strong>. Then read the handoff objects: <code>SELECT RateCardEntry.Name, NegotiatedRate, RateUnitOfMeasure.UnitCode FROM OrderItemRateCardEntry WHERE OrderItem.Order.OrderNumber = '&lt;n&gt;'</code> and, on the asset the activation creates, <code>SELECT RateCardEntry.Name, NegotiatedRate FROM AssetRateCardEntry WHERE Asset.Product2.ProductCode = 'VC-DOC-CHECK'</code> plus <code>SELECT LowerBound, UpperBound, AdjustmentType, AdjustmentValue FROM AssetRateAdjustment</code> — the tier copies on the asset. Those four rows per resource are what goes to m3ter.</li>
+<li>Record what 4d showed once LOW COMMIT and FULL COMMIT exist: which Base rate the line picked and which tier set.</li>
+</ol>
+<p><strong>Why this matches the three issues of the morning.</strong> One product, resources for every combination (issue 1); the money is <em>Commitment Amount</em> on the line and the rates on the cards — the 0.00 list price is by design, not a defect (issue 2, re-answered); two lines for two countries are told apart by the attribute on the line and the resource under it (issue 3).</p>
+<p><strong>See what you made (Step 7)</strong></p>
+<pre><code class="language-sql">-- the quote and its one line
+SELECT Id, Name, Status, Account.Name, Opportunity.Name, StartDate, RLM_TermMonths__c, CurrencyIsoCode FROM Quote WHERE Name = 'DOCCHECK-2026'
+SELECT Id, Product2.ProductCode, Quantity, UnitPrice, ProductSellingModel.Name, StartDate, EndDate, SubscriptionTerm, PricingTermCount FROM QuoteLineItem WHERE Quote.Name = 'DOCCHECK-2026'
+
+-- the attribute the rep chose, and the rate entries copied to the line
+SELECT AttributeName, AttributeValue, IsPriceImpacting FROM QuoteLineItemAttribute WHERE QuoteLineItem.Quote.Name = 'DOCCHECK-2026'
+SELECT Id, Name, UsageResource.Code, RateCard.Name, RateCardEntry.Name, NegotiatedRate, IsChosenRate, RateUnitOfMeasure.UnitCode FROM QuoteLineRateCardEntry WHERE QuoteLineItem.Quote.Name = 'DOCCHECK-2026' ORDER BY UsageResource.Code, RateCard.Name
+
+-- after Create Order: the order, its line, its rate entries (what m3ter reads first)
+SELECT Id, OrderNumber, Status, Quote.Name, EffectiveDate FROM Order WHERE Quote.Name = 'DOCCHECK-2026'
+SELECT Id, Product2.ProductCode, Quantity, UnitPrice, ServiceDate, EndDate FROM OrderItem WHERE Order.Quote.Name = 'DOCCHECK-2026'
+SELECT Id, Name, RateCardEntry.Name, RateCardEntry.RateCard.Name, RateCardEntry.UsageResource.Code, NegotiatedRate, RateUnitOfMeasure.UnitCode FROM OrderItemRateCardEntry WHERE OrderItem.Order.Quote.Name = 'DOCCHECK-2026'
+
+-- after Activate: the asset and its rate entries + tier copies (what m3ter reads for the contract)
+SELECT Id, Name, Product2.ProductCode, Account.Name, Status, CreatedDate FROM Asset WHERE Product2.ProductCode = 'VC-DOC-CHECK'
+SELECT Id, Name, RateCardEntry.Name, RateCardEntry.RateCard.Name, RateCardEntry.UsageResource.Code, NegotiatedRate FROM AssetRateCardEntry WHERE Asset.Product2.ProductCode = 'VC-DOC-CHECK'
+SELECT Id, Name, LowerBound, UpperBound, AdjustmentType, AdjustmentValue FROM AssetRateAdjustment WHERE CreatedDate = TODAY
+
+-- everything else the activation generated (the records the teardown has to unwind)
+SELECT Id, Name, Status FROM BillingSchedule WHERE CreatedDate = TODAY
+SELECT Id, Name FROM BillingScheduleGroup WHERE CreatedDate = TODAY
+SELECT Id, Name FROM UsageEntitlementAccount WHERE CreatedDate = TODAY
+SELECT Id, Name, ParentId, UsageResource.Code FROM UsageEntitlementBucket WHERE CreatedDate = TODAY
+SELECT Id, Name FROM TransactionUsageEntitlement WHERE CreatedDate = TODAY
+SELECT Id, Name FROM BindingObjUsageRsrcPlcy WHERE CreatedDate = TODAY
+SELECT Id, Name, StageName, Account.Name FROM Opportunity WHERE CreatedDate = TODAY
+</code></pre>
+<p><code>NegotiatedRate</code> is blank on every row except the resource whose <em>Current Rate</em> you edited — that is the answer to the "shows 0" question, in data. <code>BillingSchedule</code> has no <code>Name</code> at some API versions; if refused, select <code>Id, Status, UsageResourceId</code> instead.</p>
+<h2 id="checks">Checks</h2>
+<p>Developer Console → Query Editor. Read a <code>COUNT()</code> from the <em>Total Rows</em> header — an empty grid is not zero.</p>
+<table>
+<thead>
+<tr>
+<th>After</th>
+<th>Query</th>
+<th>Expect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td><code>SELECT UnitCode, Status, UnitOfMeasureClass.Code, UnitOfMeasureClass.Status FROM UnitOfMeasure WHERE UnitCode = 'VERIFICATION-CHECK'</code></td>
+<td>Active · UOM-CLASS-VERIFICATION-USAGE · Active</td>
+</tr>
+<tr>
+<td>1a</td>
+<td><code>SELECT Code, DeveloperName, IsActive, Picklist.Code FROM AttributeDefinition WHERE Code = 'ATTR-DOC-CHECK-FEATURE'</code></td>
+<td>1 row, active, PL-DOC-CHECK-FEATURE</td>
+</tr>
+<tr>
+<td>1b</td>
+<td><code>SELECT IsRequired, IsPriceImpacting, Status FROM ProductClassificationAttr WHERE ProductClassification.Code = 'PC-DOC-CHECK'</code></td>
+<td>true · false · Active</td>
+</tr>
+<tr>
+<td>1c</td>
+<td><code>SELECT ProductCode, UsageModelType, ConfigureDuringSale, BasedOn.Code FROM Product2 WHERE ProductCode = 'VC-DOC-CHECK'</code></td>
+<td>Anchor · Allowed · PC-DOC-CHECK</td>
+</tr>
+<tr>
+<td>1c</td>
+<td><code>SELECT ProductSellingModel.Name, UnitPrice, IsActive FROM PricebookEntry WHERE Product2.ProductCode = 'VC-DOC-CHECK'</code></td>
+<td>Term Monthly · 0 · true</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>SELECT Code, Status, UsageDefinitionProduct.ProductCode FROM UsageResource WHERE Code LIKE 'RES-DOC-CHECK-%'</code></td>
+<td>4 rows, Active, VC-DOC-CHECK</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>SELECT UsageResource.Code, Status FROM ProductUsageResource WHERE Product.ProductCode = 'VC-DOC-CHECK'</code></td>
+<td>4 rows, Active</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>SELECT ProductUsageResource.UsageResource.Code, Type, Quantity, ValidityPeriodUnit, Status FROM ProductUsageGrant WHERE ProductUsageResource.Product.ProductCode = 'VC-DOC-CHECK'</code></td>
+<td>4 rows, Grant · 0 · None · Active</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>SELECT ProductUsageResource.UsageResource.Code, UsageOveragePolicy.Name FROM ProductUsageResourcePolicy WHERE ProductUsageResource.Product.ProductCode = 'VC-DOC-CHECK'</code></td>
+<td>4 rows, Default Usage Overage Policy</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>SELECT Product2.ProductCode, GrantBindingType FROM UsagePrdGrantBindingPolicy WHERE Product2.ProductCode = 'VC-DOC-CHECK'</code></td>
+<td>1 row, Self</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>SELECT RateCard.Name, RateCard.Type, UsageResource.Code, Rate, Status FROM RateCardEntry WHERE Product.ProductCode = 'VC-DOC-CHECK' ORDER BY RateCard.Name</code></td>
+<td>LIST 4 rows with rates; NO COMMIT 4 rows, Rate blank; all Active</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>SELECT RateCardEntry.RateCard.Name, RateCardEntry.UsageResource.Code, LowerBound, UpperBound, AdjustmentValue FROM RateAdjustmentByTier WHERE RateCardEntry.Product.ProductCode = 'VC-DOC-CHECK' ORDER BY RateCardEntry.UsageResource.Code, LowerBound</code></td>
+<td>12 rows (3 per resource)</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>SELECT PriceBook.Name, RateCard.Name FROM PriceBookRateCard WHERE RateCard.Name LIKE 'Document Check - %'</code></td>
+<td>2 rows (4 after 4d), Standard Price Book</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>SELECT QualifiedApiName, DataType FROM FieldDefinition WHERE EntityDefinition.QualifiedApiName = 'QuoteLineItem' AND QualifiedApiName LIKE '%Commit%'</code></td>
+<td>Willingness_To_Commit__c, Commitment_Amount__c</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>SELECT AttributeName, AttributeValue FROM QuoteLineItemAttribute WHERE QuoteLineItem.Quote.Name = 'DOCCHECK-2026'</code></td>
+<td>Feature Type · Boost</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>SELECT UsageResource.Code, NegotiatedRate FROM QuoteLineRateCardEntry WHERE QuoteLineItem.Quote.Name = 'DOCCHECK-2026'</code></td>
+<td>one row per resource per card; NegotiatedRate only on the edited one</td>
+</tr>
+</tbody>
+</table>
+<p>Relationship names that worked in this org: <code>Product2</code> on the binding policy, <code>ProductUsageResource.Product</code> on grants and policies, <code>RateCardEntry.Product</code> on tiers, <code>Picklist</code> on the attribute definition; <code>Product</code> on the binding policy and <code>Name</code> on a grant are refused.</p>
+<h2 id="tearing-it-down">Tearing it down</h2>
+<p>Done once already on 13 Oct, 17:38, for the morning build. <code>rc-config destroy</code> cannot do this: nothing here is owned by a config, and an <strong>activated order</strong> leaves six kinds of record that block the catalog and have their own rules. The proven script is <code>scripts/teardown-after-assetization.apex</code> in the repo — anonymous Apex, one transaction, so a refused line changes nothing and names the next dependant. For this build change its <code>EDIT</code> lines to the new codes (<code>VC-DOC-CHECK</code>, <code>RES-DOC-CHECK-%</code>, <code>Document Check - %</code> cards, <code>PC-DOC-CHECK</code>, <code>PL-DOC-CHECK-FEATURE</code>, <code>ATTR-DOC-CHECK-FEATURE</code>) and add the attribute objects after the products: <code>ProductClassificationAttr</code> → <code>ProductClassification</code> → <code>AttributeDefinition</code> → <code>AttributePicklistValue</code> → <code>AttributePicklist</code>. The custom fields stay (Setup metadata, harmless).</p>
+<table>
+<thead>
+<tr>
+<th>Record</th>
+<th>Rule learned</th>
+<th>What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Billing Schedule (one per order item, points at the usage resource)</td>
+<td>No <code>delete()</code> at all; <code>UsageResourceId</code> is read-only</td>
+<td>Delete its <strong>Billing Schedule Group</strong> — the schedules cascade</td>
+</tr>
+<tr>
+<td>Usage Entitlement Bucket</td>
+<td>A tree via <code>ParentId</code>; parents refuse before children</td>
+<td>Delete leaves first, in a loop</td>
+</tr>
+<tr>
+<td>Usage Entitlement Entry, Transaction Usage Entitlement, Usage Entitlement Account, Binding Object Usage Resource Policy (<code>BindingObjUsageRsrcPlcy</code>)</td>
+<td>Each blocks the asset, named one at a time</td>
+<td>Delete in that order</td>
+</tr>
+<tr>
+<td>Asset</td>
+<td>Blocked by all of the above; its own rate entries and tiers cascade</td>
+<td>Delete after them</td>
+</tr>
+<tr>
+<td>Order, Activated</td>
+<td>Cannot be deleted</td>
+<td>Status back to Draft, then delete (items cascade)</td>
+</tr>
+<tr>
+<td>Quote, Renewal Forecast Opportunity</td>
+<td>The opportunity is auto-created and holds the price-book entries</td>
+<td>Delete both before the price-book entries</td>
+</tr>
+</tbody>
+</table>
+<p>Then the catalog in reverse: rate-card entries Active → Inactive → delete (tiers cascade), price-book rate cards, rate cards, price-book entries, selling-model options, resource policies, grants, product usage resources (Active → Inactive), usage resources (Active → Inactive), category products, category, catalog, products, attribute objects, and last the unit class (default unit blanked, Inactive) and the unit. Probe a doubtful delete first: <code>Database.setSavepoint()</code> … <code>Database.rollback(sp)</code> … <code>System.assert(false, msg)</code>.</p>
+<h2 id="back-to-rc-config">Back to rc-config</h2>
+<p>This is the shape <code>models/build_entrust_config.py</code> should generate next. Against the current <code>main</code> config (one Pack product, twelve resources, one Base card):</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Change to the generator</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Product</td>
+<td><code>UsageModelType</code> Pack → <strong>Anchor</strong>; <code>ConfigureDuringSale</code> Allowed; <code>BasedOnId</code> → the classification; Term Monthly stays; <code>UnitPrice</code> 0.00 stays</td>
+</tr>
+<tr>
+<td>Attribute</td>
+<td><code>01-attributes.json</code> and <code>02-classifications.json</code> return, keyed on Feature Type (Flash / Boost / Sherlock), <code>IsPriceImpacting</code> false, <code>IsRequired</code> true — the <code>ORG_MAY_SUFFIX</code> landmine applies again</td>
+</tr>
+<tr>
+<td>Resources</td>
+<td>Feature × region naming (<code>RES-DOC-CHECK-&lt;FEATURE&gt;-&lt;REGION&gt;</code>); the generator's rows gain a region column</td>
+</tr>
+<tr>
+<td>Bindings</td>
+<td>Per resource: <code>ProductUsageResource</code> + <code>ProductUsageGrant</code> (Type Grant, Quantity 0, <code>ValidityPeriodUnit</code> None) + <code>ProductUsageResourcePolicy</code> (overage policy, lookup-only) + one <code>UsagePrdGrantBindingPolicy</code> Self — the grant file from <code>config/claude/08-grants.json</code> is the template</td>
+</tr>
+<tr>
+<td>Rate cards</td>
+<td>Four cards: <code>09b</code> becomes LIST (Base), new <code>09c-no-commit-tiers.json</code> and <code>09d-low-commit-tiers.json</code> (Type Tier, entries without <code>Rate</code>, <code>RateAdjustmentByTier</code> rows), <code>09e-full-commit.json</code> (Base, flat); the simulated org needs <code>RateAdjustmentByTier</code> and a rule for which Base/Tier card a quote picks, learned in 4d</td>
+</tr>
+<tr>
+<td>Commitment</td>
+<td>No commitment records; the three custom fields are Setup metadata, outside the tool (a <code>metadata/</code> note in the README is enough)</td>
+</tr>
+</tbody>
+</table>
+<p>Settle 4d (card selection) and the Negotiated Rate read-back before touching the generator; record both in README § "Where we left off". Teardown first with the script, then the usual order: <code>check</code> → <code>plan</code> → <code>apply</code> → <code>apply</code> → <code>verify</code>.</p>
+<h2 id="appendix-the-platforms-own-commitment-not-in-their-design">Appendix — The platform's own commitment (not in their design)</h2>
+<p>The morning version put a <code>Commit</code> grant of 15,000 USD on the Anchor's USD resource with the <em>Lowest Rate</em> policy and a 1-year validity — the shape of the org's <code>QB-MTY-CMT</code> sample. Their design does not use it ("monetary commitments are not supported downstream"), so it is out of the main path. It remains the one untested question from the morning: whether an Anchor accepts a <code>Commit</code> grant at all. If there is a spare hour, add a PUR on the pre-seeded <em>USD Resource</em> with a Commit grant and run the Usage Product Validator; whatever it says, write it in the README.</p>
+</main>
+</div>
+</body>
+</html>

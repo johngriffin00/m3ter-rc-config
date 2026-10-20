@@ -1,0 +1,156 @@
+{
+  "_comment": "One Usage-category resource per metered product, plus one Currency-category resource for the spend commitment (the org's own QB-MTY-CMT sample has exactly this shape). Every UsageDefinitionProductId points FORWARD at a product in 06; rc-config fills it in once the product exists.",
+  "objects": [
+    {
+      "sobject": "UsageResource",
+      "match_fields": [
+        "Code"
+      ],
+      "records": [
+        {
+          "@id": "RES_DocumentReportStandardHybrid",
+          "Name": "Document Check - Boost Checks",
+          "Code": "RES-DOCUMENT-REPORT-STANDARD-HYBRID",
+          "Category": "Usage",
+          "Status": "Active",
+          "Description": "One per m3ter meter `document_report_standard_hybrid` (aggregation `document_report_standard_hybrid_count`); rated per check on the EUR rate card.",
+          "DefaultUnitOfMeasureId": "@ref:UOM_Check",
+          "UnitOfMeasureClassId": "@ref:UOMCLASS_Verification",
+          "UsageDefinitionProductId": "@ref:P_DocumentReportStandardHybrid"
+        },
+        {
+          "@id": "RES_DocumentReportStandardAuto",
+          "Name": "Document Check - Flash Checks",
+          "Code": "RES-DOCUMENT-REPORT-STANDARD-AUTO",
+          "Category": "Usage",
+          "Status": "Active",
+          "Description": "One per m3ter meter `document_report_standard_auto` (aggregation `document_report_standard_auto_count`); rated per check on the EUR rate card.",
+          "DefaultUnitOfMeasureId": "@ref:UOM_Check",
+          "UnitOfMeasureClassId": "@ref:UOMCLASS_Verification",
+          "UsageDefinitionProductId": "@ref:P_DocumentReportStandardAuto"
+        },
+        {
+          "@id": "RES_DocumentReportStandardManual",
+          "Name": "Document Check - Sherlock Checks",
+          "Code": "RES-DOCUMENT-REPORT-STANDARD-MANUAL",
+          "Category": "Usage",
+          "Status": "Active",
+          "Description": "One per m3ter meter `document_report_standard_manual` (aggregation `document_report_standard_manual_count`); rated per check on the EUR rate card.",
+          "DefaultUnitOfMeasureId": "@ref:UOM_Check",
+          "UnitOfMeasureClassId": "@ref:UOMCLASS_Verification",
+          "UsageDefinitionProductId": "@ref:P_DocumentReportStandardManual"
+        },
+        {
+          "@id": "RES_DocumentReportDriverVerification",
+          "Name": "Document Check - Driver Verification Checks",
+          "Code": "RES-DOCUMENT-REPORT-DRIVER-VERIFICATION",
+          "Category": "Usage",
+          "Status": "Active",
+          "Description": "One per m3ter meter `document_report_driver_verification` (aggregation `document_report_driver_verification_count`); rated per check on the EUR rate card.",
+          "DefaultUnitOfMeasureId": "@ref:UOM_Check",
+          "UnitOfMeasureClassId": "@ref:UOMCLASS_Verification",
+          "UsageDefinitionProductId": "@ref:P_DocumentReportDriverVerification"
+        },
+        {
+          "@id": "RES_Autofill",
+          "Name": "OCR Autofill Checks",
+          "Code": "RES-AUTOFILL",
+          "Category": "Usage",
+          "Status": "Active",
+          "Description": "One per m3ter meter `autofill` (aggregation `autofill_count`); rated per check on the EUR rate card.",
+          "DefaultUnitOfMeasureId": "@ref:UOM_Check",
+          "UnitOfMeasureClassId": "@ref:UOMCLASS_Verification",
+          "UsageDefinitionProductId": "@ref:P_Autofill"
+        },
+        {
+          "@id": "RES_FacialSimilarityReportStandard",
+          "Name": "Facial Similarity Check - Selfie Hybrid Checks",
+          "Code": "RES-FACIAL-SIMILARITY-REPORT-STANDARD",
+          "Category": "Usage",
+          "Status": "Active",
+          "Description": "One per m3ter meter `facial_similarity_report_standard` (aggregation `facial_similarity_report_standard_count`); rated per check on the EUR rate card.",
+          "DefaultUnitOfMeasureId": "@ref:UOM_Check",
+          "UnitOfMeasureClassId": "@ref:UOMCLASS_Verification",
+          "UsageDefinitionProductId": "@ref:P_FacialSimilarityReportStandard"
+        },
+        {
+          "@id": "RES_FacialSimilarityReportVideo",
+          "Name": "Facial Similarity Check - Video Checks",
+          "Code": "RES-FACIAL-SIMILARITY-REPORT-VIDEO",
+          "Category": "Usage",
+          "Status": "Active",
+          "Description": "One per m3ter meter `facial_similarity_report_video` (aggregation `facial_similarity_report_video_count`); rated per check on the EUR rate card.",
+          "DefaultUnitOfMeasureId": "@ref:UOM_Check",
+          "UnitOfMeasureClassId": "@ref:UOMCLASS_Verification",
+          "UsageDefinitionProductId": "@ref:P_FacialSimilarityReportVideo"
+        },
+        {
+          "@id": "RES_FacialSimilarityReportMotion",
+          "Name": "Facial Similarity Check - Motion Checks",
+          "Code": "RES-FACIAL-SIMILARITY-REPORT-MOTION",
+          "Category": "Usage",
+          "Status": "Active",
+          "Description": "One per m3ter meter `facial_similarity_report_motion` (aggregation `facial_similarity_report_motion_count`); rated per check on the EUR rate card.",
+          "DefaultUnitOfMeasureId": "@ref:UOM_Check",
+          "UnitOfMeasureClassId": "@ref:UOMCLASS_Verification",
+          "UsageDefinitionProductId": "@ref:P_FacialSimilarityReportMotion"
+        },
+        {
+          "@id": "RES_KnownFacesReportStandard",
+          "Name": "Facial Similarity Check Upgrade - Known Faces Checks",
+          "Code": "RES-KNOWN-FACES-REPORT-STANDARD",
+          "Category": "Usage",
+          "Status": "Active",
+          "Description": "One per m3ter meter `known_faces_report_standard` (aggregation `known_faces_report_standard_count`); rated per check on the EUR rate card.",
+          "DefaultUnitOfMeasureId": "@ref:UOM_Check",
+          "UnitOfMeasureClassId": "@ref:UOMCLASS_Verification",
+          "UsageDefinitionProductId": "@ref:P_KnownFacesReportStandard"
+        },
+        {
+          "@id": "RES_RepeatAttemptsReportStandard",
+          "Name": "Repeat Attempts Checks",
+          "Code": "RES-REPEAT-ATTEMPTS-REPORT-STANDARD",
+          "Category": "Usage",
+          "Status": "Active",
+          "Description": "One per m3ter meter `repeat_attempts_report_standard` (aggregation `repeat_attempts_report_standard_count`); rated per check on the EUR rate card.",
+          "DefaultUnitOfMeasureId": "@ref:UOM_Check",
+          "UnitOfMeasureClassId": "@ref:UOMCLASS_Verification",
+          "UsageDefinitionProductId": "@ref:P_RepeatAttemptsReportStandard"
+        },
+        {
+          "@id": "RES_ApplicantFraudReportStandard",
+          "Name": "Device Intelligence - Standard Checks",
+          "Code": "RES-APPLICANT-FRAUD-REPORT-STANDARD",
+          "Category": "Usage",
+          "Status": "Active",
+          "Description": "One per m3ter meter `applicant_fraud_report_standard` (aggregation `applicant_fraud_report_standard_count`); rated per check on the EUR rate card.",
+          "DefaultUnitOfMeasureId": "@ref:UOM_Check",
+          "UnitOfMeasureClassId": "@ref:UOMCLASS_Verification",
+          "UsageDefinitionProductId": "@ref:P_ApplicantFraudReportStandard"
+        },
+        {
+          "@id": "RES_ProofOfAddressReportStandard",
+          "Name": "Proof of Address Checks",
+          "Code": "RES-PROOF-OF-ADDRESS-REPORT-STANDARD",
+          "Category": "Usage",
+          "Status": "Active",
+          "Description": "One per m3ter meter `proof_of_address_report_standard` (aggregation `proof_of_address_report_standard_count`); rated per check on the EUR rate card.",
+          "DefaultUnitOfMeasureId": "@ref:UOM_Check",
+          "UnitOfMeasureClassId": "@ref:UOMCLASS_Verification",
+          "UsageDefinitionProductId": "@ref:P_ProofOfAddressReportStandard"
+        },
+        {
+          "@id": "RES_SpendBalanceEUR",
+          "Name": "Verification Spend Balance (EUR)",
+          "Code": "RES-VC-SPEND-BALANCE-EUR",
+          "Category": "Currency",
+          "Status": "Active",
+          "Description": "The prepaid balance (m3ter minimum prepayment). Rated usage draws it down; overage is billed once it is exhausted.",
+          "DefaultUnitOfMeasureId": "@ref:UOM_EUR",
+          "UnitOfMeasureClassId": "@ref:UOMCLASS_Currency",
+          "UsageDefinitionProductId": "@ref:P_SpendCommitmentEUR"
+        }
+      ]
+    }
+  ]
+}

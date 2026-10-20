@@ -1,0 +1,46 @@
+{
+  "_comment": "Both classes and the Check unit are looked up, never written: the Verification Usage class and its Check unit were built by hand on 2026-10-06 and kept; the Currency class is pre-seeded. The EUR unit (hand-made 2026-10-06, Type Custom because the UI offers nothing else) IS owned, because it needs Scale 2: the quote line editor refuses a decimal quantity unless the product's UnitOfMeasure has a Scale (found 2026-10-07 on the 700,181.60 commitment line).",
+  "objects": [
+    {
+      "sobject": "UnitOfMeasureClass",
+      "match_fields": [
+        "Code"
+      ],
+      "records": [
+        {
+          "@id": "UOMCLASS_Verification",
+          "@lookup-only": true,
+          "Code": "VERIFICATION-UOM-CLASS"
+        },
+        {
+          "@id": "UOMCLASS_Currency",
+          "@lookup-only": true,
+          "Code": "CURRENCY"
+        }
+      ]
+    },
+    {
+      "sobject": "UnitOfMeasure",
+      "match_fields": [
+        "UnitCode"
+      ],
+      "records": [
+        {
+          "@id": "UOM_Check",
+          "@lookup-only": true,
+          "UnitCode": "CHECK"
+        },
+        {
+          "@id": "UOM_EUR",
+          "UnitCode": "EUR",
+          "Name": "EUR",
+          "Type": "Custom",
+          "Status": "Active",
+          "Scale": 2,
+          "RoundingMethod": "Nearest",
+          "UnitOfMeasureClassId": "@ref:UOMCLASS_Currency"
+        }
+      ]
+    }
+  ]
+}

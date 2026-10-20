@@ -1,0 +1,616 @@
+#!/usr/bin/env python3
+"""Build customers/entrust/docs/verification-catalog-setup-guide.html — "How the Document Check
+catalog was set up, record by record": the config/entrust files as a readable page, with the
+object map, the build steps, apply/verify, the test quote and the landmines.
+
+The records on the page are config/entrust/*.json embedded verbatim at build time, so the
+page cannot drift from the config the way the 7 October version did (eleven products,
+one card). The narrative lives in this script.
+
+Run from the repo root:  python3 customers/entrust/docs/build_setup_guide.py
+Re-run it whenever customers/entrust/revenue-cloud/build_config.py changes the config.
+"""
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[2]          # m3ter-rc-config
+CONFIG_DIR = HERE.parent / "revenue-cloud"
+OUT = HERE / "verification-catalog-setup-guide.html"
+
+CONFIG = {p.name: json.loads(p.read_text()) for p in sorted(CONFIG_DIR.glob("*.json"))}
+
+STEPS = [
+    {"file": "01-attributes.json", "title": "The Feature Type attribute",
+     "objects": ["AttributePicklist", "AttributePicklistValue", "AttributeDefinition"],
+     "why": "The Salesforce team's design sells one product and lets the rep say which kind of check it is. Feature Type (Flash, Boost, Sherlock) is that selector: a picklist attribute the rep sets on the configuration screen, whose value decides which usage resource the checks land on. It prices nothing — the money is on the rate cards — so it is required but not price impacting, and there is no attribute-based rate adjustment anywhere.",
+     "notes": ["A picklist attribute is three objects: the picklist, its values, and the definition that points at the picklist.",
+               "Flash is the default value (IsDefault on the picklist value), so a Document Check line is Flash unless the rep changes it.",
+               "AttributeDefinition.DeveloperName is a seed, not a value: a deleted definition keeps its name for a while and the org stores the new one suffixed. The tool treats that as a match."]},
+    {"file": "02-classifications.json", "title": "The classification",
+     "objects": ["ProductClassification", "ProductClassificationAttr"],
+     "why": "A classification is how a product inherits attributes. One classification, Document Check, carries Feature Type as required and not price impacting; the product is based on it.",
+     "notes": ["IsPriceImpacting lives on this junction, not on the attribute. Required + not price impacting is the selector shape: the configurator blocks the line until a value is chosen, the value is written to QuoteLineItemAttribute, and no price changes.",
+               "IsRequired and Description are ignored on insert and kept on update: the tool re-sends the junction once after creating it."]},
+    {"file": "03-units-of-measure.json", "title": "Units of measure",
+     "objects": ["UnitOfMeasureClass", "UnitOfMeasure"],
+     "why": "Every usage resource counts in a unit, and every unit belongs to a class. Checks are counted in VERIFICATION-CHECK, in a Usage-type class of its own. The pre-seeded USD unit (Currency class) is only looked up: it is the unit a rate is expressed in.",
+     "notes": ["The unit's Type is Custom, not Count: the console's New Unit form would not take Count on 13 Oct, so that is what the org holds and what the config says.",
+               "UnitOfMeasureClass.Type is the billing category (Usage / Token / Currency); UnitOfMeasure.Type is the physical measure. Same field name, two meanings.",
+               "The class can only be inserted Draft and is activated after its unit exists; DefaultUnitOfMeasureId is a forward reference the tool fills in. The pair point at each other, so destroy blanks the default unit before deleting either.",
+               "A unit must be created with its class and Status Active, or the UI cannot activate it later."]},
+    {"file": "03b-policies.json", "title": "Usage policies",
+     "objects": ["UsageOveragePolicy", "RatingFrequencyPolicy"],
+     "why": "Two policies every resource binding points at: DC Usage Overage Policy says overage is chargeable (and with 0-quantity grants every check is overage), DC Monthly Rating Frequency says usage is rated monthly. John created them in the console because they were in the dropdowns; the config owns them so an empty org gets them too.",
+     "notes": ["Both are matched on Name — neither has a Code.",
+               "They are attached per product through ProductUsageResourcePolicy (step 08), not through the deprecated fields on the resource or the grant."]},
+    {"file": "04-usage-resources.json", "title": "Usage resources",
+     "objects": ["UsageResource"],
+     "why": "Six Usage-category resources, one per feature × region (Flash, Boost, Sherlock × USA, ANY). This is what usage is reported against and what a rate-card entry rates; the Feature Type value chosen on the line, together with the country of the check, picks one.",
+     "notes": ["Region is a stand-in. The SI's document makes country a dimension of the resource as a region band (their rate cards A–G), with a mapping from country to band outside the rate card; USA / ANY is a two-band version of that. Rates per country is the next iteration.",
+               "Both DefaultUnitOfMeasureId and UnitOfMeasureClassId are required; the class is not derived from the unit.",
+               "UsageDefinitionProductId must point at the product even though describe says it is optional: without it rate-card work fails with 'no usage product related to the selected usage resource'. It is a forward reference to the product created two files later.",
+               "Lifecycle object: inserted Draft, activated after the whole load."]},
+    {"file": "05-selling-models.json", "title": "Selling model",
+     "objects": ["ProductSellingModel"],
+     "why": "Pre-seeded and only looked up. The product sells on Term Monthly: the selling model's term is the billing frequency (monthly, as m3ter bills). The contract term is set on the quote line, not here.",
+     "notes": ["Matched on the combination (SellingModelType, PricingTerm, PricingTermUnit): the org enforces uniqueness on the combination and there is no Code field.",
+               "PricingTerm and PricingTermUnit mean billing frequency, not subscription length."]},
+    {"file": "06-products.json", "title": "The product",
+     "objects": ["Product2"],
+     "why": "One sellable product, Document Check (VC-DOC-CHECK): an Anchor on Term Monthly, Configure During Sale allowed (so the rep sees the Feature Type screen), based on the Document Check classification, quantity unit Each, USD. The 7 October shape had eleven Pack products, one per kind of check; the Salesforce team's design folds them into one product whose attribute and resources do the distinguishing.",
+     "notes": ["UsageModelType = Anchor: the subscription that usage attaches to. Pack would be a bundle of included units; there are none.",
+               "BasedOnId is the classification link (not ProductClassId). ProductCode is the match key and a standard quote-line field, so codes are derived from the commercial name, never from an upstream identifier.",
+               "Do not set Type = Base: it derives ProductClass = VariationParent, a create-only field, and the product can no longer be sold directly."]},
+    {"file": "06b-catalog.json", "title": "Catalog and category",
+     "objects": ["ProductCatalog", "ProductCategory", "ProductCategoryProduct"],
+     "why": "The catalog browser on a quote reads catalogs, categories and placements. The Entrust Catalog with one category, Document Checks, and the product placed in it.",
+     "notes": ["ProductCatalog has no Status field; CatalogType = Sales.",
+               "A product is invisible on quotes until the product search index is rebuilt after it is created (the tool does this after apply)."]},
+    {"file": "07-product-junctions.json", "title": "Selling-model option and resource links",
+     "objects": ["ProductSellingModelOption", "ProductUsageResource"],
+     "why": "The product's one selling-model option (Term Monthly, default) and six ProductUsageResource links, one per resource — the binding that makes usage of each resource belong to this product.",
+     "notes": ["ProductSellingModelOption uses Product2Id; ProductUsageResource uses ProductId. Two sibling junctions, two naming conventions.",
+               "ProductUsageResource.EffectiveStartDate is required on insert and is a datetime; every date in this catalog is 2026-09-01T19:00:00Z — what was typed in the console (1 Sep 2026, 20:00 Dublin).",
+               "The PUR's and the rate-card entry's effective ranges must overlap, or usage cannot be rated.",
+               "ProductUsageResource needs REST API v64+ to query; the tool pins v66.0."]},
+    {"file": "08-grants.json", "title": "Grants, policies and the binding policy",
+     "objects": ["ProductUsageGrant", "ProductUsageResourcePolicy", "UsagePrdGrantBindingPolicy"],
+     "why": "Each resource link carries a Grant of quantity 0 (there is no included allowance: every check is overage and is rated), a policy row pointing at the two policies from 03b, and the product has one grant-binding policy of type Self — usage binds to the asset the order creates.",
+     "notes": ["Without the UsagePrdGrantBindingPolicy the quote's Manage Usage Resources panel shows empty tables: the resources exist but have nowhere to bind.",
+               "Quantity 0 with ValidityPeriodUnit None is a real grant: activation still creates a TransactionUsageEntitlement, a bucket pair and a billing schedule per resource (six of each on order 00000102).",
+               "ProductUsageGrant.OverageChargeable is exposed at API v66.0 and gone at newer versions — one reason the loader stays pinned; the policy objects are the supported route.",
+               "ProductUsageGrant is matched on ProductUsageResourceId + Type."]},
+    {"file": "09a-price-book-entries.json", "title": "The price-book entry",
+     "objects": ["Pricebook2", "PricebookEntry"],
+     "why": "A product cannot be added to a quote without a price-book entry. One entry at 0.00 USD on the Standard Price Book, carrying the selling model: by design the line itself is free and the money is on the rate cards. (On the test quote the unit price was overridden to 1,000 USD by hand as a stand-in for the commitment.)",
+     "notes": ["ProductSellingModelId is required in a Revenue Cloud org and is create-only: an entry without it prices the line but leaves Billing Frequency blank, and cannot be repaired, only recreated.",
+               "Uniqueness is per (Pricebook, Product, SellingModel, Currency), so the match key has all four.",
+               "Corporate currency only (USD): the pricing decision table silently ignores any other currency.",
+               "After any pricing change, refresh the pricing decision tables: quoting resolves entries from snapshots."]},
+    {"file": "09b-list-rate-card.json", "title": "The List rate card",
+     "objects": ["RateCard", "PriceBookRateCard", "RateCardEntry"],
+     "why": "Document Check Rate Card - List (Base), linked to the Standard Price Book, with one Negotiable Term Monthly entry per resource carrying the list rate per check (Boost 5.75 / 6.20, Flash 2.00 / 2.25, Sherlock 6.50 / 6.75 for USA / ANY). The negotiated price on a deal is entered per resource on the quote line and stored as QuoteLineRateCardEntry.NegotiatedRate; it is not catalog data.",
+     "notes": ["RateCard is matched on Name: it has no Code. PriceBookRateCard's field is PriceBookId, not Pricebook2Id.",
+               "Entries are matched on rate card + product + resource: six entries share one product, so the product alone is not a key.",
+               "RateUnitOfMeasureId is the unit the rate is expressed in (USD, Currency class), not the unit being rated.",
+               "Entries carry ProductSellingModelId (Term Monthly) — without it the entry does not reach the line.",
+               "Entries are Draft → Active ↔ Inactive and Draft is a one-way door: a rate change is a rebuild, not an edit."]},
+    {"file": "09c-commit-rate-card.json", "title": "The Commit rate card and its tiers",
+     "objects": ["RateCard", "PriceBookRateCard", "RateCardEntry", "RateAdjustmentByTier"],
+     "why": "Document Check Rate Card - Commit (Tier), on the same price book, with one entry per resource that carries no rate and three RateAdjustmentByTier bands instead: 0–10,000, 10,000–25,000 and 25,000–open, all Override values (Boost USA 0.65 / 0.50 / 0.40, and so on). It is the committed customer's price list; the walkthrough's LOW COMMIT and FULL COMMIT cards were dropped on 14 Oct as adding nothing to the question of which card a quote picks.",
+     "notes": ["Tiers must be created while the entry is Draft: activating an entry locks its RateAdjustmentByTier rows (and its RateAdjustmentByAttribute rows) for good. The tool loads tiers before activation; the console build's 18 tiers all predate their entry's activation by about 20 seconds.",
+               "Bands must chain: first LowerBound 0, each UpperBound equal to the next LowerBound, last UpperBound blank. rc-config check enforces it and warns on a Tier entry with no tiers, which prices nothing and can never get any.",
+               "The Flash and Sherlock tier sets look swapped against the List rates (Flash lists at 2.00 with tiers from 1.60; Sherlock at 6.50 with tiers from 0.50). That is what the org holds; change the org first, then the generator.",
+               "In the Developer Console, filtering RateAdjustmentByTier by RateCardEntry.Product.ProductCode silently returns 0 rows; filter by RateCardEntryId or the card name.",
+               "Three more decision tables come with a Tier card: Rate_Adjustment_by_Tier_Entries_2, Rate_Adjustment_by_Tier_Resolution_Decision_Table, Tier_based_Rate_Adjustment_by_Rate_Card_Entry_ID — seven in all."]},
+]
+
+# The one-line test quote of 14 Oct 2026 and what reached the order and the asset.
+QUOTE = {
+    "name": "Entrust Test Quote 1", "number": "00000014", "account": "Acme", "line": "VC-DOC-CHECK × 1, Term Monthly, 14 Oct – 13 Nov 2026",
+    "unit_price": "1,000.00 USD (overridden by hand — the stand-in for the commitment)", "feature": "Flash", "order": "00000102", "activated": "14 Oct 2026, 10:42 UTC",
+    "rates": [  # resource, list rate, negotiated (List card), commit tiers
+        ("RES-DOC-CHECK-BOOST-USA", 5.75, 0.00, "0.65 / 0.50 / 0.40"),
+        ("RES-DOC-CHECK-BOOST-ANY", 6.20, 0.50, "0.75 / 0.65 / 0.55"),
+        ("RES-DOC-CHECK-FLASH-USA", 2.00, 0.50, "1.60 / 1.30 / 1.10"),
+        ("RES-DOC-CHECK-FLASH-ANY", 2.25, 0.50, "1.50 / 1.20 / 1.00"),
+        ("RES-DOC-CHECK-SHERLOCK-USA", 6.50, 1.00, "0.50 / 0.40 / 0.30"),
+        ("RES-DOC-CHECK-SHERLOCK-ANY", 6.75, 0.50, "0.80 / 0.70 / 0.60"),
+    ],
+}
+
+LANDMINES = [
+    ["Both cards reach the line", "Two rate cards on one price book both land on every resource of the quote line, order product and asset — 12 QuoteLineRateCardEntry rows with IsChosenRate = false on all of them. Salesforce picks no card. Which card a line uses is a downstream decision, or the cards must not share a price book."],
+    ["RateAdjustmentByTier is locked by activation", "Create every tier while the rate-card entry is Draft. Once Active, the entry's tiers (and attribute adjustments) can never be added or changed; the only way back is a rebuild."],
+    ["Tier bands must chain", "First LowerBound 0, each UpperBound = the next LowerBound, last UpperBound blank. A Tier entry with no tiers prices nothing. rc-config check lints both."],
+    ["RateCardEntry match key", "Rate card + product + usage resource. With one product and six resources, matching on product alone finds six records and the tool refuses to guess."],
+    ["UnitOfMeasure.Type = Custom", "The console's New Unit form would not accept Count for the check unit (13 Oct); the org holds Custom and the config says Custom so verify matches."],
+    ["UsagePrdGrantBindingPolicy", "Without a Self binding policy on the product, Manage Usage Resources on the quote line shows empty tables."],
+    ["PricebookEntry.ProductSellingModelId", "Required in a Revenue Cloud org and create-only. Without it the quote line prices but has no billing frequency; the fix is delete and recreate."],
+    ["UsageResource.UsageDefinitionProductId", "Describe says optional; rate-card work needs it. It points at the product, which is created later, so it is a forward reference."],
+    ["ProductUsageResource", "ProductId (not Product2Id), EffectiveStartDate required (datetime), and the product must have UsageModelType Anchor/Pack/Commit. Its effective range must overlap the rate-card entry's."],
+    ["ProductUsageGrant.OverageChargeable", "Exposed at API v66.0 and gone at newer versions: the Developer Console (newest version) refuses it, the loader (pinned 66.0) still sees it. Use the policy objects."],
+    ["Decision-table snapshots", "Quoting and rating read snapshots, not live records. Seven tables for this catalog (four pricing, three tier). Refresh after every pricing change; about 20 refreshes an hour. DeveloperName, not SetupName, identifies a table."],
+    ["Product search index", "A product created by API is invisible on quotes until the index is rebuilt (connect/pcm/index/deploy, or the Home page's rebuild flow)."],
+    ["Product2.Type = Base", "Derives ProductClass = VariationParent (create-only) and the product cannot be sold directly. Leave Type out."],
+    ["AttributeDefinition.DeveloperName", "A deleted definition keeps its name for a while (no recycle bin, hard delete refused) and the new one is stored suffixed. Treat the config value as a seed."],
+    ["UnitOfMeasureClass", "Draft-only on create; activate after the default unit exists. The class/unit pair cannot be deleted in either order until the default unit is blanked."],
+    ["An activated order is not a quote", "Activation creates the asset, six entitlements, a bucket tree, seven billing schedules and a renewal opportunity. BillingSchedule has no delete (delete its group); buckets are a tree (delete leaves first, in Apex); the order must go back to Draft before it deletes. scripts/teardown-after-assetization.apex, then rc-config destroy."],
+    ["Developer Console COUNT()", "SELECT COUNT() shows an empty grid; the number is in the 'Total Rows' header. An empty grid is not zero."],
+    ["Quote line End Date", "Cannot be typed in the quote line editor and does not move with the start date. Set SubscriptionTerm and EndDate by API, then Reprice All so PricingTermCount is recomputed."],
+]
+
+# ---- the object map: boxes on a 5-column grid, edges = lookup fields from the record that holds them
+NODES = [
+    {"id": "cat",  "x": 40,  "y": 30,  "name": "ProductCatalog",            "sub": "Entrust Catalog",               "kind": "owned"},
+    {"id": "cc",   "x": 250, "y": 30,  "name": "ProductCategory",           "sub": "Document Checks",               "kind": "owned"},
+    {"id": "ccp",  "x": 460, "y": 30,  "name": "ProductCategoryProduct",    "sub": "1 placement",                   "kind": "owned"},
+    {"id": "pl",   "x": 40,  "y": 130, "name": "AttributePicklist",         "sub": "Document Check Feature Types",  "kind": "owned"},
+    {"id": "plv",  "x": 250, "y": 130, "name": "AttributePicklistValue",    "sub": "Flash (default) · Boost · Sherlock", "kind": "owned"},
+    {"id": "ad",   "x": 460, "y": 130, "name": "AttributeDefinition",       "sub": "Feature Type",                  "kind": "owned"},
+    {"id": "pca",  "x": 670, "y": 130, "name": "ProductClassificationAttr", "sub": "required · not price-impacting", "kind": "owned"},
+    {"id": "pc",   "x": 880, "y": 130, "name": "ProductClassification",     "sub": "Document Check",                "kind": "owned"},
+    {"id": "psm",  "x": 40,  "y": 230, "name": "ProductSellingModel",       "sub": "Term Monthly",                  "kind": "lookup"},
+    {"id": "psmo", "x": 250, "y": 230, "name": "ProductSellingModelOption", "sub": "1 option, default",             "kind": "owned"},
+    {"id": "pbe",  "x": 460, "y": 230, "name": "PricebookEntry",            "sub": "1 × 0.00 USD",                  "kind": "owned"},
+    {"id": "p2",   "x": 670, "y": 230, "name": "Product2",                  "sub": "Document Check (Anchor)",       "kind": "hub"},
+    {"id": "gbp",  "x": 880, "y": 230, "name": "UsagePrdGrantBindingPolicy", "sub": "Self",                         "kind": "owned"},
+    {"id": "pb",   "x": 40,  "y": 330, "name": "Pricebook2",                "sub": "Standard Price Book",           "kind": "lookup"},
+    {"id": "pbrc", "x": 250, "y": 330, "name": "PriceBookRateCard",         "sub": "2 links",                       "kind": "owned"},
+    {"id": "rc",   "x": 460, "y": 330, "name": "RateCard",                  "sub": "List (Base) · Commit (Tier)",   "kind": "owned"},
+    {"id": "rce",  "x": 670, "y": 330, "name": "RateCardEntry",             "sub": "12 Negotiable, 6 per card",     "kind": "owned"},
+    {"id": "rat",  "x": 880, "y": 330, "name": "RateAdjustmentByTier",      "sub": "18 Override bands",             "kind": "owned"},
+    {"id": "usd",  "x": 40,  "y": 430, "name": "UnitOfMeasure",             "sub": "USD (Currency class)",          "kind": "lookup"},
+    {"id": "cls",  "x": 250, "y": 430, "name": "UnitOfMeasureClass",        "sub": "Verification Usage",            "kind": "owned"},
+    {"id": "chk",  "x": 460, "y": 430, "name": "UnitOfMeasure",             "sub": "VERIFICATION-CHECK (Custom)",   "kind": "owned"},
+    {"id": "ur",   "x": 670, "y": 430, "name": "UsageResource",             "sub": "6: feature × region",           "kind": "owned"},
+    {"id": "pur",  "x": 880, "y": 430, "name": "ProductUsageResource",      "sub": "6 links",                       "kind": "owned"},
+    {"id": "uop",  "x": 250, "y": 530, "name": "UsageOveragePolicy",        "sub": "DC Usage Overage Policy",       "kind": "owned"},
+    {"id": "rfp",  "x": 460, "y": 530, "name": "RatingFrequencyPolicy",     "sub": "DC Monthly Rating Frequency",   "kind": "owned"},
+    {"id": "purp", "x": 670, "y": 530, "name": "ProductUsageResourcePolicy", "sub": "6 rows",                       "kind": "owned"},
+    {"id": "pug",  "x": 880, "y": 530, "name": "ProductUsageGrant",         "sub": "6 × quantity 0",                "kind": "owned"},
+]
+EDGES = [
+    ["cc", "cat", "CatalogId"], ["ccp", "cc", "ProductCategoryId"], ["ccp", "p2", "ProductId"],
+    ["plv", "pl", "PicklistId"], ["ad", "pl", "PicklistId"], ["pca", "ad", "AttributeDefinitionId"], ["pca", "pc", "ProductClassificationId"], ["p2", "pc", "BasedOnId"],
+    ["psmo", "psm", "ProductSellingModelId"], ["psmo", "p2", "Product2Id"], ["pbe", "p2", "Product2Id"], ["pbe", "psm", "ProductSellingModelId"], ["pbe", "pb", "Pricebook2Id"],
+    ["gbp", "p2", "Product2Id"],
+    ["pbrc", "pb", "PriceBookId"], ["pbrc", "rc", "RateCardId"], ["rce", "rc", "RateCardId"], ["rce", "p2", "ProductId"], ["rce", "ur", "UsageResourceId"],
+    ["rce", "usd", "RateUnitOfMeasureId"], ["rce", "psm", "ProductSellingModelId"], ["rat", "rce", "RateCardEntryId"],
+    ["chk", "cls", "UnitOfMeasureClassId"], ["cls", "chk", "DefaultUnitOfMeasureId"], ["ur", "chk", "DefaultUnitOfMeasureId"], ["ur", "cls", "UnitOfMeasureClassId"], ["ur", "p2", "UsageDefinitionProductId"],
+    ["pur", "p2", "ProductId"], ["pur", "ur", "UsageResourceId"],
+    ["purp", "pur", "ProductUsageResourceId"], ["purp", "uop", "UsageOveragePolicyId"], ["purp", "rfp", "RatingFrequencyPolicyId"],
+    ["pug", "pur", "ProductUsageResourceId"], ["pug", "p2", "UsageDefinitionProductId"], ["pug", "chk", "UnitOfMeasureId"], ["pug", "cls", "UnitOfMeasureClassId"],
+]
+
+CSS = r"""/* Layout: a fixed left rail of sections on wide screens (a top tab strip on phones), one reading column of ~70ch,
+   data tables and the object map allowed to run wider inside their own scroll boxes. */
+:root {
+  --bg: #f6f7f5; --surface: #ffffff; --surface-2: #eef1ec; --fg: #1d2420; --muted: #5b665f; --line: #d7ddd6;
+  --accent: #0f6e63; --accent-soft: #d8ebe6; --accent-ink: #0a4f47; --warn: #8a5a00; --warn-soft: #f6ead0; --lookup: #6b5b95; --lookup-soft: #e7e2f2;
+  --code-bg: #eef1ec;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #141917; --surface: #1c2320; --surface-2: #232c28; --fg: #e8ece9; --muted: #a2ada6; --line: #33403a;
+  --accent: #5fc4b4; --accent-soft: #1d3a35; --accent-ink: #9fe0d4; --warn: #e3b35a; --warn-soft: #3a2f16; --lookup: #b9a9e6; --lookup-soft: #2d2740;
+  --code-bg: #0f1412; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #141917; --surface: #1c2320; --surface-2: #232c28; --fg: #e8ece9; --muted: #a2ada6; --line: #33403a;
+  --accent: #5fc4b4; --accent-soft: #1d3a35; --accent-ink: #9fe0d4; --warn: #e3b35a; --warn-soft: #3a2f16; --lookup: #b9a9e6; --lookup-soft: #2d2740;
+  --code-bg: #0f1412; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0 }
+#root { min-height: 100% }
+.shell { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 100vh }
+.rail { position: sticky; top: env(safe-area-inset-top, 0px); align-self: start; height: 100vh; overflow: auto; border-right: 1px solid var(--line); padding: 28px 18px; display: flex; flex-direction: column; gap: 6px; background: var(--surface) }
+.rail .brand { font-family: var(--display); font-weight: 700; font-size: 17px; line-height: 1.15; margin-bottom: 14px; text-wrap: balance }
+.rail .brand small { display: block; font-family: var(--body); font-weight: 500; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: 6px }
+.rail button { text-align: left; background: none; border: 0; border-radius: 6px; padding: 8px 10px; font: inherit; color: var(--fg); cursor: pointer; display: flex; gap: 10px; align-items: baseline }
+.rail button:hover { background: var(--surface-2) }
+.rail button.on { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600 }
+.rail button:focus-visible, .btn:focus-visible, .step-head:focus-visible, .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.rail .n { font-family: var(--mono); font-size: 11px; color: var(--muted); width: 16px }
+.main { padding-block: 32px 80px; padding-inline: clamp(16px, 4vw, 56px); min-width: 0 }
+.page { max-width: 980px }
+.prose { max-width: 70ch }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(28px, 4vw, 40px); line-height: 1.05; margin: 0 0 10px; text-wrap: balance }
+h2 { font-family: var(--display); font-weight: 700; font-size: 24px; line-height: 1.15; margin: 44px 0 10px; text-wrap: balance }
+h3 { font-family: var(--display); font-weight: 700; font-size: 18px; margin: 26px 0 8px; text-wrap: balance }
+p { margin: 0 0 12px }
+.eyebrow { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 8px }
+.lede { font-size: 17px; color: var(--muted); max-width: 64ch }
+code, .mono { font-family: var(--mono); font-size: .92em }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px }
+pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.5; margin: 12px 0 }
+pre code { background: none; padding: 0 }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 22px 0 }
+.fact { border-top: 2px solid var(--accent); padding-top: 8px }
+.fact b { font-family: var(--display); font-size: 26px; display: block; line-height: 1; font-variant-numeric: tabular-nums }
+.fact span { font-size: 12px; color: var(--muted) }
+.tags { display: flex; flex-wrap: wrap; gap: 6px }
+.tag { font-family: var(--mono); font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--fg) }
+.tag.owned { background: var(--accent-soft); color: var(--accent-ink) }
+.tag.lookup { background: var(--lookup-soft); color: var(--lookup) }
+.steps { display: flex; flex-direction: column; gap: 10px; margin-top: 18px }
+.step { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden }
+.step-head { width: 100%; display: grid; grid-template-columns: 44px minmax(0,1fr) auto; gap: 12px; align-items: center; background: none; border: 0; padding: 14px 16px; font: inherit; color: inherit; text-align: left; cursor: pointer }
+.step-head:hover { background: var(--surface-2) }
+.step-num { font-family: var(--mono); font-size: 12px; color: var(--muted) }
+.step-title { font-family: var(--display); font-weight: 700; font-size: 17px }
+.step-file { font-family: var(--mono); font-size: 12px; color: var(--muted) }
+.step-count { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap }
+.step-body { padding: 4px 16px 18px 72px; border-top: 1px solid var(--line) }
+.notes { margin: 10px 0 0; padding-left: 18px } .notes li { margin-bottom: 6px }
+.tabs { display: flex; gap: 4px; margin: 14px 0 8px; flex-wrap: wrap }
+.tab { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 4px 12px; cursor: pointer }
+.tab.on { background: var(--fg); color: var(--bg); border-color: var(--fg) }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface) }
+table { border-collapse: collapse; width: 100%; font-size: 13px }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; white-space: nowrap }
+th { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--surface-2); position: sticky; top: 0 }
+tr:last-child td { border-bottom: 0 }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums }
+td.wrap { white-space: normal; min-width: 260px }
+.ref { color: var(--lookup); font-family: var(--mono); font-size: 12px }
+.callout { border-left: 3px solid var(--warn); background: var(--warn-soft); padding: 10px 14px; border-radius: 0 8px 8px 0; margin: 14px 0 }
+.callout.good { border-color: var(--accent); background: var(--accent-soft) }
+.mapwrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); margin: 16px 0; padding: 8px }
+.map { display: block; min-width: 820px; width: 100%; height: auto; font-family: var(--body) }
+.legend { display: flex; gap: 18px; font-size: 12px; color: var(--muted); margin: 6px 4px 0; flex-wrap: wrap }
+.legend i { display: inline-block; width: 14px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 6px; border: 1.5px solid var(--accent); background: var(--accent-soft) }
+.legend i.lk { border-style: dashed; border-color: var(--lookup); background: var(--lookup-soft) }
+.list { padding-left: 20px } .list li { margin-bottom: 8px }
+.check { display: grid; grid-template-columns: 22px minmax(0,1fr); gap: 10px; margin-bottom: 10px; align-items: start }
+.check .box { width: 16px; height: 16px; border: 1.5px solid var(--muted); border-radius: 4px; margin-top: 3px }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px }
+.landmine { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; background: var(--surface) }
+.landmine b { font-family: var(--mono); font-size: 13px; display: block; margin-bottom: 4px; color: var(--accent-ink) }
+.landmine p { margin: 0; font-size: 14px; color: var(--fg) }
+.lm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; margin-top: 14px }
+.foot { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted) }
+.mobile-nav { display: none }
+@media (max-width: 860px) {
+  .shell { grid-template-columns: 1fr }
+  .rail { display: none }
+  .mobile-nav { display: flex; gap: 6px; overflow-x: auto; position: sticky; top: env(safe-area-inset-top, 0px); background: var(--bg); padding: 10px 16px; border-bottom: 1px solid var(--line); z-index: 2 }
+  .mobile-nav button { white-space: nowrap; font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 5px 12px }
+  .mobile-nav button.on { background: var(--accent-soft); color: var(--accent-ink); border-color: var(--accent) }
+  .step-body { padding-left: 16px }
+  .step-head { grid-template-columns: 34px minmax(0,1fr) }
+  .step-count { display: none }
+}
+@media (prefers-reduced-motion: no-preference) { .step-head, .tab, .rail button { transition: background .12s } }"""
+
+APP = r"""
+const { useState, useEffect, Fragment } = React;
+const html = htm.bind(React.createElement);
+
+const SECTIONS = [
+  ["overview", "What was built"],
+  ["map", "Object map"],
+  ["build", "The thirteen build steps"],
+  ["apply", "Apply and verify"],
+  ["quote", "The quote and the order"],
+  ["landmines", "Landmines"],
+  ["yourorg", "Recreate it in your org"],
+];
+
+function Nav({ current, go, mobile }) {
+  return html`<nav className=${mobile ? "mobile-nav" : "rail"} aria-label="Sections">
+    ${!mobile && html`<div className="brand">Document Check Catalog Setup<small>Revenue Cloud · Oct 2026</small></div>`}
+    ${SECTIONS.map(([id, label], i) => html`<button key=${id} className=${current === id ? "on" : ""} onClick=${() => go(id)}>
+      ${!mobile && html`<span className="n">${i + 1}</span>`}<span>${label}</span></button>`)}
+  </nav>`;
+}
+
+const owned = r => !r["@lookup-only"];
+const allRecords = Object.values(CONFIG).flatMap(f => f.objects.flatMap(o => o.records.map(r => ({ ...r, __obj: o.sobject }))));
+const nOwned = allRecords.filter(owned).length, nLookup = allRecords.length - nOwned;
+
+function Overview() {
+  return html`<div className="page">
+    <div className="eyebrow">Salesforce Revenue Cloud (Agentforce Revenue Management)</div>
+    <h1>How the Document Check catalog was set up, record by record</h1>
+    <p className="lede">One usage-based product for identity-verification checks, built to the Salesforce team's design: first by hand in the console on 13–14 October 2026, then read back record by record so that the JSON-driven tool describes it exactly. Proven with a one-line quote that became an order, an asset and the first draft invoice. This page is written so that someone with their own Revenue Cloud org can rebuild the same thing.</p>
+    <div className="facts">
+      <div className="fact"><b>${allRecords.length}</b><span>records in the config: ${nOwned} owned, ${nLookup} looked up</span></div>
+      <div className="fact"><b>1</b><span>Anchor product, one selector attribute, six usage resources</span></div>
+      <div className="fact"><b>2</b><span>rate cards: List (6 rates) and Commit (18 tier bands)</span></div>
+      <div className="fact"><b>${Object.keys(CONFIG).length}</b><span>JSON files, generated, loaded in sorted order</span></div>
+    </div>
+    <div className="prose">
+    <h2>The business shape</h2>
+    <p>Entrust sells document checks. A customer commits to a term (12 months, billed monthly, USD) and consumes checks of three kinds — Flash, Boost and Sherlock — each priced per check, with a different price for checks on US documents than for the rest of the world, and a cheaper tiered price list for customers who commit. m3ter meters the checks and rates them; Revenue Cloud holds the catalog, prices the quote, activates the order and, once the bill comes back, invoices the usage.</p>
+    <p>Everything a quote can show uses the commercial names. Codes for the product and the resources are derived from those names; identifiers from m3ter never appear on a quote line.</p>
+    <h2>The Revenue Cloud shape it became</h2>
+    <ul className="list">
+      <li><b>One Anchor product</b>, <code>Document Check</code> (<code>VC-DOC-CHECK</code>), on Term Monthly with a 0.00 USD price-book entry — the line itself is free and the money is on the rate cards. Configure During Sale allowed.</li>
+      <li><b>One attribute, Feature Type</b> (Flash default / Boost / Sherlock) on the classification the product is based on: required and <em>not</em> price impacting. It is a selector — it decides which usage resource the checks land on — not a price.</li>
+      <li><b>Six usage resources</b>, feature × region (USA, ANY), counted in a VERIFICATION-CHECK unit, each bound to the product with a 0-quantity grant (every check is overage), a policy row (overage chargeable, rated monthly) and one Self binding policy on the product.</li>
+      <li><b>Two rate cards</b> on the Standard Price Book, one Negotiable entry per resource on each: <em>List (Base)</em> with the list rate per check, <em>Commit (Tier)</em> with no rate and three Override bands per entry (0–10k, 10k–25k, 25k+).</li>
+      <li><b>One catalog</b>, Entrust Catalog, with a Document Checks category, so the product shows in the quote's catalog browser.</li>
+      <li><b>No discount on the line.</b> A negotiated price is entered per resource through <em>Manage Usage Resources</em> and stored on <code>QuoteLineRateCardEntry.NegotiatedRate</code>; that is where rating reads it from.</li>
+    </ul>
+    <h2>What changed since 7 October, and why</h2>
+    <ul className="list">
+      <li><b>Eleven Pack products became one Anchor.</b> The first pass had one product per kind of check with a Country attribute on one of them. Quotes came out with zero-priced lines you could not tell apart, and the usage resources were one-to-one with the products. The Salesforce team's <em>Entrust Product and Pricing Requirements</em> (13 Oct) sells one product and lets an attribute and the resources do the distinguishing; this build follows it.</li>
+      <li><b>Rate Card D became List + Commit.</b> One card at list price became two: the committed customer's tiered prices are a second card, not a discount. Their design has four (list, no / low / full commit); List and Commit are enough to learn which card a quote line picks — and the answer, so far, is both.</li>
+      <li><b>The commitment left the catalog.</b> Their design carries it as custom quote-line fields (monetary commitments are "not supported downstream"), so there is no commitment product and no Commit grant. The 1,000 USD on the test quote's line is a hand-typed stand-in.</li>
+      <li><b>Region is a stand-in for country bands.</b> USA / ANY is the two-band version of their seven region bands A–G with a country-to-band mapping outside the rate card. Rates per country is the next iteration.</li>
+      <li>USD only, integer quantities, and every effective date 1 September 2026 — what was typed into the console.</li>
+    </ul>
+    </div>
+  </div>`;
+}
+
+/* ───── object map ───── */
+const NODES = __NODES__;
+const W = 192, H = 58;
+const EDGES = __EDGES__;
+function edgeEnds(a, b) {
+  const ax = a.x + W / 2, ay = a.y + H / 2, bx = b.x + W / 2, by = b.y + H / 2;
+  const clip = (cx, cy, dx, dy) => { // point on the box border in direction (dx,dy) from its centre
+    const sx = Math.abs(dx) > 0 ? (W / 2) / Math.abs(dx) : Infinity, sy = Math.abs(dy) > 0 ? (H / 2) / Math.abs(dy) : Infinity;
+    const s = Math.min(sx, sy); return [cx + dx * s, cy + dy * s];
+  };
+  const dx = bx - ax, dy = by - ay;
+  const [x1, y1] = clip(ax, ay, dx, dy); const [x2, y2] = clip(bx, by, -dx, -dy);
+  return [x1, y1, x2, y2];
+}
+function ObjectMap() {
+  const [hover, setHover] = useState(null);
+  const byId = Object.fromEntries(NODES.map(n => [n.id, n]));
+  const active = e => hover && (e[0] === hover || e[1] === hover);
+  return html`<div className="page">
+    <div className="eyebrow">Section 2</div>
+    <h1>The object map</h1>
+    <p className="lede">Every record the config owns or looks up, and which field points at which. Hover a box to light up its references. Load order runs top to bottom: a reference must exist before the record that holds it, except the two forward references the tool fills in afterwards. Everything hangs off the one product in the middle.</p>
+    <div className="mapwrap"><svg className="map" viewBox="0 0 1090 620" role="img" aria-label="Object relationship map of the Document Check catalog">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+      <marker id="arrOn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>
+      ${EDGES.map((e, i) => { const [x1, y1, x2, y2] = edgeEnds(byId[e[0]], byId[e[1]]); const on = active(e);
+        return html`<g key=${i}><line x1=${x1} y1=${y1} x2=${x2} y2=${y2} stroke=${on ? "var(--accent)" : "var(--line)"} strokeWidth=${on ? 2 : 1.2} markerEnd=${on ? "url(#arrOn)" : "url(#arr)"} opacity=${hover && !on ? 0.35 : 1}/>
+        ${on && html`<text x=${(x1 + x2) / 2} y=${(y1 + y2) / 2 - 4} fontSize="10" fill="var(--accent-ink)" textAnchor="middle" fontFamily="var(--mono)" paintOrder="stroke" stroke="var(--surface)" strokeWidth="4">${e[2]}</text>`}</g>`; })}
+      ${NODES.map(n => html`<g key=${n.id} onMouseEnter=${() => setHover(n.id)} onMouseLeave=${() => setHover(null)} style=${{ cursor: "default" }}>
+        <rect x=${n.x} y=${n.y} width=${W} height=${H} rx="7" fill=${n.kind === "lookup" ? "var(--lookup-soft)" : n.kind === "hub" ? "var(--accent)" : "var(--accent-soft)"} stroke=${n.kind === "lookup" ? "var(--lookup)" : "var(--accent)"} strokeWidth=${hover === n.id ? 2.5 : 1.5} strokeDasharray=${n.kind === "lookup" ? "4 3" : "none"}/>
+        <text x=${n.x + 10} y=${n.y + 23} fontSize="12" fontWeight="600" fill=${n.kind === "hub" ? "var(--bg)" : "var(--fg)"} fontFamily="var(--mono)">${n.name}</text>
+        <text x=${n.x + 10} y=${n.y + 42} fontSize="11" fill=${n.kind === "hub" ? "var(--bg)" : "var(--muted)"}>${n.sub}</text></g>`)}
+    </svg>
+    <div className="legend"><span><i></i>owned by the config (created, updated, destroyed)</span><span><i className="lk"></i>looked up only (the org's own record, matched by its natural key)</span><span>arrow = lookup field, from the record that holds it</span></div></div>
+    <div className="prose">
+    <h3>How records are identified</h3>
+    <p>By natural key, never by Salesforce Id: <code>Code</code> on most objects, <code>ProductCode</code> on Product2, <code>UnitCode</code> on UnitOfMeasure, <code>Name</code> on RateCard and the two policies, the uniqueness combination on ProductSellingModel, rate card + product + resource on RateCardEntry, entry + LowerBound on RateAdjustmentByTier, and the pair of parent Ids on junctions. A record whose key matches two org records is refused rather than guessed at.</p>
+    <h3>The two forward references</h3>
+    <p><code>UsageResource.UsageDefinitionProductId</code> points at the product created two files later, and <code>UnitOfMeasureClass.DefaultUnitOfMeasureId</code> at the unit created right after the class. Both are created empty and filled in once the target exists.</p>
+    <h3>What activation adds, outside this map</h3>
+    <p>When an order for the product is activated, the platform creates records that no config file owns: the asset, one <code>TransactionUsageEntitlement</code> per resource, a <code>UsageEntitlementAccount</code> with a two-level bucket tree, a <code>BillingScheduleGroup</code> + <code>BillingSchedule</code> per resource and one for the line, and copies of the rate-card entries and tiers on the order product and the asset. They are drawn in <code>claude-billing-data-model.html</code>.</p>
+    </div>
+  </div>`;
+}
+
+/* ───── build steps ───── */
+function RecordTable({ obj }) {
+  const keys = Array.from(new Set(obj.records.flatMap(r => Object.keys(r)))).filter(k => k !== "@id");
+  const cell = v => v === undefined ? "" : typeof v === "string" && v.startsWith("@ref:") ? html`<span className="ref">${v}</span>` : typeof v === "boolean" ? String(v) : String(v);
+  return html`<div className="tablewrap"><table><thead><tr><th>@id</th>${keys.map(k => html`<th key=${k}>${k}</th>`)}</tr></thead>
+    <tbody>${obj.records.map((r, i) => html`<tr key=${i}><td className="mono">${r["@id"] || ""}</td>${keys.map(k => html`<td key=${k} className=${k === "Description" || k === "_comment" ? "wrap" : ""}>${cell(r[k])}</td>`)}</tr>`)}</tbody></table></div>`;
+}
+function Step({ i, s, open, toggle }) {
+  const file = CONFIG[s.file]; const [tab, setTab] = useState(0);
+  const count = file.objects.reduce((n, o) => n + o.records.length, 0);
+  const ownedN = file.objects.reduce((n, o) => n + o.records.filter(owned).length, 0);
+  return html`<div className="step">
+    <button className="step-head" aria-expanded=${open} onClick=${toggle}>
+      <span className="step-num">${String(i + 1).padStart(2, "0")}</span>
+      <span><span className="step-title">${s.title}</span><br/><span className="step-file">${s.file}</span></span>
+      <span className="step-count">${count} record${count === 1 ? "" : "s"}${ownedN < count ? ` · ${count - ownedN} looked up` : ""}</span>
+    </button>
+    ${open && html`<div className="step-body">
+      <p style=${{ marginTop: 12 }}>${s.why}</p>
+      <div className="tags">${file.objects.map(o => html`<span key=${o.sobject} className=${"tag " + (o.records.every(owned) ? "owned" : o.records.every(r => !owned(r)) ? "lookup" : "")}>${o.sobject} · match ${o.match_fields.join(" + ")}</span>`)}</div>
+      <ul className="notes">${s.notes.map((n, k) => html`<li key=${k}>${n}</li>`)}</ul>
+      <div className="tabs">${file.objects.map((o, k) => html`<button key=${k} className=${"tab " + (tab === k ? "on" : "")} onClick=${() => setTab(k)}>${o.sobject} (${o.records.length})</button>`)}</div>
+      <${RecordTable} obj=${file.objects[tab]} />
+    </div>`}
+  </div>`;
+}
+function Build() {
+  const [open, setOpen] = useState({ 0: true });
+  return html`<div className="page">
+    <div className="eyebrow">Section 3</div>
+    <h1>The thirteen build steps</h1>
+    <p className="lede">One numbered JSON file per step, loaded in sorted order; parents before children. Each step shows the exact records in the config (the <code>@id</code> is the config's own name for a record; <code>@ref:</code> is a reference resolved at load time; <code>@lookup-only</code> marks a record the org already owns). The files are generated by <code>models/build_entrust_config.py</code> from one table of six resources — edit the generator, never the JSON. Expand a step for the records and the things that bit.</p>
+    <div className="callout good">These records are the org as John built it by hand in the console on 13–14 October 2026 (<code>document-check-console-walkthrough.html</code>, click by click), read back over SOQL and reproduced by the generator. On 14 October <code>rc-config verify</code> compared all ${nOwned} owned records against the live org and found nothing to change, seven decision tables synced — the first time the tool described a catalog it did not build.</div>
+    <div className="steps">${STEPS.map((s, i) => html`<${Step} key=${s.file} i=${i} s=${s} open=${!!open[i]} toggle=${() => setOpen({ ...open, [i]: !open[i] })} />`)}</div>
+  </div>`;
+}
+
+function Apply() {
+  return html`<div className="page">
+    <div className="eyebrow">Section 4</div>
+    <h1>Apply and verify</h1>
+    <div className="prose">
+    <p className="lede">The records are written by <code>rc-config</code>, an idempotent JSON-driven tool: it finds each record by its natural key, compares, and writes only what differs. The same files build an empty org, prove a second run is a no-op, describe an org someone built by hand, and tear the catalog down again.</p>
+    <h3>The order the tool follows</h3>
+    <ol className="list">
+      <li><b>Check offline.</b> Structure, references, match keys, and the landmines it can lint (a price-book entry without a selling model, a rate on a non-Base card, a Tier entry with no tiers, tier bands that do not chain, a product with a rate-card entry but no price-book entry, and so on).</li>
+      <li><b>Pre-flight against the org.</b> Every field exists at the pinned API version, text fits the field length, price-book entries are in the corporate currency.</li>
+      <li><b>Load in file order.</b> Create or update; lifecycle records (unit class, usage resources, product-usage links, grants, rate-card entries) are always inserted Draft, and tiers are loaded while their entry is still Draft.</li>
+      <li><b>Fill the forward references</b> once their targets exist.</li>
+      <li><b>Activate</b> the lifecycle records, in config order, only after a clean load.</li>
+      <li><b>Refresh the seven decision tables</b> — four pricing, three tier — and wait for them (the snapshots quoting and rating read).</li>
+      <li><b>Rebuild the product search index</b>, incrementally, falling back to a full build when the org refuses the partial one.</li>
+    </ol>
+    </div>
+    <pre><code>rc-config check  --config-dir config/entrust                 # 79 records (76 owned, 3 looked up)
+pytest                                                       # 128 passed — the simulated org enforces the lifecycle rules
+rc-config plan   --org m3ter --config-dir config/entrust     # read-only: what apply would change
+rc-config verify --org m3ter --config-dir config/entrust     # 14 Oct: "76 records present, in the right state, nothing to change"; 7 tables synced
+rc-config apply  --org m3ter --config-dir config/entrust     # on this org: Unchanged 76 (it was built by hand); on an empty org: creates all 76
+rc-config destroy --org m3ter --config-dir config/entrust    # after the teardown script, if an order was activated</code></pre>
+    <div className="prose">
+    <h3>What verify compared</h3>
+    <p>Every date (the console's <code>2026-09-01T19:00:00Z</code>), the <code>Custom</code> unit type, the re-sent <code>IsRequired</code>, both cards and all eighteen tiers, the two policies and the binding policy — all matched the live data. The tool has not yet written to this org: the real end-to-end, <code>destroy → apply → apply → verify</code> from empty, is the next milestone.</p>
+    <h3>Reading the org back</h3>
+    <p>These queries in the Developer Console (which runs at the org's newest API version) confirm the build without the tool.</p>
+    </div>
+    <pre><code>SELECT ProductCode, UsageModelType, ConfigureDuringSale, BasedOn.Code FROM Product2 WHERE ProductCode = 'VC-DOC-CHECK'   -- Anchor, Allowed, PC-DOC-CHECK
+SELECT Code, Status FROM UsageResource WHERE Code LIKE 'RES-DOC-CHECK-%'                                                 -- 6, Active
+SELECT IsRequired, IsPriceImpacting FROM ProductClassificationAttr WHERE ProductClassification.Code = 'PC-DOC-CHECK'       -- true, false
+SELECT RateCard.Name, UsageResource.Code, Rate, Status FROM RateCardEntry WHERE RateCard.Name LIKE 'Document Check Rate Card%'  -- 12 rows, 6 with a Rate
+SELECT RateCardEntry.UsageResource.Code, LowerBound, UpperBound, AdjustmentValue FROM RateAdjustmentByTier
+  WHERE RateCardEntry.RateCard.Name = 'Document Check Rate Card - Commit (Tier)' ORDER BY RateCardEntry.UsageResource.Code, LowerBound   -- 18 rows
+SELECT ProductUsageResource.UsageResource.Code, Quantity, ValidityPeriodUnit FROM ProductUsageGrant
+  WHERE ProductUsageResource.Product.ProductCode = 'VC-DOC-CHECK'                                                         -- 6 rows, 0, None
+SELECT DeveloperName, RefreshStatus, LastSyncDate FROM DecisionTable WHERE DeveloperName IN (
+  'Price_Book_Entry_Decision_Table_v2','Pricebook_Rate_Card_Decision_Table','Rate_Card_Entries_2','Rate_Card_Entry_Resolution_Entries_2',
+  'Rate_Adjustment_by_Tier_Entries_2','Rate_Adjustment_by_Tier_Resolution_Decision_Table','Tier_based_Rate_Adjustment_by_Rate_Card_Entry_ID')</code></pre>
+    <div className="prose">
+    <h3>Tearing it down</h3>
+    <p><code>rc-config destroy</code> deactivates, blanks the class's default unit, deletes in reverse order in passes (re-querying by Id to tell "refused" from "already gone by cascade"), and empties the recycle bin for the objects that have one. It never touches a looked-up record. Once an order has been <em>activated</em>, the asset, entitlements, buckets, billing schedules and renewal opportunity it created are outside the tool's reach: run <code>scripts/teardown-after-assetization.apex</code> first (order back to Draft, buckets leaves-first, schedules through their groups), then <code>destroy</code>.</p>
+    </div>
+  </div>`;
+}
+
+function Quote() {
+  const q = QUOTE;
+  return html`<div className="page">
+    <div className="eyebrow">Section 5</div>
+    <h1>The quote and the order</h1>
+    <p className="lede">The catalog is only right if a seller can build a real quote from it and the order carries the rates through to the asset. This is the one-line test quote of 14 October 2026, what reached the order and the asset, and what Billing made of it.</p>
+    <div className="prose">
+    <h3>Before the quote</h3>
+    <p>An Account (${q.account}; no opportunity was needed). The quote from the New Quote form: <em>${q.name}</em> (quote ${q.number}), Standard Price Book, USD.</p>
+    <h3>The line</h3>
+    <ol className="list">
+      <li><b>Add Product</b>: ${q.line}. The product appears immediately because the index and the decision tables were refreshed after the build.</li>
+      <li><b>Configure</b> (row action): Feature Type <b>${q.feature}</b>. The row shows a warning triangle until the required attribute is set; it writes a <code>QuoteLineItemAttribute</code> with <code>IsPriceImpacting = false</code>.</li>
+      <li><b>Unit price</b> overridden to ${q.unit_price}.</li>
+      <li><b>Manage Usage Resources</b> (row action): all six resources are listed; the pencil beside <i>Current Rate</i> on each writes <code>QuoteLineRateCardEntry.NegotiatedRate</code> on the List card's row. The rates below were chosen to be recognisable, not realistic.</li>
+      <li><b>Create Order</b>, then <b>Activate</b> — order ${q.order}, activated ${q.activated}.</li>
+    </ol>
+    </div>
+    <h3>The rates, as held on the quote line, the order product and the asset</h3>
+    <div className="tablewrap"><table><thead><tr><th>Usage resource</th><th className="num">List rate</th><th className="num">Negotiated (List card)</th><th>Commit card tiers 0–10k / 10k–25k / 25k+</th><th>IsChosenRate</th></tr></thead>
+      <tbody>${q.rates.map(([r, list, net, tiers]) => html`<tr key=${r}><td className="mono">${r}</td><td className="num">${list.toFixed(2)}</td><td className="num">${net.toFixed(2)}</td><td className="mono">${tiers}</td><td><span className="tag">false on both cards</span></td></tr>`)}</tbody></table></div>
+    <div className="callout"><b>Both cards reach every resource, and the platform picks neither.</b> Twelve <code>QuoteLineRateCardEntry</code> rows (one per resource per card), <code>IsChosenRate = false</code> on all twelve; the same twelve again as <code>OrderItemRateCardEntry</code> and as <code>AssetRateCardEntry</code>, negotiated rates carried unchanged, and the eighteen tiers arrive on the asset as <code>AssetRateAdjustment</code> rows. <code>NegotiatedRate</code> is set on the six List rows and blank on the six Tier rows (a Tier entry has no rate to negotiate). "Card by willingness to commit" is therefore a downstream decision, or the cards must not share a price book — the question put to the Salesforce team. Boost USA at 0.00 is deliberate: a negotiated zero is a real price.</div>
+    <h3>SOQL evidence</h3>
+    <pre><code>SELECT UsageResource.Code, RateCardEntry.RateCard.Name, RateCardEntry.Rate, NegotiatedRate, IsChosenRate
+  FROM QuoteLineRateCardEntry WHERE QuoteLineItemId = '0QLWs00000CfngzOAB' ORDER BY UsageResource.Code
+  -- 12 rows, IsChosenRate false throughout; NegotiatedRate on the List rows only
+
+SELECT UsageResource.Code, RateCardEntry.RateCard.Name, NegotiatedRate FROM AssetRateCardEntry WHERE AssetId = '02iWs00000SreQbIAJ'
+  -- the same 12 (no IsChosenRate on the asset copy)
+SELECT COUNT() FROM AssetRateAdjustment WHERE AssetRateCardEntry.AssetId = '02iWs00000SreQbIAJ'   -- 18 (read the Total Rows header)
+
+SELECT Id, Name, LifecycleStartDate, LifecycleEndDate FROM Asset WHERE Id = '02iWs00000SreQbIAJ'   -- 14 Oct – 13 Nov
+SELECT COUNT() FROM TransactionUsageEntitlement WHERE AssetId = '02iWs00000SreQbIAJ'        -- 6
+SELECT COUNT() FROM UsageEntitlementBucket                       -- 12: 6 parents under the account, 6 children
+SELECT BillingScheduleNumber, Status, BillingPeriodAmount, UsageResourceId FROM BillingSchedule
+  WHERE ReferenceEntityId = '801Ws000067lLWcIAM'               -- 7: one flat (1,000), six usage (0, resource set)</code></pre>
+    <div className="prose"><h3>What Billing made of it (20 October)</h3><p>Activation created seven billing schedules: one for the 1,000 USD line and one per usage resource, all <em>Ready For Invoicing</em>, on the org's default Advance treatment (the product names no billing policy). <em>Generate Invoices</em> on Acme produced draft invoice <code>DOC-000000001</code>: 1,000 + 100 estimated tax, one line, 14 Oct–13 Nov. The six usage schedules contributed nothing — they wait for liable summaries (<code>UsageBillingPeriodItem</code>), which is what the m3ter bill sync will write. See <code>claude-billing-data-model.html</code> and <code>bill-sync-design.html</code>.</p>
+    <h3>Still to prove</h3><p>Which card a committed customer's line should use, and how a line says so (price book per commitment model, or an attribute with a rate adjustment). A usage invoice: liable summaries written for the asset, then <em>Generate Invoices</em> again, with the six usage lines on the same invoice as the flat line.</p></div>
+  </div>`;
+}
+
+function Landmines() {
+  return html`<div className="page">
+    <div className="eyebrow">Section 6</div>
+    <h1>Landmines</h1>
+    <p className="lede">Things that insert cleanly and fail later, or fail with a misleading message. Each one cost at least one afternoon; the tool now lints or works around most of them. The full table is in the README ("Field-name landmines").</p>
+    <div className="lm-grid">${LANDMINES.map(([t, d]) => html`<div className="landmine" key=${t}><b>${t}</b><p>${d}</p></div>`)}</div>
+  </div>`;
+}
+
+function YourOrg() {
+  const items = [
+    ["Revenue Cloud enabled, with the quote line editor, Usage Management and the pricing decision tables present.", "Setup → Revenue Settings and Usage Management. The seven relevant decision tables ship with the feature."],
+    ["A single corporate currency, and every price-book entry in it.", "Query CurrencyType for IsCorporate = true. Multi-currency is fine, but only the corporate currency prices quotes."],
+    ["The Standard Price Book, active.", "Looked up by IsStandard = true."],
+    ["A Term Monthly selling model (TermDefined, 1, Months), Active.", "Pre-seeded in most orgs; match on the combination, not on Name."],
+    ["A Currency-type unit-of-measure class with a USD unit.", "Pre-seeded as CURRENCY / USD. The rate-card entries express their rate in it."],
+    ["API version 66.0 for the loader.", "ProductUsageResource needs v64+; ProductUsageGrant.OverageChargeable exists at v66 and not later."],
+    ["Describe every object before writing it.", "Both the required-on-insert filter and the all-createable filter; the first catches what the second misses."],
+    ["A way to refresh decision tables and rebuild the product index.", "REST: actions/standard/refreshDecisionTable and connect/pcm/index/deploy; or the Home page's refresh and rebuild buttons. About 20 refreshes an hour."],
+    ["Write the records as data, not clicks — or click first, then describe.", "This catalog was clicked first; the generator reproduces it from one table of six resources, and verify is the proof. Either order works if the config ends up the truth."],
+    ["Prove it with a quote, an order and an activation.", "Add the product, set the attribute, negotiate one rate, create and activate the order, then read QuoteLineRateCardEntry, AssetRateCardEntry and AssetRateAdjustment back. Then generate a draft invoice."],
+    ["If Billing is on, the order needs a Bill To Contact and billing and shipping addresses.", "Activation fails without them. With Billing on, activation also creates the billing schedules the invoice run reads."],
+  ];
+  return html`<div className="page">
+    <div className="eyebrow">Section 7</div>
+    <h1>Recreate it in your org</h1>
+    <p className="lede">What has to be true before the thirteen files load, and the habits that made the build repeatable.</p>
+    <div className="prose">${items.map(([a, b], i) => html`<div className="check" key=${i}><span className="box" aria-hidden="true"></span><div><b>${a}</b><div style=${{ color: "var(--muted)", fontSize: 14 }}>${b}</div></div></div>`)}
+    <h3>Adapting the content</h3>
+    <p>One Anchor product per thing you sell; one picklist attribute per selector the rep must choose; one usage resource per combination the meter can tell apart (here feature × region); one 0-quantity grant and one policy row per resource; one rate card per price list, with one entry per resource. Rename, keep the codes derived from the names, put your rates on the List card and your tier bands on the Commit card. Adding a feature or a region is one row in <code>RESOURCES</code> in the generator.</p>
+    <h3>Next, when you need it</h3>
+    <p><b>Rates per country</b>: resources per feature × region band, with a catch-all band and a country-to-band mapping outside the rate card (custom metadata). <b>Choosing the card</b>: either a price book per commitment model (the platform then filters, per quote), or a <em>Willingness to Commit</em> attribute with a rate adjustment (per line, but it adjusts one entry rather than choosing between two). <b>The commitment</b> as the team designed it: custom quote-line fields, synced to m3ter as a Balance, invoiced from there — not a platform grant.</p>
+    </div>
+    <div className="foot">Built from the revenue-cloud-config project. Rewritten 20 October 2026 for the Document Check build of 13–14 October; the records are <code>config/entrust/*.json</code> embedded at build time by <code>models/build_setup_guide.py</code>, and the quote figures are the values read back by SOQL. The 7 October version (eleven Pack products, Rate Card D) is in git history.</div>
+  </div>`;
+}
+
+function App() {
+  const read = () => { const h = (location.hash || "").replace("#", ""); return SECTIONS.some(s => s[0] === h) ? h : "overview"; };
+  const [cur, setCur] = useState(read);
+  useEffect(() => { const f = () => setCur(read()); addEventListener("hashchange", f); return () => removeEventListener("hashchange", f); }, []);
+  const go = id => { setCur(id); try { history.replaceState(null, "", "#" + id); } catch (e) {} window.scrollTo({ top: 0 }); };
+  const Page = { overview: Overview, map: ObjectMap, build: Build, apply: Apply, quote: Quote, landmines: Landmines, yourorg: YourOrg }[cur];
+  return html`<div className="shell"><${Nav} current=${cur} go=${go} />
+    <div className="main"><${Nav} current=${cur} go=${go} mobile=${true} /><${Page} /></div></div>`;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(html`<${App} />`);
+"""
+
+
+def main() -> None:
+    assert [s["file"] for s in STEPS] == list(CONFIG), (list(CONFIG), [s["file"] for s in STEPS])
+    for s in STEPS:
+        assert s["objects"] == [o["sobject"] for o in CONFIG[s["file"]]["objects"]], s["file"]
+    ids = {n["id"] for n in NODES}
+    assert all(a in ids and b in ids for a, b, _ in EDGES)
+    app = APP.replace("__NODES__", json.dumps(NODES)).replace("__EDGES__", json.dumps(EDGES))
+    js = json.dumps
+    page = f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- GENERATED by customers/entrust/docs/build_setup_guide.py from customers/entrust/revenue-cloud/*.json and the notes in that script.
+     Re-run the generator after the config changes; do not edit this file. -->
+<title>Document Check Catalog Setup</title>
+<meta name="description" content="How the Entrust Document Check catalog was set up in Revenue Cloud, record by record: one Anchor product, a Feature Type selector, six usage resources, two rate cards, and the quote, order and asset that proved it.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+{CSS}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+const CONFIG = {js(CONFIG, ensure_ascii=False)};
+const STEPS = {js(STEPS, ensure_ascii=False)};
+const QUOTE = {js(QUOTE, ensure_ascii=False)};
+const LANDMINES = {js(LANDMINES, ensure_ascii=False)};
+{app}
+</script>
+</body>
+</html>
+"""
+    OUT.write_text(page)
+    n = sum(len(o["records"]) for f in CONFIG.values() for o in f["objects"])
+    print(f"wrote {OUT.relative_to(ROOT)}: {len(CONFIG)} files, {n} records, {len(NODES)} boxes, {len(EDGES)} arrows, {len(page):,} bytes")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,56 @@
+{
+  "_comment": "How the spend commitment draws down, copied from the org's own QB-MTY-CMT sample (SOQL 2026-10-07): a Commit-type grant on the Currency resource, and a product-level policy pointing at a UsageCommitmentPolicy. No Anchor product and no UsagePrdGrantBindingPolicy are involved: those exist only on Anchor products in the org. The Pack products are bound to the balance at contract time (UsageCmtAssetRelatedObj), not in the catalog. UNTESTED ASSUMPTION: Quantity 1 per unit scales with the quote quantity, so a line of 201262.83 units grants 201262.83 EUR. The WOLT-2026 acceptance quote decides. OverageChargeable is a v66-only field on the grant (README landmine).",
+  "objects": [
+    {
+      "sobject": "UsageCommitmentPolicy",
+      "match_fields": [
+        "Name"
+      ],
+      "records": [
+        {
+          "@id": "UCP_LowestRate",
+          "Name": "Verification Lowest Commitment Rate",
+          "CommitmentRate": "Lowest Commitment Rate"
+        }
+      ]
+    },
+    {
+      "sobject": "ProductUsageGrant",
+      "match_fields": [
+        "ProductUsageResourceId",
+        "Type"
+      ],
+      "records": [
+        {
+          "@id": "PUG_SpendCommitmentEUR",
+          "Label": "Verification Spend Balance (EUR)",
+          "ProductUsageResourceId": "@ref:PUR_SpendCommitmentEUR",
+          "UsageDefinitionProductId": "@ref:P_SpendCommitmentEUR",
+          "UnitOfMeasureId": "@ref:UOM_EUR",
+          "UnitOfMeasureClassId": "@ref:UOMCLASS_Currency",
+          "Type": "Commit",
+          "Status": "Active",
+          "Quantity": 1,
+          "OverageChargeable": "Yes",
+          "ValidityPeriodTerm": 1,
+          "ValidityPeriodUnit": "Year",
+          "DrawdownOrder": "ExpiringFirst",
+          "EffectiveStartDate": "2025-01-01T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "sobject": "ProductUsageResourcePolicy",
+      "match_fields": [
+        "ProductUsageResourceId"
+      ],
+      "records": [
+        {
+          "@id": "PURP_SpendCommitmentEUR",
+          "ProductUsageResourceId": "@ref:PUR_SpendCommitmentEUR",
+          "UsageCommitmentPolicyId": "@ref:UCP_LowestRate"
+        }
+      ]
+    }
+  ]
+}

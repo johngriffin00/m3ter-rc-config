@@ -1,0 +1,309 @@
+{
+  "_comment": "Every product needs a PricebookEntry to be quotable, each carrying ProductSellingModelId (README landmine). Metered products are 0.00 here — their price is the rate card entry. The commitment is 1.00 per unit so the quote quantity IS the committed amount; the CSM fee is 0.00 and priced on the line. TWO ENTRIES PER PRODUCT, USD AND EUR: the pricing decision table and the quote's product search only serve rows in the corporate currency (USD) — 14 EUR-only rows were invisible all day on 2026-10-07 — while a quote line saves only against an entry in the quote's currency (EUR here). Same prices in both; 0.00 and 1.00 are currency-neutral, and the real EUR prices live on the rate card.",
+  "objects": [
+    {
+      "sobject": "Pricebook2",
+      "match_fields": [
+        "IsStandard"
+      ],
+      "records": [
+        {
+          "@id": "PB_Standard",
+          "@lookup-only": true,
+          "IsStandard": true
+        }
+      ]
+    },
+    {
+      "sobject": "PricebookEntry",
+      "match_fields": [
+        "Pricebook2Id",
+        "Product2Id",
+        "ProductSellingModelId",
+        "CurrencyIsoCode"
+      ],
+      "records": [
+        {
+          "@id": "PBE_DocumentReportStandardHybrid_USD",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_DocumentReportStandardHybrid",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "USD",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_DocumentReportStandardHybrid_EUR",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_DocumentReportStandardHybrid",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "EUR",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_DocumentReportStandardAuto_USD",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_DocumentReportStandardAuto",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "USD",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_DocumentReportStandardAuto_EUR",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_DocumentReportStandardAuto",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "EUR",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_DocumentReportStandardManual_USD",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_DocumentReportStandardManual",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "USD",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_DocumentReportStandardManual_EUR",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_DocumentReportStandardManual",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "EUR",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_DocumentReportDriverVerification_USD",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_DocumentReportDriverVerification",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "USD",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_DocumentReportDriverVerification_EUR",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_DocumentReportDriverVerification",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "EUR",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_Autofill_USD",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_Autofill",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "USD",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_Autofill_EUR",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_Autofill",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "EUR",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_FacialSimilarityReportStandard_USD",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_FacialSimilarityReportStandard",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "USD",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_FacialSimilarityReportStandard_EUR",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_FacialSimilarityReportStandard",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "EUR",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_FacialSimilarityReportVideo_USD",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_FacialSimilarityReportVideo",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "USD",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_FacialSimilarityReportVideo_EUR",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_FacialSimilarityReportVideo",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "EUR",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_FacialSimilarityReportMotion_USD",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_FacialSimilarityReportMotion",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "USD",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_FacialSimilarityReportMotion_EUR",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_FacialSimilarityReportMotion",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "EUR",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_KnownFacesReportStandard_USD",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_KnownFacesReportStandard",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "USD",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_KnownFacesReportStandard_EUR",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_KnownFacesReportStandard",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "EUR",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_RepeatAttemptsReportStandard_USD",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_RepeatAttemptsReportStandard",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "USD",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_RepeatAttemptsReportStandard_EUR",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_RepeatAttemptsReportStandard",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "EUR",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_ApplicantFraudReportStandard_USD",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_ApplicantFraudReportStandard",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "USD",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_ApplicantFraudReportStandard_EUR",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_ApplicantFraudReportStandard",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "EUR",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_ProofOfAddressReportStandard_USD",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_ProofOfAddressReportStandard",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "USD",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_ProofOfAddressReportStandard_EUR",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_ProofOfAddressReportStandard",
+          "ProductSellingModelId": "@ref:PSM_TermMonthly",
+          "CurrencyIsoCode": "EUR",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_SpendCommitmentEUR_USD",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_SpendCommitmentEUR",
+          "ProductSellingModelId": "@ref:PSM_TermAnnual",
+          "CurrencyIsoCode": "USD",
+          "UnitPrice": 1.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_SpendCommitmentEUR_EUR",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_SpendCommitmentEUR",
+          "ProductSellingModelId": "@ref:PSM_TermAnnual",
+          "CurrencyIsoCode": "EUR",
+          "UnitPrice": 1.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_CSMFee_USD",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_CSMFee",
+          "ProductSellingModelId": "@ref:PSM_TermAnnual",
+          "CurrencyIsoCode": "USD",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        },
+        {
+          "@id": "PBE_CSMFee_EUR",
+          "Pricebook2Id": "@ref:PB_Standard",
+          "Product2Id": "@ref:P_CSMFee",
+          "ProductSellingModelId": "@ref:PSM_TermAnnual",
+          "CurrencyIsoCode": "EUR",
+          "UnitPrice": 0.0,
+          "IsActive": true,
+          "UseStandardPrice": false
+        }
+      ]
+    }
+  ]
+}

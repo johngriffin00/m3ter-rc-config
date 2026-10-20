@@ -1,0 +1,133 @@
+{
+  "_comment": "The Verification Catalog itself was built by hand on 2026-10-06 and is only looked up. Its four categories and the 14 product placements are owned here.",
+  "objects": [
+    {
+      "sobject": "ProductCatalog",
+      "match_fields": [
+        "Code"
+      ],
+      "records": [
+        {
+          "@id": "CAT_Verification",
+          "@lookup-only": true,
+          "Code": "CAT-VERIFICATION"
+        }
+      ]
+    },
+    {
+      "sobject": "ProductCategory",
+      "match_fields": [
+        "Code"
+      ],
+      "records": [
+        {
+          "@id": "CAT_DocumentChecks",
+          "CatalogId": "@ref:CAT_Verification",
+          "Name": "Document Checks",
+          "Code": "CAT-DOCUMENT-CHECKS",
+          "SortOrder": 1
+        },
+        {
+          "@id": "CAT_Biometrics",
+          "CatalogId": "@ref:CAT_Verification",
+          "Name": "Biometrics",
+          "Code": "CAT-BIOMETRICS",
+          "SortOrder": 2
+        },
+        {
+          "@id": "CAT_IdentityData",
+          "CatalogId": "@ref:CAT_Verification",
+          "Name": "Identity Data",
+          "Code": "CAT-IDENTITY-DATA",
+          "SortOrder": 3
+        },
+        {
+          "@id": "CAT_Commercial",
+          "CatalogId": "@ref:CAT_Verification",
+          "Name": "Commitments & Fees",
+          "Code": "CAT-COMMERCIAL",
+          "SortOrder": 4
+        }
+      ]
+    },
+    {
+      "sobject": "ProductCategoryProduct",
+      "match_fields": [
+        "ProductCategoryId",
+        "ProductId"
+      ],
+      "records": [
+        {
+          "ProductCategoryId": "@ref:CAT_DocumentChecks",
+          "ProductId": "@ref:P_DocumentReportStandardHybrid",
+          "IsPrimaryCategory": true
+        },
+        {
+          "ProductCategoryId": "@ref:CAT_DocumentChecks",
+          "ProductId": "@ref:P_DocumentReportStandardAuto",
+          "IsPrimaryCategory": true
+        },
+        {
+          "ProductCategoryId": "@ref:CAT_DocumentChecks",
+          "ProductId": "@ref:P_DocumentReportStandardManual",
+          "IsPrimaryCategory": true
+        },
+        {
+          "ProductCategoryId": "@ref:CAT_DocumentChecks",
+          "ProductId": "@ref:P_DocumentReportDriverVerification",
+          "IsPrimaryCategory": true
+        },
+        {
+          "ProductCategoryId": "@ref:CAT_DocumentChecks",
+          "ProductId": "@ref:P_Autofill",
+          "IsPrimaryCategory": true
+        },
+        {
+          "ProductCategoryId": "@ref:CAT_Biometrics",
+          "ProductId": "@ref:P_FacialSimilarityReportStandard",
+          "IsPrimaryCategory": true
+        },
+        {
+          "ProductCategoryId": "@ref:CAT_Biometrics",
+          "ProductId": "@ref:P_FacialSimilarityReportVideo",
+          "IsPrimaryCategory": true
+        },
+        {
+          "ProductCategoryId": "@ref:CAT_Biometrics",
+          "ProductId": "@ref:P_FacialSimilarityReportMotion",
+          "IsPrimaryCategory": true
+        },
+        {
+          "ProductCategoryId": "@ref:CAT_Biometrics",
+          "ProductId": "@ref:P_KnownFacesReportStandard",
+          "IsPrimaryCategory": true
+        },
+        {
+          "ProductCategoryId": "@ref:CAT_Biometrics",
+          "ProductId": "@ref:P_RepeatAttemptsReportStandard",
+          "IsPrimaryCategory": true
+        },
+        {
+          "ProductCategoryId": "@ref:CAT_Biometrics",
+          "ProductId": "@ref:P_ApplicantFraudReportStandard",
+          "IsPrimaryCategory": true
+        },
+        {
+          "ProductCategoryId": "@ref:CAT_IdentityData",
+          "ProductId": "@ref:P_ProofOfAddressReportStandard",
+          "IsPrimaryCategory": true
+        },
+        {
+          "ProductCategoryId": "@ref:CAT_Commercial",
+          "ProductId": "@ref:P_SpendCommitmentEUR",
+          "IsPrimaryCategory": true
+        },
+        {
+          "ProductCategoryId": "@ref:CAT_Commercial",
+          "ProductId": "@ref:P_CSMFee",
+          "IsPrimaryCategory": true
+        }
+      ]
+    }
+  ]
+}

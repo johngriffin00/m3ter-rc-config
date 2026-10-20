@@ -1,0 +1,174 @@
+{
+  "_comment": "Verification Rate Card B (EUR) — Type Base, under the Standard Price Book — was built by hand on 2026-10-06 and is kept: the card and its price-book link are looked up, the 12 entries are owned. Every entry is Negotiable (v2 D12): the per-line discount must reach rating through QuoteLineRateCardEntry.NegotiatedRate. Rates are the current m3ter rate_card_b_eur_default_pricing list (from 2025-01-27); 0.00 for the free add-ons.",
+  "objects": [
+    {
+      "sobject": "RateCard",
+      "match_fields": [
+        "Name"
+      ],
+      "records": [
+        {
+          "@id": "RC_EUR",
+          "@lookup-only": true,
+          "Name": "Verification Rate Card B (EUR)"
+        }
+      ]
+    },
+    {
+      "sobject": "PriceBookRateCard",
+      "match_fields": [
+        "PriceBookId",
+        "RateCardId"
+      ],
+      "records": [
+        {
+          "@id": "PBRC_EUR",
+          "@lookup-only": true,
+          "PriceBookId": "@ref:PB_Standard",
+          "RateCardId": "@ref:RC_EUR"
+        }
+      ]
+    },
+    {
+      "sobject": "RateCardEntry",
+      "match_fields": [
+        "RateCardId",
+        "ProductId"
+      ],
+      "records": [
+        {
+          "@id": "RCE_DocumentReportStandardHybrid",
+          "RateCardId": "@ref:RC_EUR",
+          "ProductId": "@ref:P_DocumentReportStandardHybrid",
+          "UsageResourceId": "@ref:RES_DocumentReportStandardHybrid",
+          "RateUnitOfMeasureId": "@ref:UOM_EUR",
+          "EffectiveFrom": "2025-01-27T08:00:00Z",
+          "Rate": 2.28,
+          "RateNegotiation": "Negotiable",
+          "Status": "Active"
+        },
+        {
+          "@id": "RCE_DocumentReportStandardAuto",
+          "RateCardId": "@ref:RC_EUR",
+          "ProductId": "@ref:P_DocumentReportStandardAuto",
+          "UsageResourceId": "@ref:RES_DocumentReportStandardAuto",
+          "RateUnitOfMeasureId": "@ref:UOM_EUR",
+          "EffectiveFrom": "2025-01-27T08:00:00Z",
+          "Rate": 0.65,
+          "RateNegotiation": "Negotiable",
+          "Status": "Active"
+        },
+        {
+          "@id": "RCE_DocumentReportStandardManual",
+          "RateCardId": "@ref:RC_EUR",
+          "ProductId": "@ref:P_DocumentReportStandardManual",
+          "UsageResourceId": "@ref:RES_DocumentReportStandardManual",
+          "RateUnitOfMeasureId": "@ref:UOM_EUR",
+          "EffectiveFrom": "2025-01-27T08:00:00Z",
+          "Rate": 3.02,
+          "RateNegotiation": "Negotiable",
+          "Status": "Active"
+        },
+        {
+          "@id": "RCE_DocumentReportDriverVerification",
+          "RateCardId": "@ref:RC_EUR",
+          "ProductId": "@ref:P_DocumentReportDriverVerification",
+          "UsageResourceId": "@ref:RES_DocumentReportDriverVerification",
+          "RateUnitOfMeasureId": "@ref:UOM_EUR",
+          "EffectiveFrom": "2025-01-27T08:00:00Z",
+          "Rate": 2.28,
+          "RateNegotiation": "Negotiable",
+          "Status": "Active"
+        },
+        {
+          "@id": "RCE_Autofill",
+          "RateCardId": "@ref:RC_EUR",
+          "ProductId": "@ref:P_Autofill",
+          "UsageResourceId": "@ref:RES_Autofill",
+          "RateUnitOfMeasureId": "@ref:UOM_EUR",
+          "EffectiveFrom": "2025-01-27T08:00:00Z",
+          "Rate": 0.0,
+          "RateNegotiation": "Negotiable",
+          "Status": "Active"
+        },
+        {
+          "@id": "RCE_FacialSimilarityReportStandard",
+          "RateCardId": "@ref:RC_EUR",
+          "ProductId": "@ref:P_FacialSimilarityReportStandard",
+          "UsageResourceId": "@ref:RES_FacialSimilarityReportStandard",
+          "RateUnitOfMeasureId": "@ref:UOM_EUR",
+          "EffectiveFrom": "2025-01-27T08:00:00Z",
+          "Rate": 1.08,
+          "RateNegotiation": "Negotiable",
+          "Status": "Active"
+        },
+        {
+          "@id": "RCE_FacialSimilarityReportVideo",
+          "RateCardId": "@ref:RC_EUR",
+          "ProductId": "@ref:P_FacialSimilarityReportVideo",
+          "UsageResourceId": "@ref:RES_FacialSimilarityReportVideo",
+          "RateUnitOfMeasureId": "@ref:UOM_EUR",
+          "EffectiveFrom": "2025-01-27T08:00:00Z",
+          "Rate": 1.53,
+          "RateNegotiation": "Negotiable",
+          "Status": "Active"
+        },
+        {
+          "@id": "RCE_FacialSimilarityReportMotion",
+          "RateCardId": "@ref:RC_EUR",
+          "ProductId": "@ref:P_FacialSimilarityReportMotion",
+          "UsageResourceId": "@ref:RES_FacialSimilarityReportMotion",
+          "RateUnitOfMeasureId": "@ref:UOM_EUR",
+          "EffectiveFrom": "2025-01-27T08:00:00Z",
+          "Rate": 1.36,
+          "RateNegotiation": "Negotiable",
+          "Status": "Active"
+        },
+        {
+          "@id": "RCE_KnownFacesReportStandard",
+          "RateCardId": "@ref:RC_EUR",
+          "ProductId": "@ref:P_KnownFacesReportStandard",
+          "UsageResourceId": "@ref:RES_KnownFacesReportStandard",
+          "RateUnitOfMeasureId": "@ref:UOM_EUR",
+          "EffectiveFrom": "2025-01-27T08:00:00Z",
+          "Rate": 0.0,
+          "RateNegotiation": "Negotiable",
+          "Status": "Active"
+        },
+        {
+          "@id": "RCE_RepeatAttemptsReportStandard",
+          "RateCardId": "@ref:RC_EUR",
+          "ProductId": "@ref:P_RepeatAttemptsReportStandard",
+          "UsageResourceId": "@ref:RES_RepeatAttemptsReportStandard",
+          "RateUnitOfMeasureId": "@ref:UOM_EUR",
+          "EffectiveFrom": "2025-01-27T08:00:00Z",
+          "Rate": 0.0,
+          "RateNegotiation": "Negotiable",
+          "Status": "Active"
+        },
+        {
+          "@id": "RCE_ApplicantFraudReportStandard",
+          "RateCardId": "@ref:RC_EUR",
+          "ProductId": "@ref:P_ApplicantFraudReportStandard",
+          "UsageResourceId": "@ref:RES_ApplicantFraudReportStandard",
+          "RateUnitOfMeasureId": "@ref:UOM_EUR",
+          "EffectiveFrom": "2025-01-27T08:00:00Z",
+          "Rate": 0.0,
+          "RateNegotiation": "Negotiable",
+          "Status": "Active"
+        },
+        {
+          "@id": "RCE_ProofOfAddressReportStandard",
+          "RateCardId": "@ref:RC_EUR",
+          "ProductId": "@ref:P_ProofOfAddressReportStandard",
+          "UsageResourceId": "@ref:RES_ProofOfAddressReportStandard",
+          "RateUnitOfMeasureId": "@ref:UOM_EUR",
+          "EffectiveFrom": "2025-01-27T08:00:00Z",
+          "Rate": 2.28,
+          "RateNegotiation": "Negotiable",
+          "Status": "Active"
+        }
+      ]
+    }
+  ]
+}

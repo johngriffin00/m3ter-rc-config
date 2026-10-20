@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bill Sync Design</title>
+<meta name="description" content="How an m3ter bill becomes Revenue Cloud's usage chain (demoscripts/billsync, the port of the m3sh Usage Data workflows): overview, code structure chart, and the m3ter → Salesforce object and field mapping tables. A design — not yet built.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Same palette as order-sync-design.html and entrust-usage-data-structure.html so the documents read as a set:
+   blue = Salesforce / Revenue Cloud, teal = m3ter, purple = the Python sync, grey = supporting, orange = a decision still open. */
+:root {
+  --bg:#f7f8fa; --fg:#1c2230; --fg-2:#5b6472; --line:#d9dee6; --card:#ffffff;
+  --sf:#2f6fcf; --sf-bg:#e8f0fb; --m3:#0f8a7a; --m3-bg:#e3f4f0; --ctl:#7a5cc4; --ctl-bg:#efe9fb;
+  --st:#6b7280; --st-bg:#eef0f3; --call:#c2600f; --call-bg:#fbeee2; --warn:#b4530a; --warn-bg:#fff4e8;
+  --accent:#c2600f; --code-bg:#eef0f3;
+  --display:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#13171d; --fg:#e6e9ee; --fg-2:#9aa3b0; --line:#2b323c; --card:#1b2028;
+  --sf:#7fb0f0; --sf-bg:#1a2a44; --m3:#4fcdb8; --m3-bg:#133530; --ctl:#b59cf0; --ctl-bg:#2a2340;
+  --st:#9aa3b0; --st-bg:#242a33; --call:#f0a05a; --call-bg:#3a2816; --warn:#f0a05a; --warn-bg:#3a2816;
+  --accent:#f0a05a; --code-bg:#242a33; color-scheme:dark } }
+:root[data-theme="dark"] {
+  --bg:#13171d; --fg:#e6e9ee; --fg-2:#9aa3b0; --line:#2b323c; --card:#1b2028;
+  --sf:#7fb0f0; --sf-bg:#1a2a44; --m3:#4fcdb8; --m3-bg:#133530; --ctl:#b59cf0; --ctl-bg:#2a2340;
+  --st:#9aa3b0; --st-bg:#242a33; --call:#f0a05a; --call-bg:#3a2816; --warn:#f0a05a; --warn-bg:#3a2816;
+  --accent:#f0a05a; --code-bg:#242a33; color-scheme:dark }
+* { box-sizing:border-box }
+body { background:var(--bg); color:var(--fg); font-family:var(--display); font-size:15px; line-height:1.5; margin:0;
+  padding:24px 16px 64px }
+main { max-width:1080px; margin:0 auto; display:grid; gap:44px }
+h1 { font-size:1.9rem; font-weight:600; margin:0; letter-spacing:-.01em; text-wrap:balance }
+h2 { font-size:1.25rem; font-weight:600; margin:0 0 12px; text-wrap:balance }
+h3 { font-size:1rem; font-weight:600; margin:20px 0 6px }
+p { margin:0 0 10px; max-width:76ch }
+.eyebrow { font-family:var(--mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--fg-2) }
+header p { color:var(--fg-2) }
+code { font-family:var(--mono); font-size:.84em; background:var(--code-bg); padding:1px 5px; border-radius:4px; word-break:break-word }
+pre { font-family:var(--mono); font-size:.8rem; background:var(--code-bg); padding:10px 12px; border-radius:6px; overflow-x:auto; margin:8px 0 }
+.muted { color:var(--fg-2) }
+.sf { color:var(--sf) } .m3 { color:var(--m3) } .ctl { color:var(--ctl) } .warn { color:var(--warn) }
+.card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px }
+.card.open { border-color:var(--warn); background:var(--warn-bg) }
+.grid2 { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:16px }
+.pill { display:inline-block; font-family:var(--mono); font-size:.72rem; padding:1px 8px; border-radius:999px; border:1px solid currentColor; margin-right:6px }
+.pill.sf { background:var(--sf-bg) } .pill.m3 { background:var(--m3-bg) } .pill.ctl { background:var(--ctl-bg) } .pill.st { background:var(--st-bg); color:var(--st) }
+.pill.warn { background:var(--warn-bg); color:var(--warn) }
+table { border-collapse:collapse; width:100%; font-size:.88rem; margin:8px 0 4px }
+th, td { text-align:left; vertical-align:top; padding:7px 10px; border-bottom:1px solid var(--line) }
+th { font-weight:600; color:var(--fg-2); font-size:.78rem; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap }
+td code { white-space:nowrap }
+td.wrap code { white-space:normal }
+tr.group td { background:var(--st-bg); font-weight:600; color:var(--fg-2); font-size:.8rem; letter-spacing:.04em; text-transform:uppercase }
+.tablewrap { overflow-x:auto }
+ol.steps { padding-left:20px; margin:0 } ol.steps li { margin-bottom:10px } ol.steps li > strong { font-weight:600 }
+ul { padding-left:20px; margin:0 0 10px } li { margin-bottom:4px }
+figure { margin:0 } figcaption { font-size:.82rem; color:var(--fg-2); margin-top:8px }
+svg { width:100%; height:auto; display:block }
+svg text { font-family:var(--display); font-size:13px; fill:var(--fg) }
+svg text.mono { font-family:var(--mono); font-size:11.5px }
+svg text.small { font-size:11px; fill:var(--fg-2) }
+svg text.title { font-weight:600 }
+svg .box { stroke-width:1.2 }
+svg .box.sf { fill:var(--sf-bg); stroke:var(--sf) } svg .box.m3 { fill:var(--m3-bg); stroke:var(--m3) }
+svg .box.ctl { fill:var(--ctl-bg); stroke:var(--ctl) } svg .box.st { fill:var(--st-bg); stroke:var(--st) }
+svg .box.call { fill:var(--call-bg); stroke:var(--call) } svg .box.warn { fill:var(--warn-bg); stroke:var(--warn); stroke-dasharray:4 3 }
+svg .edge { fill:none; stroke:var(--fg-2); stroke-width:1.2 }
+svg .edge.data { stroke:var(--sf); stroke-dasharray:4 3 }
+svg .edge.m3 { stroke:var(--m3) }
+svg .lane { fill:none; stroke:var(--line); stroke-dasharray:3 4 }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="eyebrow">m3ter-onboarding-framework-v2 · demoscripts/billsync · 20 October 2026 · design — not yet built</div>
+  <h1>m3ter bill → Revenue Cloud sync</h1>
+  <p>How a bill that m3ter has already rated becomes Revenue Cloud's usage chain — a <strong>UsageSummary</strong>, a <strong>UsageRatableSummary</strong> and the <strong>UsageBillingPeriodItem</strong> (liable summary) that the invoice run reads — per usage line, so that <em>Generate Invoices</em> adds the usage to the same bill as the flat charge. The Python port of the m3sh <em>Usage Data</em> workflow set, built as the same Lego as <code>ordersync</code>: independent steps run by one parent script.</p>
+  <p><span class="pill m3">m3ter</span><span class="pill ctl">Python sync</span><span class="pill sf">Salesforce / Revenue Cloud</span><span class="pill st">supporting</span><span class="pill warn">open decision</span></p>
+</header>
+
+<!-- ============================================================ 1. OVERVIEW -->
+<section>
+  <h2>1. Overview</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">What it does</h3>
+      <p>Given a bill in m3ter, the sync reads the bill and its <strong>USAGE</strong> line items once, resolves each line back to the Salesforce entitlement it was priced for (the <code>pricing_&lt;TUE Id&gt;</code> trail the order sync left behind), and then — per line, in this order — finds or creates the <strong>UsageSummary</strong>, the <strong>UsageRatableSummary</strong> and the <strong>UsageBillingPeriodItem</strong> for that bucket and period, links the three together, and leaves the liable summary at the status the invoice run looks for.</p>
+      <p>The platform's own pipeline (journals → summaries → rating → liable summary, run by the <em>Orchestrate Usage Management</em> flow) is bypassed on purpose: m3ter has already aggregated and rated. Revenue Cloud only needs the answer, in the record it invoices from. Re-running a bill finds everything and changes only the numbers — the same idempotency the m3sh workflows get from their natural-key SOQL, with the per-line state bug fixed.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">How it will be run</h3>
+<pre>set -a; source parameters/m3ter.env; set +a
+PYTHONPATH=. uv run demoscripts/billsync/sync_bill.py \
+    --bill &lt;m3ter bill id&gt; [--dry-run] [--final]
+
+--from-file json/entrust/bills/&lt;bill id&gt;.json   replay a saved snapshot
+--account &lt;m3ter account id&gt;                   latest bill for the account
+--status new|ready                             override the status policy</pre>
+      <p>By hand first, as <code>sync_order.py</code> is; then the <code>billing.bill.created</code> / <code>billing.bill.updated</code> webhook that fed m3sh posts to a Flask route in <code>webhooks/</code> calling <code>sync_bill.run(bill_id)</code>. m3ter auth from <code>parameters/m3ter.env</code>; Salesforce auth from the local <code>sf</code> CLI session (org alias <code>m3ter</code>). <code>--dry-run</code> performs every lookup and prints every payload. After the sync, the bill is produced in Revenue Cloud, not here: <em>Generate Invoices</em> on the account (or an invoice batch run) picks the liable summaries up.</p>
+    </div>
+  </div>
+
+  <figure class="card" style="margin-top:16px">
+    <svg viewBox="0 0 1040 290" role="img" aria-label="Flow from an m3ter bill through the sync steps to the Revenue Cloud usage objects and the invoice">
+      <text x="20" y="22" class="small">M3TER — a rated bill</text>
+      <text x="380" y="22" class="small">THE SYNC — eight bricks, in order</text>
+      <text x="760" y="22" class="small">REVENUE CLOUD — what gets written, then invoiced</text>
+      <line x1="355" y1="30" x2="355" y2="280" class="lane"/>
+      <line x1="735" y1="30" x2="735" y2="280" class="lane"/>
+      <!-- m3ter objects -->
+      <rect x="20" y="40" width="150" height="34" rx="6" class="box m3"/><text x="95" y="62" text-anchor="middle" class="mono">Bill · Account</text>
+      <rect x="20" y="86" width="150" height="34" rx="6" class="box m3"/><text x="95" y="108" text-anchor="middle" class="mono">LineItem (USAGE) ×6</text>
+      <rect x="20" y="132" width="150" height="34" rx="6" class="box m3"/><text x="95" y="154" text-anchor="middle" class="mono">Pricing · AccountPlan</text>
+      <rect x="180" y="86" width="150" height="34" rx="6" class="box m3"/><text x="255" y="108" text-anchor="middle" class="mono">ExternalMapping</text>
+      <rect x="180" y="132" width="150" height="34" rx="6" class="box m3"/><text x="255" y="154" text-anchor="middle" class="mono">Balance (later)</text>
+      <path d="M170 103 L180 103" class="edge m3"/><path d="M170 149 L180 149" class="edge m3"/>
+      <text x="175" y="190" text-anchor="middle" class="small">one line per pricing: feature × region,</text>
+      <text x="175" y="204" text-anchor="middle" class="small">quantity, bands, subtotal, service period</text>
+      <text x="175" y="236" text-anchor="middle" class="small">STANDING_CHARGE lines are skipped —</text>
+      <text x="175" y="250" text-anchor="middle" class="small">Revenue Cloud bills the flat line itself</text>
+      <!-- steps -->
+      <rect x="380" y="36" width="330" height="26" rx="6" class="box ctl"/><text x="390" y="54" class="mono">1  ReadBill          → ctx.snapshot (saved JSON)</text>
+      <rect x="380" y="66" width="330" height="26" rx="6" class="box ctl"/><text x="390" y="84" class="mono">2  ResolveAccount    → Salesforce Account Id</text>
+      <rect x="380" y="96" width="330" height="26" rx="6" class="box ctl"/><text x="390" y="114" class="mono">3  ResolveLines      → TUE, asset, bucket, UoM</text>
+      <rect x="380" y="126" width="330" height="26" rx="6" class="box warn"/><text x="390" y="144" class="mono">4  NetLines          → total / overage / debited</text>
+      <rect x="380" y="156" width="330" height="26" rx="6" class="box ctl"/><text x="390" y="174" class="mono">5  EnsureUsageSummaries</text>
+      <rect x="380" y="186" width="330" height="26" rx="6" class="box ctl"/><text x="390" y="204" class="mono">6  EnsureRatableSummaries</text>
+      <rect x="380" y="216" width="330" height="26" rx="6" class="box ctl"/><text x="390" y="234" class="mono">7  EnsureLiableSummaries  (UBPI)</text>
+      <rect x="380" y="246" width="330" height="26" rx="6" class="box ctl"/><text x="390" y="264" class="mono">8  LinkAndBucket     → back-links (+bucket)</text>
+      <path d="M330 103 L380 49" class="edge m3"/>
+      <!-- RC objects -->
+      <rect x="760" y="96" width="260" height="26" rx="6" class="box sf"/><text x="770" y="114" class="mono">TUE → Asset → UsageEntitlementBucket</text>
+      <rect x="760" y="156" width="260" height="26" rx="6" class="box sf"/><text x="770" y="174" class="mono">UsageSummary ×6</text>
+      <rect x="760" y="186" width="260" height="26" rx="6" class="box sf"/><text x="770" y="204" class="mono">UsageRatableSummary ×6</text>
+      <rect x="760" y="216" width="260" height="26" rx="6" class="box sf"/><text x="770" y="234" class="mono">Liable summary (UBPI) ×6 · Ready</text>
+      <path d="M710 109 L760 109" class="edge data"/>
+      <path d="M710 169 L760 169" class="edge data"/><path d="M710 199 L760 199" class="edge data"/><path d="M710 229 L760 229" class="edge data"/>
+      <rect x="760" y="254" width="260" height="26" rx="6" class="box st"/><text x="770" y="272" class="mono">Generate Invoices → 6 usage + 1 flat</text>
+      <path d="M890 242 L890 254" class="edge"/>
+      <text x="890" y="60" text-anchor="middle" class="small">pre-existing from activation: asset, entitlements,</text>
+      <text x="890" y="74" text-anchor="middle" class="small">wallet and 12 buckets, 7 billing schedules</text>
+    </svg>
+    <figcaption>One m3ter bill with six usage lines (three features × two regions) becomes six usage summaries, six ratable summaries and six liable summaries — one triple per child bucket and billing period. The invoice run then puts the six usage lines on the same invoice as the 1,000 USD flat line that Revenue Cloud bills from BS-000000004. The dashed brick is the half that m3sh never had and is a pass-through until commitments exist in m3ter.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================================================ 2. STRUCTURE -->
+<section>
+  <h2>2. Structure of the Python code</h2>
+  <p>The same contract as <code>ordersync</code>, and the same two bricks reused unchanged: a step is a class with one <code>run(ctx)</code>; <code>sync_bill.py</code> builds the context and runs the list; <code>ctx.snapshot</code> is the bill read once up front, <code>ctx.state</code> is what each step resolved or wrote, keyed <strong>per line</strong> so that nothing from line 1 can leak into line 2 (the m3sh bug). Only <code>ReadBill</code> and <code>ResolveAccount</code> touch m3ter; steps 3–8 touch Salesforce, each through <code>create_or_pretend()</code> / <code>update_or_pretend()</code>, so a dry run is one flag.</p>
+
+  <figure class="card">
+    <svg viewBox="0 0 1040 560" role="img" aria-label="Structure chart of the billsync package: orchestrator, shared context and step bricks, the eight step classes, policy and mapping, SDKs">
+      <!-- orchestrator -->
+      <rect x="320" y="16" width="400" height="56" rx="8" class="box ctl"/>
+      <text x="520" y="38" text-anchor="middle" class="title">sync_bill.py</text>
+      <text x="520" y="58" text-anchor="middle" class="mono">run() · main() CLI · latest_bill(account) · readback()</text>
+      <!-- shared bricks -->
+      <rect x="60" y="110" width="300" height="74" rx="8" class="box st"/>
+      <text x="210" y="132" text-anchor="middle" class="title">ordersync/context.py · SyncContext</text>
+      <text x="210" y="151" text-anchor="middle" class="mono">snapshot · state · log · dry_run</text>
+      <text x="210" y="169" text-anchor="middle" class="small">reused as is; state keyed per line item</text>
+      <rect x="680" y="110" width="300" height="74" rx="8" class="box st"/>
+      <text x="830" y="132" text-anchor="middle" class="title">ordersync/step.py · Step, run_steps()</text>
+      <text x="830" y="151" text-anchor="middle" class="mono">run(ctx) · create/update_or_pretend()</text>
+      <text x="830" y="169" text-anchor="middle" class="small">one new helper: update_or_pretend</text>
+      <path d="M420 72 L210 110" class="edge"/><path d="M620 72 L830 110" class="edge"/>
+      <path d="M520 72 L520 190" class="edge"/>
+      <!-- steps row 1 -->
+      <g>
+        <rect x="20" y="222" width="236" height="92" rx="8" class="box ctl"/>
+        <text x="138" y="244" text-anchor="middle" class="title">m3_bill.py</text>
+        <text x="138" y="262" text-anchor="middle" class="mono">ReadBill</text>
+        <text x="138" y="282" text-anchor="middle" class="small">Bill + USAGE lines + their Pricing</text>
+        <text x="138" y="298" text-anchor="middle" class="small">→ ctx.snapshot, saved JSON</text>
+
+        <rect x="270" y="222" width="236" height="92" rx="8" class="box ctl"/>
+        <text x="388" y="244" text-anchor="middle" class="title">step_resolve.py</text>
+        <text x="388" y="262" text-anchor="middle" class="mono">ResolveAccount · ResolveLines</text>
+        <text x="388" y="282" text-anchor="middle" class="small">mappings → Account Id, TUE Id;</text>
+        <text x="388" y="298" text-anchor="middle" class="small">SOQL → asset, child bucket, UoM</text>
+
+        <rect x="520" y="222" width="236" height="92" rx="8" class="box warn"/>
+        <text x="638" y="244" text-anchor="middle" class="title">step_net.py</text>
+        <text x="638" y="262" text-anchor="middle" class="mono">NetLines</text>
+        <text x="638" y="282" text-anchor="middle" class="small">total / overage / debited per line;</text>
+        <text x="638" y="298" text-anchor="middle" class="small">pass-through until Balances exist</text>
+
+        <rect x="770" y="222" width="250" height="92" rx="8" class="box ctl"/>
+        <text x="895" y="244" text-anchor="middle" class="title">step_summary.py</text>
+        <text x="895" y="262" text-anchor="middle" class="mono">EnsureUsageSummaries</text>
+        <text x="895" y="282" text-anchor="middle" class="small">find by account+asset+period+bucket</text>
+        <text x="895" y="298" text-anchor="middle" class="small">create at New, else update sans Status</text>
+      </g>
+      <!-- steps row 2 -->
+      <g>
+        <rect x="20" y="340" width="236" height="92" rx="8" class="box ctl"/>
+        <text x="138" y="362" text-anchor="middle" class="title">step_ratable.py</text>
+        <text x="138" y="380" text-anchor="middle" class="mono">EnsureRatableSummaries</text>
+        <text x="138" y="400" text-anchor="middle" class="small">via UsageSummary.RatableSummaryId;</text>
+        <text x="138" y="416" text-anchor="middle" class="small">rate, overage, tier, total amount</text>
+
+        <rect x="270" y="340" width="236" height="92" rx="8" class="box ctl"/>
+        <text x="388" y="362" text-anchor="middle" class="title">step_liable.py</text>
+        <text x="388" y="380" text-anchor="middle" class="mono">EnsureLiableSummaries</text>
+        <text x="388" y="400" text-anchor="middle" class="small">via UsageSummary.LiableSummaryId;</text>
+        <text x="388" y="416" text-anchor="middle" class="small">Status from policy.py</text>
+
+        <rect x="520" y="340" width="236" height="92" rx="8" class="box ctl"/>
+        <text x="638" y="362" text-anchor="middle" class="title">step_link.py</text>
+        <text x="638" y="380" text-anchor="middle" class="mono">LinkAndBucket</text>
+        <text x="638" y="400" text-anchor="middle" class="small">back-links on a new summary;</text>
+        <text x="638" y="416" text-anchor="middle" class="small">bucket overwrite only with --bucket</text>
+
+        <rect x="770" y="340" width="250" height="92" rx="8" class="box st"/>
+        <text x="895" y="362" text-anchor="middle" class="title">policy.py · mapping.py · dates.py</text>
+        <text x="895" y="380" text-anchor="middle" class="mono">status_for(bill) · LINE_TYPES · dates</text>
+        <text x="895" y="400" text-anchor="middle" class="small">dates: m3ter exclusive → RC inclusive (−1 s)</text>
+        <text x="895" y="416" text-anchor="middle" class="small">the only place a rule lives</text>
+      </g>
+      <line x1="138" y1="222" x2="895" y2="222" class="edge"/>
+      <text x="520" y="200" text-anchor="middle" class="small">run_steps(ctx, [ReadBill, ResolveAccount, ResolveLines, NetLines, EnsureUsageSummaries, EnsureRatableSummaries, EnsureLiableSummaries, LinkAndBucket])</text>
+      <text x="520" y="214" text-anchor="middle" class="small">ctx.state, every key a dict by line item id:  snapshot → account → lines{TUE, asset, bucket, uom} → netted → summaries → ratable → liable → links</text>
+      <path d="M256 268 L270 268" class="edge data"/><path d="M506 268 L520 268" class="edge data"/><path d="M756 268 L770 268" class="edge data"/>
+      <path d="M895 314 L895 326 L138 326 L138 340" class="edge data"/>
+      <path d="M256 386 L270 386" class="edge data"/><path d="M506 386 L520 386" class="edge data"/>
+      <!-- SDKs -->
+      <rect x="60" y="470" width="400" height="70" rx="8" class="box m3"/>
+      <text x="260" y="492" text-anchor="middle" class="title">m3sdk/</text>
+      <text x="260" y="511" text-anchor="middle" class="mono">M3terClient · Bill · LineItem · Pricing · AccountPlan</text>
+      <text x="260" y="529" text-anchor="middle" class="mono">ExternalMapping.find() + find_by_m3ter() (new)</text>
+      <rect x="580" y="470" width="400" height="70" rx="8" class="box sf"/>
+      <text x="780" y="492" text-anchor="middle" class="title">salesforcesdk/</text>
+      <text x="780" y="511" text-anchor="middle" class="mono">SalesforceCliAuth · SalesforceObject.query_all()</text>
+      <text x="780" y="529" text-anchor="middle" class="mono">+ create() · update() · get()  (new: writes, v66.0)</text>
+      <path d="M250 314 L263 322 L263 458 L220 470" class="edge m3"/><path d="M276 314 L263 322 L263 458 L280 470" class="edge m3"/>
+      <path d="M500 314 L513 322 L513 458 L700 470" class="edge data"/><path d="M776 314 L763 322 L763 458 L860 470" class="edge data"/>
+      <path d="M138 432 L660 470" class="edge data"/><path d="M388 432 L740 470" class="edge data"/><path d="M638 432 L790 470" class="edge data"/>
+    </svg>
+    <figcaption>Purple is the sync's own code; grey the bricks shared with <code>ordersync</code> or holding the rules; the dashed brick is the netting half. Two SDK additions are needed: a reverse <code>ExternalMapping</code> lookup (m3ter id → Salesforce id) and Salesforce <em>writes</em> — the framework has only ever read from Revenue Cloud.</figcaption>
+  </figure>
+
+  <h3>Files</h3>
+  <div class="tablewrap"><table>
+    <tr><th>File</th><th>Role</th><th>Key contents</th></tr>
+    <tr><td><code>sync_bill.py</code></td><td>Parent script</td><td class="wrap"><code>run(bill_id | from_file, sf_alias, dry_run, final)</code> builds the context and the step list; <code>main()</code> is the CLI; <code>latest_bill(account_id)</code> for <code>--account</code>; <code>readback()</code> prints the three Salesforce objects per line after a run.</td></tr>
+    <tr><td><code>m3_bill.py</code></td><td>Step 1</td><td class="wrap"><code>ReadBill</code> — the Bill, its line items filtered to <code>LINE_TYPES</code> (USAGE only), and for each line its <code>Pricing</code> (for the code) and <code>AccountPlan</code>; strips nothing m3ter sends; writes <code>json/entrust/bills/&lt;bill id&gt;.json</code>.</td></tr>
+    <tr><td><code>step_resolve.py</code></td><td>Steps 2–3</td><td class="wrap"><code>ResolveAccount</code> — <code>ExternalMapping.find_by_m3ter('Account', bill.accountId)</code> → Salesforce Account Id, else <strong>raise</strong>. <code>ResolveLines</code> — per line: <code>Pricing.code</code> → TUE Id (or the <code>Salesforce/TransactionUsageEntitlement</code> mapping whose m3ter id is the pricing); one SOQL for the TUEs (AssetId, UsageResourceId, EntitlementUomId, GrantBindingTargetId); one SOQL for the child buckets.</td></tr>
+    <tr><td><code>step_net.py</code></td><td>Step 4</td><td class="wrap"><code>NetLines</code> — defines <code>total</code>, <code>overage</code>, <code>debited</code> per line once (see 4); today <code>overage = total</code>, <code>debited = 0</code>.</td></tr>
+    <tr><td><code>step_summary.py</code></td><td>Step 5</td><td class="wrap"><code>EnsureUsageSummaries</code> — natural-key SOQL; create or update.</td></tr>
+    <tr><td><code>step_ratable.py</code></td><td>Step 6</td><td class="wrap"><code>EnsureRatableSummaries</code> — through <code>RatableSummaryId</code>; create or update.</td></tr>
+    <tr><td><code>step_liable.py</code></td><td>Step 7</td><td class="wrap"><code>EnsureLiableSummaries</code> — through <code>LiableSummaryId</code>; create with <code>policy.status_for(bill)</code>, update without <code>Status</code> unless <code>--final</code> promotes.</td></tr>
+    <tr><td><code>step_link.py</code></td><td>Step 8</td><td class="wrap"><code>LinkAndBucket</code> — writes <code>RatableSummaryId</code> / <code>LiableSummaryId</code> onto a summary created this run; with <code>--bucket</code> also overwrites the child bucket's balance the m3sh way.</td></tr>
+    <tr><td><code>policy.py</code></td><td>Rules</td><td class="wrap"><code>status_for(bill, final)</code>: <code>InProgress</code> while the m3ter bill is open, <code>ReadyForInvoicing</code> once it is locked or <code>--final</code> is passed; <code>LINE_TYPES = {'USAGE'}</code>; <code>EXTERNAL_SYSTEM = 'Salesforce'</code>.</td></tr>
+    <tr><td><code>mapping.py</code></td><td>Catalog</td><td class="wrap">Nothing catalog-specific is needed: the pricing code carries the TUE Id. Kept for the day a line has to be mapped by aggregation + segment instead.</td></tr>
+    <tr><td><code>dates.py</code></td><td>Dates</td><td class="wrap"><code>to_rc_inclusive_end()</code> (−1 s: m3ter's exclusive midnight → Revenue Cloud's 23:59:59), <code>to_rc()</code>.</td></tr>
+  </table></div>
+
+  <h3>The run, step by step</h3>
+  <ol class="steps">
+    <li><strong>ReadBill</strong> — resolves <code>--bill</code> (an m3ter bill id, or the latest bill of <code>--account</code>), reads the Bill header (account, bill date, service period, currency, locked), its line items filtered to <code>lineItemType = USAGE</code>, and for each line the Pricing (code, aggregation, segment) and the AccountPlan it bills under. Writes the snapshot. Warns if the bill is not locked and <code>--final</code> was not given.</li>
+    <li><strong>ResolveAccount</strong> — reverse mapping m3ter Account → Salesforce <code>Account.Id</code>. The m3sh workflow had no FALSE branch here and ended silently; the port raises.</li>
+    <li><strong>ResolveLines</strong> — per line, the TUE Id from the pricing (<code>pricing_&lt;TUE Id&gt;</code>, or the mapping); then one <code>TransactionUsageEntitlement</code> query for all of them (<code>AssetId</code>, <code>UsageResourceId</code>, <code>EntitlementUomId</code>, <code>GrantBindingTargetId</code>, <code>AccountId</code>) and one <code>UsageEntitlementBucket</code> query for the child buckets (<code>Parent.Type = 'UsageEntitlementBucket'</code>, <code>TransactionUsageEntitlementId IN (…)</code>), reading <code>BucketBalanceUomId</code> off the result rather than filtering on it. A line with no TUE, no asset or no child bucket stops the run before anything is written.</li>
+    <li><strong>NetLines</strong> — <code>total = line.quantity</code>; <code>overage</code> = the quantity in the priced bands (today all of it: the grants are 0 and no commitment Balance exists); <code>debited = total − overage</code>; <code>amount = line.subtotal</code>; <code>rate = amount / overage</code> (0 if overage is 0). One definition, used by all three objects — the two m3sh halves disagreed about <code>ConsumptionUnits</code>.</li>
+    <li><strong>EnsureUsageSummaries</strong> — per line: <code>SELECT Id, RatableSummaryId, LiableSummaryId FROM UsageSummary WHERE AccountId = … AND AssetId = … AND StartDateTime = … AND EndDateTime = … AND UsageEntitlementBucketId = …</code>; several hits is an error, not "last wins"; none → create with <code>Status = New</code>; one → update the numbers with no <code>Status</code> in the payload, and remember the two back-link ids. <em>Per line</em> — <code>ctx.state.summaries[line.id]</code>.</li>
+    <li><strong>EnsureRatableSummaries</strong> — per line: the summary's <code>RatableSummaryId</code>, else create; update otherwise, again without <code>Status</code>.</li>
+    <li><strong>EnsureLiableSummaries</strong> — per line: the summary's <code>LiableSummaryId</code>, else create with <code>Status = policy.status_for(bill)</code>; otherwise update the quantities and amount, and set <code>Status = ReadyForInvoicing</code> only when the bill has become final since the last run. A liable summary already <code>Invoiced</code> is left alone and reported.</li>
+    <li><strong>LinkAndBucket</strong> — for a summary created this run, write <code>RatableSummaryId</code> and <code>LiableSummaryId</code> onto it (the only link between the three; it lives on the summary). With <code>--bucket</code>, also set the child bucket's <code>BucketBalance = total</code> and <code>ConsumedEntitlement = debited</code>, as m3sh did; off by default because it bypasses Revenue Cloud's own drawdown and Acme's buckets hold no entitlement.</li>
+  </ol>
+  <p class="muted">Then, in Revenue Cloud: <em>Generate Invoices</em> on the account (draft first). The pass criterion is six usage <code>InvoiceLine</code> rows on the same invoice as the flat line, each with <code>IsUsageBasedInvoiceLine = true</code>, the resource's product, the m3ter quantity and amount, the service period as its dates, and a <code>BillingPeriodItem</code> whose <code>RelatedUsageBillPeriodItemId</code> is the liable summary the sync wrote.</p>
+</section>
+
+<!-- ============================================================ 3. MAPPING TABLES -->
+<section>
+  <h2>3. Mapping tables — m3ter → Salesforce</h2>
+  <p>Every Salesforce field name below was read from <code>EntityParticle</code> in m3ter-arm-260 on 20 October 2026 (<code>models/billing-fields.json</code>); <strong>required</strong> marks a field that is not nillable on insert. m3ter field names follow the Bill and LineItem the Python <code>on_bill_change</code> handler already reads. "—" means read for context only.</p>
+
+  <h3>3.1 Objects</h3>
+  <div class="tablewrap"><table>
+    <tr><th>m3ter object</th><th>Cardinality per bill</th><th>Revenue Cloud object</th><th>Step</th><th>How they are joined</th></tr>
+    <tr><td><code class="m3">Bill</code></td><td>1</td><td>— (trigger; period, currency, locked)</td><td>1</td><td>—</td></tr>
+    <tr><td><code class="m3">Account</code></td><td>1</td><td><code class="sf">Account</code> (read)</td><td>2</td><td><code>ExternalMapping  Salesforce / Account</code>, reverse: m3ter id → Salesforce Id</td></tr>
+    <tr><td><code class="m3">LineItem</code> (USAGE)</td><td>6 on the Acme bill</td><td><code class="sf">UsageSummary</code> + <code class="sf">UsageRatableSummary</code> + <code class="sf">UsageBillingPeriodItem</code></td><td>5–7</td><td>natural key: bucket + service period (no mapping needed)</td></tr>
+    <tr><td><code class="m3">Pricing</code></td><td>1 per line</td><td><code class="sf">TransactionUsageEntitlement</code> (read)</td><td>3</td><td><code>Pricing.code = pricing_&lt;TUE Id&gt;</code>; or <code>ExternalMapping  Salesforce / TransactionUsageEntitlement</code></td></tr>
+    <tr><td><code class="m3">AccountPlan</code></td><td>1</td><td><code class="sf">Asset</code> (read, via the TUE)</td><td>3</td><td><code>ExternalMapping  Salesforce / Asset</code> — a cross-check only</td></tr>
+    <tr><td>—</td><td>6</td><td><code class="sf">UsageEntitlementBucket</code> (child, read; written only with <code>--bucket</code>)</td><td>3, 8</td><td>SOQL: <code>Parent.Type = 'UsageEntitlementBucket' AND TransactionUsageEntitlementId = TUE</code></td></tr>
+    <tr><td><code class="m3">LineItem</code> (STANDING_CHARGE, BALANCE_*)</td><td>1+</td><td>— (skipped)</td><td>1</td><td>Revenue Cloud bills the order line itself from BS-000000004</td></tr>
+  </table></div>
+
+  <h3>3.2 Per-line context <span class="muted">(step 3 · <code>step_resolve.py</code>)</span></h3>
+  <div class="tablewrap"><table>
+    <tr><th>Resolved value</th><th>Source</th><th>Rule</th></tr>
+    <tr><td><code>sf_account_id</code></td><td><code>Bill.accountId</code> → mapping</td><td>raise if unmapped: the order sync always leaves this mapping</td></tr>
+    <tr><td><code>tue_id</code></td><td><code>LineItem.pricingId</code> → <code>Pricing.code</code></td><td><code>pricing_&lt;TUE Id&gt;</code> — the order sync's convention; the mapping is the fallback</td></tr>
+    <tr><td><code>asset_id</code>, <code>resource_id</code>, <code>binding_target_id</code></td><td><code>TransactionUsageEntitlement.AssetId / UsageResourceId / GrantBindingTargetId</code></td><td>one query for the whole bill; the binding target is the asset for a Self-bound product and must equal the bucket's account's target (the invoice run checks this)</td></tr>
+    <tr><td><code>uom_id</code></td><td><code>TransactionUsageEntitlement.EntitlementUomId</code></td><td>m3sh read it from <code>AccountPlan.customFields.EntitlemntUomId</code>; the TUE has it directly</td></tr>
+    <tr><td><code>bucket_id</code></td><td><code>UsageEntitlementBucket.Id</code> where <code>Parent.Type = 'UsageEntitlementBucket' AND TransactionUsageEntitlementId = tue_id</code></td><td>the <strong>child</strong> bucket (UEB-11…16 on 00000102) — what m3sh used and what the 20 Oct summaries point at; exactly one expected</td></tr>
+    <tr><td><code>bucket_uom_id</code></td><td><code>UsageEntitlementBucket.BucketBalanceUomId</code></td><td>read, compared with <code>uom_id</code>, warned on mismatch</td></tr>
+  </table></div>
+
+  <h3>3.3 UsageSummary <span class="muted">(step 5 · <code>step_summary.py</code>, one per line)</span></h3>
+  <div class="tablewrap"><table>
+    <tr><th>Field</th><th>m3ter source</th><th>Rule</th></tr>
+    <tr><td><code>AccountId</code> <span class="muted">required</span></td><td>— (step 2)</td><td></td></tr>
+    <tr><td><code>AssetId</code></td><td>— (step 3)</td><td></td></tr>
+    <tr><td><code>GrantBindingTargetId</code></td><td>— (step 3)</td><td>the asset; m3sh left it empty, the invoice-run match wants it</td></tr>
+    <tr><td><code>UsageEntitlementBucketId</code> <span class="muted">required</span></td><td>— (step 3)</td><td>child bucket; derives the read-only <code>UsageResourceId</code> and <code>UsageEntitlementAccountId</code></td></tr>
+    <tr><td><code>UomId</code> <span class="muted">required</span></td><td>— (step 3)</td><td></td></tr>
+    <tr><td><code>StartDateTime</code> <span class="muted">required</span></td><td><code>LineItem.servicePeriodStartDate</code></td><td>as is (ISO Z)</td></tr>
+    <tr><td><code>EndDateTime</code> <span class="muted">required</span></td><td><code>LineItem.servicePeriodEndDate</code></td><td>−1 s: exclusive midnight → 23:59:59 (<code>dates.to_rc_inclusive_end</code>)</td></tr>
+    <tr><td><code>ConsumptionUnits</code> <span class="muted">required</span></td><td><code>LineItem.quantity</code></td><td><code>total</code></td></tr>
+    <tr><td><code>DebitedUnits</code> <span class="muted">required</span></td><td>step 4</td><td><code>debited</code> (0 today)</td></tr>
+    <tr><td><code>OverageUnits</code> <span class="muted">required</span></td><td>step 4</td><td><code>overage</code> (= total today)</td></tr>
+    <tr><td><code>Status</code> <span class="muted">required</span></td><td>—</td><td><code>New</code> on create; <strong>never in an update payload</strong></td></tr>
+    <tr><td><code>RatableSummaryId</code>, <code>LiableSummaryId</code></td><td>—</td><td>written by step 8 after the other two exist</td></tr>
+  </table></div>
+
+  <h3>3.4 UsageRatableSummary <span class="muted">(step 6 · <code>step_ratable.py</code>, one per line)</span></h3>
+  <div class="tablewrap"><table>
+    <tr><th>Field</th><th>m3ter source</th><th>Rule</th></tr>
+    <tr><td><code>AccountId</code>, <code>AssetId</code>, <code>GrantBindingTargetId</code>, <code>UsageEntitlementBucketId</code></td><td>— (steps 2–3)</td><td>as for the summary; bucket and account required</td></tr>
+    <tr><td><code>StartDateTime</code>, <code>EndDateTime</code> <span class="muted">required</span></td><td><code>servicePeriodStartDate</code> / <code>servicePeriodEndDate</code></td><td>same shave as the summary</td></tr>
+    <tr><td><code>OverageQuantity</code> <span class="muted">required</span></td><td>step 4</td><td><code>overage</code></td></tr>
+    <tr><td><code>OverageQuantityUomId</code> <span class="muted">required</span></td><td>— (step 3)</td><td><code>uom_id</code></td></tr>
+    <tr><td><code>TierQuantity</code> <span class="muted">required</span></td><td><code>LineItem.usagePerPricingBand</code></td><td>the quantity in the band that set the rate; equals <code>overage</code> with one flat band</td></tr>
+    <tr><td><code>TierQuantityUomId</code> <span class="muted">required</span></td><td>—</td><td><code>uom_id</code></td></tr>
+    <tr><td><code>NetUnitRate</code></td><td><code>Pricing.pricingBands[].unitPrice</code> or <code>subtotal / overage</code></td><td>the effective unit rate; 0 when nothing was charged</td></tr>
+    <tr><td><code>NetUnitRateUomId</code> <span class="muted">required</span></td><td>—</td><td><code>uom_id</code> — the counted unit, as m3sh did; <em>not</em> the currency unit</td></tr>
+    <tr><td><code>TotalAmount</code></td><td><code>LineItem.subtotal</code></td><td>the amount m3ter charged for the line</td></tr>
+    <tr><td><code>RatingDecisionDateTime</code> <span class="muted">required</span></td><td><code>servicePeriodEndDate</code></td><td>−1 s, as m3sh; or the bill's lock time once bills are locked</td></tr>
+    <tr><td><code>Status</code> <span class="muted">required</span></td><td>—</td><td><code>RatingComplete</code> on create (the rating <em>is</em> complete — m3sh wrote <code>New</code>); never in an update</td></tr>
+    <tr><td><code>SourceUsageResourceId</code>, <code>RatingRequestId</code>, <code>RatingExecutionIdentifier</code></td><td>—</td><td>left empty: there was no Revenue Cloud rating request</td></tr>
+  </table></div>
+
+  <h3>3.5 UsageBillingPeriodItem — the liable summary <span class="muted">(step 7 · <code>step_liable.py</code>, one per line)</span></h3>
+  <div class="tablewrap"><table>
+    <tr><th>Field</th><th>m3ter source</th><th>Rule</th></tr>
+    <tr><td><code>AccountId</code> <span class="muted">required</span></td><td>— (step 2)</td><td>the billing account</td></tr>
+    <tr><td><code>AssetId</code></td><td>— (step 3)</td><td></td></tr>
+    <tr><td><code>GrantBindingTargetId</code></td><td>— (step 3)</td><td>the asset — must equal the bucket's and the entitlement account's for the invoice run to pick the line up</td></tr>
+    <tr><td><code>UsageEntitlementBucketId</code> <span class="muted">required</span></td><td>— (step 3)</td><td>child bucket; the invoice run matches its <code>UsageResourceId</code> to the usage billing schedule's</td></tr>
+    <tr><td><code>UoMId</code> <span class="muted">required</span></td><td>— (step 3)</td><td>the counted unit (<code>VERIFICATION-CHECK</code>)</td></tr>
+    <tr><td><code>StartDateTime</code> <span class="muted">required</span></td><td><code>servicePeriodStartDate</code></td><td>these two become <code>BillingPeriodItem.BillingPeriodStartDate/EndDate</code> and the invoice line's dates — Billing computes no period for usage</td></tr>
+    <tr><td><code>EndDateTime</code> <span class="muted">required</span></td><td><code>servicePeriodEndDate</code></td><td>−1 s, <strong>same as the summaries</strong> (m3sh left this one unshaved — pick one convention; Revenue Cloud's own buckets end 23:59:59)</td></tr>
+    <tr><td><code>TotalUsedQuantity</code> <span class="muted">required</span></td><td><code>LineItem.quantity</code></td><td><code>total</code></td></tr>
+    <tr><td><code>OverageQuantity</code> <span class="muted">required</span></td><td>step 4</td><td><code>overage</code> — the quantity that appears on the invoice line</td></tr>
+    <tr><td><code>OverageAmount</code> <span class="muted">required</span></td><td><code>LineItem.subtotal</code></td><td>the amount the invoice line carries; currency below</td></tr>
+    <tr><td><code>CurrencyIsoCode</code></td><td><code>Bill.currency</code></td><td>the bill's, not a static USD</td></tr>
+    <tr><td><code>Status</code> <span class="muted">required</span></td><td><code>Bill.locked</code> / <code>--final</code></td><td><code>InProgress</code> while the bill can still change; <code>ReadyForInvoicing</code> once final — no default exists, and only <code>ReadyForInvoicing</code> is invoiced. Set to <code>Invoiced</code> by Revenue Cloud on posting; never written by the sync after that</td></tr>
+    <tr><td><code>ErrorCode</code>, <code>ErrorDescription</code>, <code>RLM_*__c</code></td><td>—</td><td>left empty (the <code>RLM_</code> fields belong to the demo org's data-table flows)</td></tr>
+  </table></div>
+
+  <h3>3.6 Child bucket <span class="muted">(step 8 · <code>step_link.py</code>, only with <code>--bucket</code>)</span></h3>
+  <div class="tablewrap"><table>
+    <tr><th>Field</th><th>Source</th><th>Rule</th></tr>
+    <tr><td><code>UsageEntitlementBucket.BucketBalance</code></td><td>step 4</td><td><code>total</code> — m3sh's overwrite, kept behind a flag</td></tr>
+    <tr><td><code>UsageEntitlementBucket.ConsumedEntitlement</code></td><td>step 4</td><td><code>debited</code> (m3sh wrote the posted <code>ConsumptionUnits</code>)</td></tr>
+  </table></div>
+
+  <h3>3.7 Read but not mapped <span class="muted">(parked)</span></h3>
+  <div class="tablewrap"><table>
+    <tr><th>Source</th><th>What it holds</th><th>Intended use</th></tr>
+    <tr><td><code>LineItem</code> STANDING_CHARGE (1,000 USD)</td><td>the plan's standing charge — the order line's price, mirrored</td><td>never synced: Revenue Cloud already bills it from BS-000000004; syncing it would double-bill</td></tr>
+    <tr><td><code>LineItem</code> BALANCE_FEE / BALANCE_CONSUMED</td><td>commitment draw-down once a Balance exists</td><td>feeds <code>NetLines</code> (<code>debited</code>) — a Revenue Cloud commitment is "not supported downstream" per the SI, so this stays m3ter-side</td></tr>
+    <tr><td><code>LineItem.usagePerPricingBand</code> on a tiered pricing</td><td>quantity and price per band</td><td><code>TierQuantity</code> / <code>NetUnitRate</code> once the Commit (Tier) card is chosen at quote time</td></tr>
+    <tr><td><code>Bill.id</code>, <code>LineItem.id</code></td><td>m3ter identities</td><td>no text field on the three Revenue Cloud objects to hold them; an <code>ExternalMapping</code> m3ter LineItem → UBPI would make the join explicit if m3ter allows that entity type (to confirm)</td></tr>
+    <tr><td><code>TransactionJournal</code></td><td>Revenue Cloud's raw usage</td><td>not written: m3ter is the system of record for events; writing journals too would make the platform's own pipeline re-summarise and fight the sync</td></tr>
+  </table></div>
+</section>
+
+<!-- ============================================================ 4. DECISIONS -->
+<section>
+  <h2>4. Decisions, and what is still open</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Write the liable summary, not the journals</h3>
+      <p>The invoice run reads only <code>UsageBillingPeriodItem</code>; the summaries behind it are for Revenue Cloud's own pipeline, which this org never runs (the scheduled flow is active but has no cron job). The sync writes all three anyway — the summary is the natural key and carries the only back-links, and the ratable summary is where the rate is visible — but the liable summary is the one that matters, so a first pass can key on bucket + period and write it alone.</p>
+      <h3>One definition of the quantities</h3>
+      <p>m3sh's two halves disagreed: Python posted <code>ConsumptionUnits = quantity</code> and <code>OverageUnits = final</code>, the workflow then set <code>DebitedUnits = ConsumptionUnits</code> and added the two. <code>NetLines</code> defines <code>total</code>, <code>overage</code> and <code>debited</code> once; today overage is the whole quantity because every grant is zero.</p>
+      <h3>State per line</h3>
+      <p>Every <code>ctx.state</code> entry is a dict keyed by line item id. The m3sh entry point reused one <code>sfUsageSummary</code> across the loop, so a found summary on line 1 made lines 2–6 update line 1's ratable and liable summaries.</p>
+      <h3>The join is the pricing</h3>
+      <p>m3sh keyed lines through <code>AccountPlan.customFields.TUEId</code> — one AccountPlan per resource. Document Check has six TUEs on one AccountPlan, so the key moves to the <code>Pricing</code> the order sync creates per TUE (<code>pricing_&lt;TUE Id&gt;</code> + the mapping); the bill line's <code>pricingId</code> is the join.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Dates</h3>
+      <p>The inverse of the order sync: m3ter's exclusive end (midnight) becomes Revenue Cloud's inclusive end (23:59:59) by subtracting one second, on all three objects. The platform's own buckets and entitlements end at 23:59:59, and the liable summary's dates become the invoice line's.</p>
+      <h3>Revenue Cloud rules to remember</h3>
+      <ul>
+        <li>A usage billing schedule is invoiced only when a liable summary is <code>ReadyForInvoicing</code> <em>and</em> the liable summary, bucket and entitlement account share the asset as <code>GrantBindingTargetId</code> <em>and</em> the schedule and bucket name the same resource. Target date and billing-period count do not gate it.</li>
+        <li><code>UsageBillingPeriodItem.Status</code> has no default; <code>UsageResourceId</code> and <code>UsageEntitlementAccountId</code> are read-only and come from the bucket.</li>
+        <li>Posting an invoice sets the liable summary to <code>Invoiced</code>; voiding reverts it to <code>ReadyForInvoicing</code>; a draft touches nothing — so the first tests are drafts, regenerated at will.</li>
+        <li>Writes to the three objects need the <em>Usage Management Run Time</em> permission set on the integration user; the loader's <code>sf</code> session is an admin, which has it.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card open" style="margin-top:16px">
+    <h3 style="margin-top:0">Open before the first run <span class="pill warn">decide</span></h3>
+    <ul>
+      <li><strong>Parent or child bucket on the liable summary.</strong> m3sh used the child; the 20 Oct usage summaries point at the child; the help says only "the bucket". The platform's own run (journals + <em>One Click Orchestrate Usage Flow</em>) will show which bucket its liable summary references. Build to the child, keep it one constant.</li>
+      <li><strong>Status on create.</strong> <code>ReadyForInvoicing</code> directly, or <code>New → InProgress → ReadyForInvoicing</code>? Every field is updateable and there is no default, so both are possible; the policy brick decides from the bill's locked state. To test on the first bill.</li>
+      <li><strong>Does a liable summary with no summary behind it invoice?</strong> The only link is <code>UsageSummary.LiableSummaryId</code>, on the summary side, so probably yes — which would make a UBPI-only sync legitimate. To test.</li>
+      <li><strong>Which rate the bill used.</strong> Order 00000102 carries both the List and the Commit card with none chosen; the order sync priced from the List card. Until the card is chosen at quote time, the m3ter rate and the Revenue Cloud asset rate can disagree, and the invoice will show m3ter's.</li>
+      <li><strong>Billing frequency alignment.</strong> Revenue Cloud's usage schedule and the entitlement account are monthly from the 14th (the order start); the m3ter AccountPlan bills on its own cycle. The liable summary's period is whatever m3ter's service period is — the invoice line will show it as such, but the schedule's <code>NextBillingDate</code> stays on the 14th.</li>
+    </ul>
+  </div>
+  <p class="muted" style="margin-top:16px">Companion documents: <code>entrust-usage-data-structure.html</code> (the four m3sh workflows this port follows, step by step), <code>order-sync-design.html</code> (the sibling sync whose mappings and pricing codes this one relies on), <code>claude-billing-data-model.html</code> (every object and field above, in context) and <code>billing-usage-to-invoice.md</code> in the revenue-cloud-config repo (the Revenue Cloud side, with the org read-back of 20 October).</p>
+</section>
+
+</main>
+</body>
+</html>

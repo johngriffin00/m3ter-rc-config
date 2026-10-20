@@ -1,0 +1,317 @@
+<title>Entrust Usage Data Sync</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column technical reference. Summary first (call graph, phases, balance matrix), then exact per-workflow trees, then findings. */
+:root {
+  --bg:#f7f8fa; --fg:#1c2230; --fg-2:#5b6472; --line:#d9dee6; --card:#ffffff;
+  --sf:#2f6fcf; --sf-bg:#e8f0fb; --m3:#0f8a7a; --m3-bg:#e3f4f0; --ctl:#7a5cc4; --ctl-bg:#efe9fb;
+  --st:#6b7280; --st-bg:#eef0f3; --call:#c2600f; --call-bg:#fbeee2; --warn:#b4530a; --warn-bg:#fff4e8;
+  --accent:#c2600f; --code-bg:#eef0f3;
+  --display:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#13171d; --fg:#e6e9ee; --fg-2:#9aa3b0; --line:#2b323c; --card:#1b2028;
+  --sf:#7fb0f0; --sf-bg:#1a2a44; --m3:#4fcdb8; --m3-bg:#133530; --ctl:#b59cf0; --ctl-bg:#2a2340;
+  --st:#9aa3b0; --st-bg:#242a33; --call:#f0a05a; --call-bg:#3a2816; --warn:#f0a05a; --warn-bg:#3a2816;
+  --accent:#f0a05a; --code-bg:#242a33; color-scheme:dark } }
+:root[data-theme="dark"] {
+  --bg:#13171d; --fg:#e6e9ee; --fg-2:#9aa3b0; --line:#2b323c; --card:#1b2028;
+  --sf:#7fb0f0; --sf-bg:#1a2a44; --m3:#4fcdb8; --m3-bg:#133530; --ctl:#b59cf0; --ctl-bg:#2a2340;
+  --st:#9aa3b0; --st-bg:#242a33; --call:#f0a05a; --call-bg:#3a2816; --warn:#f0a05a; --warn-bg:#3a2816;
+  --accent:#f0a05a; --code-bg:#242a33; color-scheme:dark }
+* { box-sizing:border-box }
+body { background:var(--bg); color:var(--fg); font-family:var(--display); font-size:15px; line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); padding-block:24px 64px; }
+main { max-width:1080px; margin:0 auto; display:grid; gap:40px }
+h1 { font-size:1.9rem; font-weight:600; margin:0; letter-spacing:-.01em; text-wrap:balance }
+h2 { font-size:1.25rem; font-weight:600; margin:0 0 12px; text-wrap:balance }
+h3 { font-size:1rem; font-weight:600; margin:16px 0 6px }
+p { margin:0 0 10px; max-width:72ch }
+.eyebrow { font-family:var(--mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--fg-2) }
+header p { color:var(--fg-2) }
+code { font-family:var(--mono); font-size:.84em; background:var(--code-bg); padding:1px 5px; border-radius:4px; word-break:break-word }
+code.calc { background:var(--ctl-bg); color:var(--fg) }
+code.lit { background:var(--warn-bg); color:var(--fg) }
+code.id { font-size:.74em; color:var(--fg-2) }
+pre.soql { font-family:var(--mono); font-size:.78rem; background:var(--sf-bg); padding:8px 10px; border-radius:6px; margin:4px 0; white-space:pre-wrap; word-break:break-word; max-width:100% }
+.muted { color:var(--fg-2) }
+.warn { color:var(--warn) }
+.arrow { color:var(--fg-2) }
+a.wf { color:var(--call); font-weight:500; text-decoration:none; border-bottom:1px dashed var(--call) }
+a.wf:hover, a.wf:focus-visible { border-bottom-style:solid; outline:none }
+
+/* call graph */
+figure { margin:0; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px }
+figure svg { max-width:100%; height:auto; display:block; color:var(--fg); font-family:var(--display) }
+figcaption { font-size:.85rem; color:var(--fg-2); margin-top:8px }
+svg .node { fill:var(--card); stroke:var(--fg-2); stroke-width:1.2 }
+svg .trig { fill:var(--st-bg); stroke:var(--st) }
+svg .phase { fill:var(--bg); stroke:var(--line) }
+svg .ext { fill:var(--sf-bg); stroke:var(--sf) }
+svg .sub { fill:var(--call-bg); stroke:var(--call) }
+svg .orphan { fill:var(--card); stroke:var(--warn); stroke-dasharray:5 4 }
+svg .root { fill:var(--card); stroke:var(--fg); stroke-width:1.5 }
+svg .nl { font-size:12.5px; font-weight:600; fill:currentColor }
+svg .ns { font-size:10.5px; fill:var(--fg-2) }
+svg .rl { font-size:14px; font-weight:600; fill:currentColor }
+svg .e { fill:none; stroke:currentColor; stroke-width:1.2 }
+svg .el { font-size:10px; fill:var(--fg-2) }
+svg a:hover .sub, svg a:focus .sub { stroke-width:2 }
+.graph-wrap { overflow-x:auto }
+.graph-wrap svg { min-width:720px }
+
+/* phase strip */
+.phases { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px }
+.phase-card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; min-width:0 }
+.phase-card .n { font-family:var(--mono); color:var(--accent); font-size:.8rem }
+.phase-card h3 { margin:2px 0 8px }
+.phase-card ul { margin:0; padding-left:18px; font-size:.9rem }
+.phase-card li { margin:3px 0 }
+@media (max-width:760px) { .phases { grid-template-columns:1fr } }
+
+/* balance matrix */
+.tbl-wrap { overflow-x:auto; background:var(--card); border:1px solid var(--line); border-radius:10px }
+table.matrix { border-collapse:collapse; width:100%; min-width:900px; font-size:.84rem }
+table.matrix th, table.matrix td { text-align:left; vertical-align:top; padding:8px 10px; border-bottom:1px solid var(--line) }
+table.matrix th { font-weight:600; background:var(--bg); position:sticky; top:0 }
+table.matrix th:first-child, table.matrix td:first-child { font-weight:500; white-space:nowrap }
+table.matrix tr:last-child td { border-bottom:none }
+
+/* workflow cards + trees */
+.wf-card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:0 }
+.wf-card.root { border-color:var(--fg) }
+.wf-card.orphan { border-style:dashed; border-color:var(--warn) }
+.wf-card > summary { cursor:pointer; padding:14px 16px; display:grid; grid-template-columns:auto 1fr; gap:4px 12px; align-items:baseline; list-style:none }
+.wf-card > summary::-webkit-details-marker { display:none }
+.wf-card > summary::before { content:"▸"; color:var(--fg-2); grid-row:1 / span 2 }
+.wf-card[open] > summary::before { content:"▾" }
+.wf-card > summary:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; border-radius:10px }
+.wf-kind { font-family:var(--mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; color:var(--fg-2); grid-column:2 }
+.root .wf-kind { color:var(--accent) }
+.orphan .wf-kind { color:var(--warn) }
+.wf-name { font-size:1.05rem; font-weight:600; grid-column:2 }
+.wf-meta { font-size:.8rem; color:var(--fg-2); grid-column:2 }
+.wf-desc { padding:0 16px; color:var(--fg-2); font-size:.9rem }
+.contract { margin:0 16px 10px; padding:10px 12px; background:var(--bg); border-radius:8px; display:grid; gap:6px; font-size:.86rem }
+.contract dt { font-weight:600; color:var(--fg-2); font-size:.74rem; text-transform:uppercase; letter-spacing:.06em }
+.contract dd { margin:0 }
+ul.tree, ul.branch { list-style:none; margin:0; padding:0 }
+ul.tree { padding:4px 16px 16px }
+ul.branch { margin-left:14px; padding-left:14px; border-left:2px solid var(--line) }
+ul.branch.true { border-left-color:var(--m3) }
+ul.branch.false { border-left-color:var(--warn) }
+ul.branch.loop { border-left-color:var(--ctl) }
+ul.branch > li.lbl { font-family:var(--mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--fg-2); padding:6px 0 2px }
+ul.branch.true > li.lbl { color:var(--m3) }
+ul.branch.false > li.lbl { color:var(--warn) }
+ul.branch.loop > li.lbl { color:var(--ctl) }
+li.step { padding:6px 0 6px 8px; border-left:3px solid transparent; margin:2px 0 }
+li.step.call { border-left-color:var(--call); background:var(--call-bg); border-radius:0 6px 6px 0 }
+li.step.join { color:var(--fg-2) }
+.head { display:flex; gap:8px; align-items:baseline; flex-wrap:wrap }
+.title { font-weight:500 }
+.badge { font-family:var(--mono); font-size:.68rem; letter-spacing:.04em; padding:1px 7px; border-radius:999px; white-space:nowrap; border:1px solid transparent }
+.badge.sf { background:var(--sf-bg); color:var(--sf) }
+.badge.m3 { background:var(--m3-bg); color:var(--m3) }
+.badge.ctl { background:var(--ctl-bg); color:var(--ctl) }
+.badge.st { background:var(--st-bg); color:var(--st) }
+.badge.call { background:var(--card); color:var(--call); border-color:var(--call) }
+.p { font-size:.86rem; color:var(--fg); margin-top:2px; padding-left:2px }
+table.kv { border-collapse:collapse; font-size:.82rem; margin:4px 0 2px; max-width:100% }
+table.kv td { padding:1px 8px 1px 0; vertical-align:top }
+table.kv td.k { font-family:var(--mono); color:var(--fg-2); white-space:nowrap }
+.legend { display:flex; flex-wrap:wrap; gap:8px 16px; font-size:.82rem; color:var(--fg-2); margin:8px 0 12px }
+.legend span { display:inline-flex; gap:6px; align-items:center }
+
+/* findings */
+ol.findings { margin:0; padding-left:22px; display:grid; gap:10px; max-width:78ch }
+ol.findings li strong { font-weight:600 }
+.ref { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px }
+.ref .phase-card ul { font-size:.86rem }
+.ref code { font-size:.78em }
+.controls { display:flex; gap:8px; margin-bottom:10px }
+button { font:inherit; font-size:.82rem; padding:5px 10px; border-radius:6px; border:1px solid var(--line); background:var(--card); color:var(--fg); cursor:pointer }
+button:focus-visible { outline:2px solid var(--accent) }
+@media (prefers-reduced-motion: no-preference) { .wf-card { transition:border-color .15s } }
+</style>
+
+<main>
+<header>
+  <div class="eyebrow">m3sh workflows · Entrust · m3ter Bill → Salesforce Revenue Cloud</div>
+  <h1>Entrust Usage Data Sync</h1>
+  <p>How the four exported m3sh workflows turn one m3ter bill into Revenue Cloud's usage chain — UsageSummary, UsageRatableSummary and UsageBillingPeriodItem — one entry point and three sub-workflows that share its state. Every step below is read from the JSON exports in <code>json/entrust/m3sh/</code>; the Python handler that feeds the trigger is <code>on_bill_change</code>, the pre-m3sh script.</p>
+</header>
+
+<section>
+  <h2>Call graph</h2>
+  <figure>
+    <div class="graph-wrap"><svg viewBox="0 0 1000 640" role="img" aria-label="The usage-data entry point calls three sub-workflows per bill line item" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs><rect x="20" y="420" width="190" height="60" rx="6" class="node ext"/><text x="115.0" y="448.0" text-anchor="middle" class="nl">Salesforce</text><text x="115.0" y="462.0" text-anchor="middle" class="ns">REST + SOQL, API 65.0</text><rect x="790" y="420" width="190" height="60" rx="6" class="node ext"/><text x="885.0" y="448.0" text-anchor="middle" class="nl">m3ter</text><text x="885.0" y="462.0" text-anchor="middle" class="ns">AccountPlan, ExternalMapping</text><rect x="260" y="14" width="480" height="48" rx="6" class="node ext"/><text x="500.0" y="36.0" text-anchor="middle" class="nl">Python on_bill_change (webhooks/handlers)</text><text x="500.0" y="50.0" text-anchor="middle" class="ns">billing.bill.created / updated → nets grants &amp; commitments → POST</text><path d="M500,62 L500,84" class="e" marker-end="url(#ah)"/><rect x="300" y="86" width="400" height="40" rx="6" class="node trig"/><text x="500.0" y="110.0" text-anchor="middle" class="nl">HTTP trigger: body.accountId, body.lineitems[]</text><path d="M500,126 L500,150" class="e" marker-end="url(#ah)"/><rect x="230" y="152" width="540" height="470" rx="10" class="root"/><text x="500" y="176" text-anchor="middle" class="rl">m3ter → SF RCA Usage Data</text><text x="500" y="192" text-anchor="middle" class="ns">m3ter_sf_rca_usage_data · v56</text><rect x="250" y="206" width="500" height="48" rx="6" class="node phase"/><text x="500.0" y="228.0" text-anchor="middle" class="nl">1 · Account</text><text x="500.0" y="242.0" text-anchor="middle" class="ns">ExternalMapping m3ter Account body.accountId → salesforceAccountId</text><path d="M500,254 L500,272" class="e" marker-end="url(#ah)"/><rect x="250" y="274" width="500" height="334" rx="8" class="phase"/><text x="500" y="294" text-anchor="middle" class="nl">2 · for each lineItem in body.lineitems</text><rect x="268" y="306" width="464" height="48" rx="6" class="node phase"/><text x="500.0" y="328.0" text-anchor="middle" class="nl">Per-line context</text><text x="500.0" y="342.0" text-anchor="middle" class="ns">AccountPlan custom fields → SOQL child bucket → UEBid, UoMid</text><path d="M500,354 L500,372" class="e" marker-end="url(#ah)"/><a href="#wf-usagesummary"><rect x="258" y="374" width="150" height="52" rx="6" class="node sub"/><text x="333.0" y="398.0" text-anchor="middle" class="nl">UsageSummary</text><text x="333.0" y="412.0" text-anchor="middle" class="ns">find-or-create</text></a><a href="#wf-ratable"><rect x="425" y="374" width="150" height="52" rx="6" class="node sub"/><text x="500.0" y="398.0" text-anchor="middle" class="nl">UsageRatableSummary</text><text x="500.0" y="412.0" text-anchor="middle" class="ns">via RatableSummaryId</text></a><a href="#wf-ubpi"><rect x="592" y="374" width="150" height="52" rx="6" class="node sub"/><text x="667.0" y="398.0" text-anchor="middle" class="nl">UsageBillingPeriodItem</text><text x="667.0" y="412.0" text-anchor="middle" class="ns">via LiableSummaryId</text></a><path d="M408,400 L423,400" class="e" marker-end="url(#ah)"/><path d="M575,400 L590,400" class="e" marker-end="url(#ah)"/><path d="M500,426 L500,444" class="e" marker-end="url(#ah)"/><rect x="268" y="446" width="464" height="48" rx="6" class="node phase"/><text x="500.0" y="468.0" text-anchor="middle" class="nl">3 · Back-links (only when the summary was new)</text><text x="500.0" y="482.0" text-anchor="middle" class="ns">UsageSummary.RatableSummaryId, UsageSummary.LiableSummaryId</text><path d="M500,494 L500,512" class="e" marker-end="url(#ah)"/><rect x="268" y="514" width="464" height="48" rx="6" class="node phase"/><text x="500.0" y="536.0" text-anchor="middle" class="nl">4 · Bucket balance written by hand</text><text x="500.0" y="550.0" text-anchor="middle" class="ns">BucketBalance = TotalUsedQuantity · ConsumedEntitlement = ConsumptionUnits</text><text x="500" y="592" text-anchor="middle" class="ns">three payloads are built in the entry point; the sub-workflows only decide create vs update</text><path d="M210,450 L248,450" class="e" marker-end="url(#ah)"/><text x="229" y="440" text-anchor="middle" class="el">read / write</text><path d="M790,450 L752,450" class="e" marker-end="url(#ah)"/><text x="771" y="440" text-anchor="middle" class="el">read</text></svg></div>
+    <figcaption>Sub-workflows run in the caller's state: the three <code>…ToCreate</code> payloads are assembled in the entry point, and each sub-workflow only decides whether to create or update, leaving an id behind for the next one. Click a sub-workflow to jump to its steps.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>Four phases, one bill</h2>
+  <div class="phases">
+    <div class="phase-card"><div class="n">Phase 0 · outside m3sh</div><h3>Python nets the bill</h3>
+      <ul><li>Webhook <code>billing.bill.created</code> / <code>updated</code> → <code>on_bill_change</code> reads the Bill and its USAGE line items only.</li>
+      <li><code>apply_grants</code> reduces quantity by matching quantity Balances; <code>apply_commitments</code> draws the remainder down against TOK / USD Balances via the rate.</li>
+      <li>Posts <code>accountId</code>, bill dates and one entry per line with <code>ConsumptionUnits</code>, <code>OverageUnits</code>, <code>NetUnitRate</code>, <code>OverageQuantity</code>, <code>TierQuantity</code>, <code>TotalAmount</code>, <code>OverageAmount</code>, <code>TotalUsedQuantity</code>, <code>CurrencyIsoCode</code>, <code>RatingDecisionDateTime</code>, <code>accountPlanId</code>.</li></ul></div>
+    <div class="phase-card"><div class="n">Phase 1</div><h3>Account and per-line context</h3>
+      <ul><li>External mapping m3ter <code>Account</code> → <code>salesforceAccountId</code> (TRUE exit only).</li>
+      <li>Per line: load the m3ter <b>AccountPlan</b>; its custom fields <code>TUEId</code>, <code>AssetId</code>, <code>EntitlemntUomId</code> are the Salesforce ids.</li>
+      <li>SOQL the <b>child bucket</b> (<code>Parent.Type = 'UsageEntitlementBucket'</code>) for that TUE and UoM → <code>UEBid</code>, <code>UoMid</code>.</li></ul></div>
+    <div class="phase-card"><div class="n">Phase 2</div><h3>Three objects, find-or-create</h3>
+      <ul><li><b>UsageSummary</b> is searched by Account + Asset + Start + End + bucket; sets <code>isUsageSummaryNew</code>.</li>
+      <li><b>UsageRatableSummary</b> and <b>UBPI</b> are reached through <code>sfUsageSummary.RatableSummaryId</code> / <code>LiableSummaryId</code>: null → create, else read and update.</li>
+      <li>Every update strips <code>Status</code> first so an existing record is never reset to <code>New</code>.</li></ul></div>
+    <div class="phase-card"><div class="n">Phase 3</div><h3>Back-links and bucket</h3>
+      <ul><li>If the summary was new: write <code>RatableSummaryId</code> and <code>LiableSummaryId</code> onto it.</li>
+      <li>Read the child bucket and overwrite <code>BucketBalance</code> with <code>TotalUsedQuantity</code>, <code>ConsumedEntitlement</code> with <code>ConsumptionUnits</code>.</li>
+      <li>Next line item.</li></ul></div>
+  </div>
+</section>
+
+<section>
+  <h2>Field matrix (three objects from one line item)</h2>
+  <p>What the entry point puts in each payload. The “Python” column is where the posted value came from in <code>on_bill_change</code>: <code>quantity</code> is the m3ter line item quantity, <code>final</code> is the quantity left after grants and commitments, <code>rate</code> the TOK or USD unit price.</p>
+  <div class="tbl-wrap"><table class="matrix">
+    <thead><tr><th>Field</th><th>UsageSummary</th><th>UsageRatableSummary</th><th>UsageBillingPeriodItem</th><th>Python origin of the payload field</th></tr></thead>
+    <tbody>
+    <tr><td>AccountId / AssetId</td><td colspan="3"><code>salesforceAccountId</code> · <code>currentAccountPlan.customFields.AssetId</code></td><td>mapping lookup · AccountPlan custom field</td></tr>
+    <tr><td>Status</td><td colspan="3"><code class="lit">New</code> on create; removed on update</td><td>—</td></tr>
+    <tr><td>StartDateTime</td><td colspan="3"><code>lineItem.StartDateTime</code></td><td><code>servicePeriodStartDate</code></td></tr>
+    <tr><td>EndDateTime</td><td><code class="calc">dateSub(…, 1, SECONDS)</code></td><td><code class="calc">dateSub(…, 1, SECONDS)</code></td><td><span class="warn"><code>lineItem.EndDateTime</code> as posted</span></td><td><code>servicePeriodEndDate</code> (m3ter exclusive midnight)</td></tr>
+    <tr><td>UsageEntitlementBucketId</td><td colspan="3"><code>UEBid</code> (child bucket)</td><td>—</td></tr>
+    <tr><td>UoM</td><td><code>UomId</code> = <code>UoMid</code></td><td><code>NetUnitRateUomId</code> = <code>UoMid</code>; <code>OverageQuantityUomId</code>, <code>TierQuantityUomId</code> = <code>customFields.EntitlemntUomId</code></td><td><code>UoMId</code> = <code>UoMid</code></td><td>AccountPlan custom field (same value three ways)</td></tr>
+    <tr><td>Quantities</td><td><code>DebitedUnits</code> = <code>ConsumptionUnits</code><br><code>ConsumptionUnits</code> = <code class="calc">ConsumptionUnits + OverageUnits</code><br><code>OverageUnits</code> = <code>OverageUnits</code></td><td><code>OverageQuantity</code>, <code>TierQuantity</code></td><td><code>TotalUsedQuantity</code>, <code>OverageQuantity</code></td><td><code>ConsumptionUnits</code> = quantity · <code>OverageUnits</code> = final · <code>OverageQuantity</code> = <code>TierQuantity</code> = final · <code>TotalUsedQuantity</code> = quantity · <code>DebitedUnits</code> = max(quantity − final, 0) <span class="warn">(posted but not used)</span></td></tr>
+    <tr><td>Money</td><td>—</td><td><code>NetUnitRate</code>, <code>TotalAmount</code></td><td><code>OverageAmount</code>, <code>CurrencyIsoCode</code></td><td>rate · final × rate · <code>finalUsdAmount</code> · <code class="lit">USD</code> static</td></tr>
+    <tr><td>RatingDecisionDateTime</td><td>—</td><td><code class="calc">dateSub(…, 1, SECONDS)</code></td><td>—</td><td><code>servicePeriodEndDate</code></td></tr>
+    </tbody></table></div>
+</section>
+
+<section>
+  <h2>Workflow steps, as exported</h2>
+  <div class="legend">
+    <span><span class="badge sf">sf</span> Salesforce read/query/write</span>
+    <span><span class="badge m3">m3</span> m3ter entity or mapping</span>
+    <span><span class="badge ctl">ctl</span> loop / branch</span>
+    <span><span class="badge st">st</span> state variable</span>
+    <span><span class="badge call">call</span> sub-workflow</span>
+  </div>
+  <div class="controls"><button type="button" id="btn-expand">Expand all</button><button type="button" id="btn-collapse">Collapse all</button></div>
+  <div style="display:grid;gap:12px">
+
+<details class="wf-card root" id="wf-root" open>
+  <summary>
+    <span class="wf-kind">entry point</span>
+    <span class="wf-name">m3ter -&gt; SF RCA Usage Data</span>
+    <span class="wf-meta"><code>m3ter_sf_rca_usage_data</code> · v56 · 19 functions · credentials: M3TER, SALESFORCE</span>
+  </summary>
+  <p class="wf-desc">Sync of Usage data to RCA objects</p>
+  <dl class="contract">
+    <div><dt>Assumes in state</dt><dd>HTTP trigger payload: <code>body.accountId</code> (m3ter Account id), <code>body.lineitems[]</code> with the fields in the matrix above</dd></div>
+    <div><dt>Leaves in state / creates</dt><dd>UsageSummary, UsageRatableSummary and UsageBillingPeriodItem per line item (created or updated); the child bucket's balance overwritten</dd></div>
+  </dl>
+  <ul class="tree"><li class="step m3 "><div class="head"><span class="badge m3">mapping lookup</span><span class="title">Lookup SFAccount ID from External Mapping</span></div><div class="p">m3ter entity <code>Account</code> id <code>body.accountId</code> <span class="arrow">→</span> <code>salesforceAccountId</code> <span class="muted">(externalSystem Salesforce, externalTable blank; duplicateRunForEntity=false)</span></div><ul class="branch true"><li class="lbl">true</li><li class="step ctl "><div class="head"><span class="badge ctl">loop</span><span class="title">Loop</span></div><div class="p">for <code>lineItem</code> in <code>body.lineitems</code> <span class="muted">(index <code>count</code>)</span></div><ul class="branch loop"><li class="lbl">loop body</li><ul class="tree"><li class="step m3 "><div class="head"><span class="badge m3">m3 get</span><span class="title">Get m3ter Entity - AccountPlan</span></div><div class="p">AccountPlan by id <code>lineItem.accountPlanId</code> <span class="arrow">→</span> <code>currentAccountPlan</code></div></li><li class="step sf "><div class="head"><span class="badge sf">SOQL single</span><span class="title">Query for UEB</span></div><div class="p"><pre class="soql">SELECT Id, EffectiveStartDateTime, EffectiveEndDateTime FROM UsageEntitlementBucket WHERE TransactionUsageEntitlement.AccountId = &#x27;{{salesforceAccountId}}&#x27; AND Parent.Type = &#x27;UsageEntitlementBucket&#x27; AND BucketBalanceUoMId = &#x27;{{currentAccountPlan.customFields.EntitlemntUomId}}&#x27; AND TransactionUsageEntitlementId = &#x27;{{currentAccountPlan.customFields.TUEId}}&#x27;</pre><span class="arrow">→</span> <code>sfUEB</code></div></li><li class="step st "><div class="head"><span class="badge st">set</span><span class="title">Set BucketId</span></div><div class="p"><code>UEBid</code> = <code>sfUEB.Id</code></div></li><li class="step st "><div class="head"><span class="badge st">set</span><span class="title">Set UoM</span></div><div class="p"><code>UoMid</code> = <code>currentAccountPlan.customFields.EntitlemntUomId</code></div></li><li class="step st "><div class="head"><span class="badge st">set fields</span><span class="title">Set Multiple Fields on UsageSummary</span></div><div class="p"><code>UsageSummaryToCreate</code> = <table class="kv"><tr><td class="k">AssetId</td><td><code>currentAccountPlan.customFields.AssetId</code></td></tr><tr><td class="k">AccountId</td><td><code>salesforceAccountId</code></td></tr><tr><td class="k">Status</td><td><code class="lit">New</code></td></tr><tr><td class="k">StartDateTime</td><td><code>lineItem.StartDateTime</code></td></tr><tr><td class="k">EndDateTime</td><td><code class="calc">DateTime.dateSub(String.left(lineItem.EndDateTime, 22) + &quot;Z&quot;, 1, &quot;SECONDS&quot;)</code></td></tr><tr><td class="k">DebitedUnits</td><td><code>lineItem.ConsumptionUnits</code></td></tr><tr><td class="k">ConsumptionUnits</td><td><code class="calc">Number(lineItem.ConsumptionUnits) + Number(lineItem.OverageUnits)</code></td></tr><tr><td class="k">OverageUnits</td><td><code>lineItem.OverageUnits</code></td></tr><tr><td class="k">UomId</td><td><code>UoMid</code></td></tr><tr><td class="k">UsageEntitlementBucketId</td><td><code>UEBid</code></td></tr></table></div></li><li class="step call "><div class="head"><span class="badge call">run workflow</span><span class="title">Run UsageSummary</span></div><div class="p">calls <a class="wf" href="#wf-usagesummary">m3ter -&gt; SF RCA Usage Data - UsageSummary</a> <span class="muted">(destination <code>cea4fafe-…</code>)</span></div></li><li class="step st "><div class="head"><span class="badge st">set fields</span><span class="title">Set Multiple Fields on UsageRatableSummary</span></div><div class="p"><code>UsageRatableSummaryToCreate</code> = <table class="kv"><tr><td class="k">AssetId</td><td><code>currentAccountPlan.customFields.AssetId</code></td></tr><tr><td class="k">AccountId</td><td><code>salesforceAccountId</code></td></tr><tr><td class="k">Status</td><td><code class="lit">New</code></td></tr><tr><td class="k">StartDateTime</td><td><code>lineItem.StartDateTime</code></td></tr><tr><td class="k">EndDateTime</td><td><code class="calc">DateTime.dateSub(String.left(lineItem.EndDateTime, 22) + &quot;Z&quot;, 1, &quot;SECONDS&quot;)</code></td></tr><tr><td class="k">NetUnitRate</td><td><code>lineItem.NetUnitRate</code></td></tr><tr><td class="k">NetUnitRateUomId</td><td><code>UoMid</code></td></tr><tr><td class="k">OverageQuantity</td><td><code>lineItem.OverageQuantity</code></td></tr><tr><td class="k">OverageQuantityUomId</td><td><code>currentAccountPlan.customFields.EntitlemntUomId</code></td></tr><tr><td class="k">RatingDecisionDateTime</td><td><code class="calc">DateTime.dateSub(String.left(lineItem.RatingDecisionDateTime, 22) + &quot;Z&quot;, 1, &quot;SECONDS&quot;)</code></td></tr><tr><td class="k">TierQuantity</td><td><code>lineItem.TierQuantity</code></td></tr><tr><td class="k">TierQuantityUomId</td><td><code>currentAccountPlan.customFields.EntitlemntUomId</code></td></tr><tr><td class="k">TotalAmount</td><td><code>lineItem.TotalAmount</code></td></tr><tr><td class="k">UsageEntitlementBucketId</td><td><code>UEBid</code></td></tr></table></div></li><li class="step call "><div class="head"><span class="badge call">run workflow</span><span class="title">Run UsageRatableSummary workflow</span></div><div class="p">calls <a class="wf" href="#wf-ratable">m3ter -&gt; SF RCA Usage Data - UsageRatableSummary</a> <span class="muted">(destination <code>f3a0cccf-…</code>)</span></div></li><li class="step st "><div class="head"><span class="badge st">set fields</span><span class="title">Set Fields for UsageBillingPeriodItem</span></div><div class="p"><code>UsageBillingPeriodItemToCreate</code> = <table class="kv"><tr><td class="k">AssetId</td><td><code>currentAccountPlan.customFields.AssetId</code></td></tr><tr><td class="k">AccountId</td><td><code>salesforceAccountId</code></td></tr><tr><td class="k">Status</td><td><code class="lit">New</code></td></tr><tr><td class="k">OverageAmount</td><td><code>lineItem.OverageAmount</code></td></tr><tr><td class="k">OverageQuantity</td><td><code>lineItem.OverageQuantity</code></td></tr><tr><td class="k">StartDateTime</td><td><code>lineItem.StartDateTime</code></td></tr><tr><td class="k">EndDateTime</td><td><code>lineItem.EndDateTime</code> <span class="warn">(not shaved by 1 s, unlike the two summaries)</span></td></tr><tr><td class="k">CurrencyIsoCode</td><td><code>lineItem.CurrencyIsoCode</code></td></tr><tr><td class="k">TotalUsedQuantity</td><td><code>lineItem.TotalUsedQuantity</code></td></tr><tr><td class="k">UoMId</td><td><code>UoMid</code></td></tr><tr><td class="k">UsageEntitlementBucketId</td><td><code>UEBid</code></td></tr></table></div></li><li class="step call "><div class="head"><span class="badge call">run workflow</span><span class="title">Run workflow - Usage Period Billing Item</span></div><div class="p">calls <a class="wf" href="#wf-ubpi">m3ter -&gt; SF RCA Usage Data - UBPI</a> <span class="muted">(destination <code>b5a34167-…</code>)</span></div></li><li class="step ctl "><div class="head"><span class="badge ctl">if</span><span class="title">If isUsageSummaryNew</span></div><div class="p"><code class="calc">isUsageSummaryNew == &quot;true&quot;</code></div><ul class="branch true"><li class="lbl">true</li><li class="step st "><div class="head"><span class="badge st">set fields</span><span class="title">Update UsageSummaryToUpdate with RatableSummary and LiableSummary</span></div><div class="p"><code>UsageSummaryToUpdate</code> = <table class="kv"><tr><td class="k">RatableSummaryId</td><td><code>sfUsageRatableSummaryId</code></td></tr><tr><td class="k">LiableSummaryId</td><td><code>sfUsageBillingPeriodItemId</code></td></tr></table></div></li><li class="step sf "><div class="head"><span class="badge sf">SF update</span><span class="title">Update Salesforce UsageSummary with UsageRatableSummayId and LiableSummaryId</span></div><div class="p">UsageSummary id <code>sfUsageSummaryId</code> with payload <code>UsageSummaryToUpdate</code></div></li><li class="step join"><div class="head"><span class="badge ctl">joins</span><span class="title">↳ Get Bucket</span></div></li></ul><ul class="branch false empty"><li class="lbl">false <span class="muted">— straight to Get Bucket</span></li></ul></li><li class="step sf "><div class="head"><span class="badge sf">SF read</span><span class="title">Get  Bucket</span></div><div class="p">UsageEntitlementBucket by id <code>UEBid</code> <span class="arrow">→</span> <code>sfBucket</code></div></li><li class="step st "><div class="head"><span class="badge st">set fields</span><span class="title">Set Multiple Fields on UEM</span></div><div class="p"><code>UsageEntitlementBucketToUpdate</code> = <table class="kv"><tr><td class="k">BucketBalance</td><td><code>lineItem.TotalUsedQuantity</code></td></tr><tr><td class="k">ConsumedEntitlement</td><td><code>lineItem.ConsumptionUnits</code></td></tr></table></div></li><li class="step sf "><div class="head"><span class="badge sf">SF update</span><span class="title">Update UEM Bucket</span></div><div class="p">UsageEntitlementBucket id <code>UEBid</code> with payload <code>UsageEntitlementBucketToUpdate</code> <span class="muted">(overwrites, does not increment)</span></div></li></ul></ul></li></ul><ul class="branch false empty"><li class="lbl">false <span class="muted">— no FALSE exit: a missing Account mapping ends the run silently</span></li></ul></li></ul>
+</details>
+
+<details class="wf-card step" id="wf-usagesummary">
+  <summary>
+    <span class="wf-kind">sub-workflow</span>
+    <span class="wf-name">m3ter -&gt; SF RCA Usage Data - UsageSummary</span>
+    <span class="wf-meta"><code>m3ter_sf_rca_usage_data_usagesummary</code> · v20 · 10 functions · credentials: SALESFORCE</span>
+  </summary>
+  <p class="wf-desc">Sync of Usage data to RCA objects - focusing on UsageSummary first</p>
+  <dl class="contract">
+    <div><dt>Assumes in state</dt><dd><code>UsageSummaryToCreate</code>, <code>UEBid</code></dd></div>
+    <div><dt>Leaves in state / creates</dt><dd><code>sfUsageSummaryId</code>, <code>isUsageSummaryNew</code>; <code>sfUsageSummary</code> on the update path only</dd></div>
+  </dl>
+  <ul class="tree"><li class="step sf "><div class="head"><span class="badge sf">SOQL query</span><span class="title">Get Existing UsageSummary</span></div><div class="p"><pre class="soql">SELECT Id FROM UsageSummary WHERE AccountId = &#x27;{{UsageSummaryToCreate.AccountId}}&#x27; AND AssetId = &#x27;{{UsageSummaryToCreate.AssetId}}&#x27; AND StartDateTime = {{UsageSummaryToCreate.StartDateTime}} AND EndDateTime = {{UsageSummaryToCreate.EndDateTime}} AND UsageEntitlementBucketId = &#x27;{{UEBid}}&#x27;</pre><span class="arrow">→</span> <code>sfUsageSummaries</code></div></li><li class="step ctl "><div class="head"><span class="badge ctl">if any</span><span class="title">UsageSummary Exists?</span></div><div class="p"><code>sfUsageSummaries</code> is non-empty</div><ul class="branch true"><li class="lbl">true</li><li class="step ctl "><div class="head"><span class="badge ctl">loop</span><span class="title">Loop</span></div><div class="p">for <code>tmpUsageSummary</code> in <code>sfUsageSummaries</code> <span class="muted">(index <code>accUSummary</code>; with several matches the last one wins)</span></div><ul class="branch loop"><li class="lbl">loop body</li><ul class="tree"><li class="step st "><div class="head"><span class="badge st">set</span><span class="title">Set sfUsageSummaryId</span></div><div class="p"><code>sfUsageSummaryId</code> = <code>tmpUsageSummary.Id</code></div></li><li class="step st "><div class="head"><span class="badge st">set</span><span class="title">Set sfUsageSummary</span></div><div class="p"><code>sfUsageSummary</code> = <code>tmpUsageSummary</code></div></li></ul></ul></li><li class="step st "><div class="head"><span class="badge st">remove field</span><span class="title">Remove Status</span></div><div class="p">drops <code>UsageSummaryToCreate.Status</code> <span class="muted">— “We don't want to reset it to New”</span></div></li><li class="step sf "><div class="head"><span class="badge sf">SF update</span><span class="title">Update UsageSummary</span></div><div class="p">UsageSummary id <code>sfUsageSummaryId</code> with payload <code>UsageSummaryToCreate</code></div></li><li class="step st "><div class="head"><span class="badge st">set</span><span class="title">Set isUsageSummaryNew</span></div><div class="p"><code>isUsageSummaryNew</code> = <code class="lit">false</code></div></li><li class="step sf "><div class="head"><span class="badge sf">SF read</span><span class="title">Read USageSummary</span></div><div class="p">UsageSummary by id <code>sfUsageSummaryId</code> <span class="arrow">→</span> <code>sfUsageSummary</code> <span class="muted">(so RatableSummaryId / LiableSummaryId are fresh)</span></div></li></ul><ul class="branch false"><li class="lbl">false</li><li class="step sf "><div class="head"><span class="badge sf">SF create</span><span class="title">Create UsageSummary</span></div><div class="p">POST UsageSummary with payload <code>UsageSummaryToCreate</code> <span class="arrow">→</span> <code>UsageSummaryCreated</code></div></li><li class="step st "><div class="head"><span class="badge st">set</span><span class="title">Set sfUsageSummaryId</span></div><div class="p"><code>sfUsageSummaryId</code> = <code>UsageSummaryCreated</code></div></li><li class="step st "><div class="head"><span class="badge st">set</span><span class="title">Set isUsageSummaryNew</span></div><div class="p"><code>isUsageSummaryNew</code> = <code class="lit">true</code> <span class="warn">— sfUsageSummary is NOT reset here</span></div></li></ul></li></ul>
+</details>
+
+<details class="wf-card step" id="wf-ratable">
+  <summary>
+    <span class="wf-kind">sub-workflow</span>
+    <span class="wf-name">m3ter -&gt; SF RCA Usage Data - UsageRatableSummary</span>
+    <span class="wf-meta"><code>m3ter_sf_rca_usage_data_usageratablesummary</code> · v5 · 6 functions · credentials: SALESFORCE</span>
+  </summary>
+  <p class="wf-desc">Sync of Usage data to RCA objects - UsageRatableSummary</p>
+  <dl class="contract">
+    <div><dt>Assumes in state</dt><dd><code>UsageRatableSummaryToCreate</code>, <code>sfUsageSummary.RatableSummaryId</code></dd></div>
+    <div><dt>Leaves in state / creates</dt><dd><code>sfUsageRatableSummaryId</code></dd></div>
+  </dl>
+  <ul class="tree"><li class="step ctl "><div class="head"><span class="badge ctl">if</span><span class="title">If sfUsageSummary has no Ratable Summary</span></div><div class="p"><code class="calc">sfUsageSummary.RatableSummaryId == null</code></div><ul class="branch true"><li class="lbl">true</li><li class="step sf "><div class="head"><span class="badge sf">SF create</span><span class="title">Create UsageRatableSummary</span></div><div class="p">POST UsageRatableSummary with payload <code>UsageRatableSummaryToCreate</code> <span class="arrow">→</span> <code>UsageRatableSummaryCreated</code></div></li><li class="step st "><div class="head"><span class="badge st">set</span><span class="title">Set sfUsageRatableSummaryId</span></div><div class="p"><code>sfUsageRatableSummaryId</code> = <code>UsageRatableSummaryCreated</code></div></li></ul><ul class="branch false"><li class="lbl">false</li><li class="step st "><div class="head"><span class="badge st">set</span><span class="title">Set sfUsageRatableSummaryId</span></div><div class="p"><code>sfUsageRatableSummaryId</code> = <code>sfUsageSummary.RatableSummaryId</code></div></li><li class="step st "><div class="head"><span class="badge st">remove field</span><span class="title">Remove Status</span></div><div class="p">drops <code>UsageRatableSummaryToCreate.Status</code></div></li><li class="step sf "><div class="head"><span class="badge sf">SF update</span><span class="title">Update UsageRatableSummary</span></div><div class="p">UsageRatableSummary id <code>sfUsageRatableSummaryId</code> with payload <code>UsageRatableSummaryToCreate</code></div></li></ul></li></ul>
+</details>
+
+<details class="wf-card step" id="wf-ubpi">
+  <summary>
+    <span class="wf-kind">sub-workflow</span>
+    <span class="wf-name">m3ter -&gt; SF RCA Usage Data - UBPI</span>
+    <span class="wf-meta"><code>m3ter_sf_rca_usage_data_ubpi</code> · v12 · 7 functions · credentials: SALESFORCE</span>
+  </summary>
+  <p class="wf-desc">Sync of Usage data to RCA objects - UsageBillingPeriodItem</p>
+  <dl class="contract">
+    <div><dt>Assumes in state</dt><dd><code>UsageBillingPeriodItemToCreate</code>, <code>sfUsageSummary.LiableSummaryId</code></dd></div>
+    <div><dt>Leaves in state / creates</dt><dd><code>sfUsageBillingPeriodItemId</code></dd></div>
+  </dl>
+  <ul class="tree"><li class="step ctl "><div class="head"><span class="badge ctl">if</span><span class="title">If sfUsageSummary.LiableSummaryId == null</span></div><div class="p"><code class="calc">sfUsageSummary.LiableSummaryId == null</code></div><ul class="branch true"><li class="lbl">true</li><li class="step sf "><div class="head"><span class="badge sf">SF create</span><span class="title">Create UsageBillingPeriodItem</span></div><div class="p">POST UsageBillingPeriodItem with payload <code>UsageBillingPeriodItemToCreate</code> <span class="arrow">→</span> <code>UsageBillingPeriodItemCreated</code></div></li><li class="step st "><div class="head"><span class="badge st">set</span><span class="title">Set sfUsageRatableSummaryId</span></div><div class="p"><code>sfUsageBillingPeriodItemId</code> = <code>UsageBillingPeriodItemCreated</code> <span class="muted">(title is a copy-paste; it sets the UBPI id)</span></div></li></ul><ul class="branch false"><li class="lbl">false</li><li class="step sf "><div class="head"><span class="badge sf">SF read</span><span class="title">Read Liable Summary</span></div><div class="p">UsageBillingPeriodItem by id <code>sfUsageSummary.LiableSummaryId</code> <span class="arrow">→</span> <code>sfUsageBillingPeriodItem</code></div></li><li class="step st "><div class="head"><span class="badge st">set</span><span class="title">Set sfUsageBillingPeriodItemId</span></div><div class="p"><code>sfUsageBillingPeriodItemId</code> = <code>sfUsageBillingPeriodItem.Id</code></div></li><li class="step st "><div class="head"><span class="badge st">remove field</span><span class="title">Remove Status</span></div><div class="p">drops <code>UsageBillingPeriodItemToCreate.Status</code></div></li><li class="step sf "><div class="head"><span class="badge sf">SF update</span><span class="title">Update UsageBillingPeriodItem</span></div><div class="p">UsageBillingPeriodItem id <code>sfUsageBillingPeriodItemId</code> with payload <code>UsageBillingPeriodItemToCreate</code></div></li></ul></li></ul>
+</details>
+  </div>
+</section>
+
+<section>
+  <h2>What to settle before writing billsync</h2>
+  <ol class="findings">
+    <li><strong>The netting never lived in m3sh.</strong> <code>ConsumptionUnits</code>, <code>OverageUnits</code>, <code>TotalAmount</code> and friends arrive already netted by <code>apply_grants</code> / <code>apply_commitments</code> in the Python handler. The port holds both halves; the Balance netting becomes a brick between resolve and build, and until the commitment lands as a m3ter Balance it is a pass-through.</li>
+    <li><strong>The two halves disagree about ConsumptionUnits.</strong> Python posts <code>ConsumptionUnits = quantity</code> (the total) and <code>OverageUnits = final</code>. The workflow then writes <code>DebitedUnits = ConsumptionUnits</code> and <code>ConsumptionUnits = ConsumptionUnits + OverageUnits</code> — which is right only if the posted value was the <em>debited</em> portion. One of them is wrong; define it once in the port: <code>total = quantity</code>, <code>overage</code> from the priced bands, <code>debited = total − overage</code>.</li>
+    <li><strong>State bleeds across the loop.</strong> The UsageSummary create path sets <code>isUsageSummaryNew</code> but never resets <code>sfUsageSummary</code>. For the second line of a run, if the first line found an existing summary, the ratable and UBPI sub-workflows test the <em>previous</em> line's <code>RatableSummaryId</code> / <code>LiableSummaryId</code> and update the wrong records. The Python version keys every object per line explicitly.</li>
+    <li><strong>Per-line keys ride on AccountPlan custom fields</strong> (<code>TUEId</code>, <code>AssetId</code>, <code>EntitlemntUomId</code>) — one AccountPlan per usage resource. Entrust's Document Check has six TUEs on one AccountPlan, so this cannot carry over. The order sync already leaves the per-resource key on the Pricing (<code>pricing_&lt;TUE Id&gt;</code> and the <code>Salesforce/TransactionUsageEntitlement</code> external mapping); the bill line item's <code>pricingId</code> is the join.</li>
+    <li><strong>Which bucket is answered:</strong> the child, <code>Parent.Type = 'UsageEntitlementBucket'</code>, filtered by TUE and UoM. Read <code>BucketBalanceUomId</code> off the result instead of filtering on it.</li>
+    <li><strong>Idempotency is the natural key, Status only on insert.</strong> UsageSummary is found by Account + Asset + StartDateTime + EndDateTime + bucket; the other two are reached through the back-links; every update removes <code>Status</code> from the payload. Same rule for the port — and a UBPI-only first pass keys on bucket + period directly.</li>
+    <li><strong>EndDateTime is shaved by one second for the two summaries but not the UBPI.</strong> The posted end is m3ter's exclusive midnight; the summaries get 23:59:59, the UBPI gets 00:00:00 of the next day. Pick one — Revenue Cloud's own TUE and bucket end dates are 23:59:59.</li>
+    <li><strong>Date arithmetic assumes the m3ter ISO shape.</strong> <code>String.left(x, 22) + "Z"</code> keeps two decimal places of <code>2026-11-14T00:00:00.000Z</code> before subtracting; any other input format breaks it. In Python this is a parse and <code>timedelta(seconds=1)</code>.</li>
+    <li><strong>The bucket balance is overwritten by hand.</strong> <code>BucketBalance = TotalUsedQuantity</code> and <code>ConsumedEntitlement = ConsumptionUnits</code> on the child bucket, every run, so Revenue Cloud's own drawdown is bypassed. Acme's buckets are zero-entitlement; make this an optional, off-by-default brick.</li>
+    <li><strong>Only USAGE lines are posted</strong> — the Python filter is what keeps STANDING_CHARGE, BALANCE_FEE and BALANCE_CONSUMED out. Keep it: the order line price is billed by Revenue Cloud itself.</li>
+    <li><strong>Silent exits.</strong> The Account mapping check has no FALSE branch, the UEB query is a single-object read that is not checked for a hit, and several matches for a UsageSummary are looped so the last wins. Decide whether the port logs or raises.</li>
+    <li><strong>Cosmetic.</strong> The UBPI create path's last step is titled “Set sfUsageRatableSummaryId” but sets the UBPI id; <code>CurrencyIsoCode</code> is a static <code>USD</code> in Python rather than the line item's currency.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Reference: payload, objects and fixed ids</h2>
+  <div class="ref">
+    <div class="phase-card"><h3>Trigger payload (from <code>on_bill_change</code>)</h3><ul>
+      <li><code>accountId</code>, <code>accountCode</code>, <code>billDate</code>, <code>startDate</code>, <code>endDate</code>, <code>currency</code></li>
+      <li><code>lineitems[]</code>: <code>Description</code>, <code>accountPlanId</code>, <code>StartDateTime</code>, <code>EndDateTime</code>, <code>Unit</code>, <code>DebitedUnits</code>, <code>ConsumptionUnits</code>, <code>OverageUnits</code>, <code>RatingDecisionDateTime</code>, <code>NetUnitRate</code>, <code>OverageQuantity</code>, <code>TierQuantity</code>, <code>TotalAmount</code>, <code>OverageAmount</code>, <code>TotalUsedQuantity</code>, <code>CurrencyIsoCode</code></li>
+      <li>USAGE line items only; posted with HTTP basic auth to the m3sh webhook URL</li>
+    </ul></div>
+    <div class="phase-card"><h3>Salesforce objects</h3><ul>
+      <li>Read: <code>UsageEntitlementBucket</code> (SOQL, child level), <code>UsageSummary</code> (SOQL + read), <code>UsageBillingPeriodItem</code> (read)</li>
+      <li>Written: <code>UsageSummary</code>, <code>UsageRatableSummary</code>, <code>UsageBillingPeriodItem</code>, <code>UsageEntitlementBucket</code></li>
+      <li>API version 65.0, OAuth client credentials (the loader is pinned to 66.0)</li>
+    </ul></div>
+    <div class="phase-card"><h3>m3ter entities and custom fields relied on</h3><ul>
+      <li>External mapping m3ter <code>Account</code> → Salesforce (reverse lookup by m3ter id)</li>
+      <li><code>AccountPlan.customFields.TUEId</code>, <code>.AssetId</code>, <code>.EntitlemntUomId</code> (set at order time by the Order Handler's AccountPlan step)</li>
+      <li>Bill, Balance, TransactionSummary, Plan, Pricing, AccountPlan — read by the Python half</li>
+    </ul></div>
+    <div class="phase-card"><h3>Fixed ids baked into the workflows</h3><ul>
+      <li>Salesforce credential <code>e089ad7e-8d96-4fb4-b527-4176dd055f81</code>; m3ter service-user credential <code>ea89b47a-2ac4-473d-a85b-3a92e6edcc30</code></li>
+      <li>Destinations: UsageSummary <code>cea4fafe-28b0-42d2-8b53-2b2200d90aef</code>, UsageRatableSummary <code>f3a0cccf-9d81-44b5-bac6-59eb42abdb04</code>, UBPI <code>b5a34167-10aa-4a99-bce4-a4e59dce09bd</code></li>
+      <li>Webhook URL in the Python handler: <code>e1edd915-….webhook.m3ter.com/fc08ab42-…</code>; org <code>9a3a717e-40a0-4b92-9163-70db1110f21c</code></li>
+    </ul></div>
+  </div>
+</section>
+</main>
+<script>
+(function(){
+  var cards=document.querySelectorAll('details.wf-card');
+  document.getElementById('btn-expand').addEventListener('click',function(){cards.forEach(function(c){c.open=true})});
+  document.getElementById('btn-collapse').addEventListener('click',function(){cards.forEach(function(c){c.open=false})});
+  function openHash(){var h=location.hash.replace('#','');if(!h)return;var el=document.getElementById(h);if(el&&el.tagName==='DETAILS'){el.open=true}}
+  window.addEventListener('hashchange',openHash);openHash();
+  document.querySelectorAll('a[href^="#wf-"]').forEach(function(a){a.addEventListener('click',function(){var el=document.getElementById(a.getAttribute('href').slice(1));if(el)el.open=true})});
+})();
+</script>

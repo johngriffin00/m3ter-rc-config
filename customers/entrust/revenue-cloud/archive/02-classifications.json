@@ -1,0 +1,45 @@
+{
+  "_comment": "Two classifications: plain checks, and the two document checks whose quote lines are split by COUNTRY. IsRequired is set by API because the UI would not save it true on 6 Oct (v1 lesson); `verify` will say if the org kept it.",
+  "objects": [
+    {
+      "sobject": "ProductClassification",
+      "match_fields": [
+        "Code"
+      ],
+      "records": [
+        {
+          "@id": "PC_Check",
+          "Name": "Verification Check",
+          "Code": "PC-VERIFICATION-CHECK",
+          "Status": "Active"
+        },
+        {
+          "@id": "PC_CheckCountry",
+          "Name": "Verification Check (country-priced)",
+          "Code": "PC-VERIFICATION-CHECK-COUNTRY",
+          "Status": "Active"
+        }
+      ]
+    },
+    {
+      "sobject": "ProductClassificationAttr",
+      "match_fields": [
+        "ProductClassificationId",
+        "AttributeDefinitionId"
+      ],
+      "records": [
+        {
+          "@id": "PCA_CheckCountry",
+          "Name": "Verification Check (country-priced) / Country",
+          "ProductClassificationId": "@ref:PC_CheckCountry",
+          "AttributeDefinitionId": "@ref:ATTR_Country",
+          "Sequence": 1,
+          "Status": "Active",
+          "IsPriceImpacting": true,
+          "IsRequired": true,
+          "Description": "Country the document check is priced for. One quote line per country."
+        }
+      ]
+    }
+  ]
+}

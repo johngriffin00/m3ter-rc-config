@@ -1,0 +1,88 @@
+{
+  "_comment": "COUNTRY is the one attribute these quotes need (v2 D9). It is price-impacting so it lands on the quote line and on usage, but there is NO AttributeBasedAdjRule: the list price is the same for every country; only the negotiated price differs, and that is a quote-line matter. A multi-country deal (KAZ,SRB) is two lines at the same net price.",
+  "objects": [
+    {
+      "sobject": "AttributePicklist",
+      "match_fields": [
+        "Code"
+      ],
+      "records": [
+        {
+          "@id": "PL_Country",
+          "Name": "Country Values",
+          "Code": "PL-VC-COUNTRY",
+          "DataType": "Text",
+          "Status": "Active"
+        }
+      ]
+    },
+    {
+      "sobject": "AttributePicklistValue",
+      "match_fields": [
+        "Code",
+        "PicklistId"
+      ],
+      "records": [
+        {
+          "@id": "PLV_ANY",
+          "Name": "ANY",
+          "Code": "ANY",
+          "Value": "ANY",
+          "Sequence": 1,
+          "IsDefault": true,
+          "Status": "Active",
+          "PicklistId": "@ref:PL_Country"
+        },
+        {
+          "@id": "PLV_JPN",
+          "Name": "JPN",
+          "Code": "JPN",
+          "Value": "JPN",
+          "Sequence": 2,
+          "IsDefault": false,
+          "Status": "Active",
+          "PicklistId": "@ref:PL_Country"
+        },
+        {
+          "@id": "PLV_KAZ",
+          "Name": "KAZ",
+          "Code": "KAZ",
+          "Value": "KAZ",
+          "Sequence": 3,
+          "IsDefault": false,
+          "Status": "Active",
+          "PicklistId": "@ref:PL_Country"
+        },
+        {
+          "@id": "PLV_SRB",
+          "Name": "SRB",
+          "Code": "SRB",
+          "Value": "SRB",
+          "Sequence": 4,
+          "IsDefault": false,
+          "Status": "Active",
+          "PicklistId": "@ref:PL_Country"
+        }
+      ]
+    },
+    {
+      "sobject": "AttributeDefinition",
+      "match_fields": [
+        "Code"
+      ],
+      "records": [
+        {
+          "@id": "ATTR_Country",
+          "Name": "Country",
+          "Label": "Country",
+          "Code": "ATTR-VC-COUNTRY",
+          "DeveloperName": "Country",
+          "DataType": "Picklist",
+          "PicklistId": "@ref:PL_Country",
+          "IsActive": true,
+          "Description": "ISO 3166-1 alpha-3 country of the document being checked (m3ter meter field `country`). ANY covers every country that has no line of its own on the quote."
+        }
+      ]
+    }
+  ]
+}

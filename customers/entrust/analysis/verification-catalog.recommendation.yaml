@@ -1,0 +1,707 @@
+# Revenue Cloud recommendation: the Verification Check catalog (from m3ter)
+#
+# Generated 2026-10-06 from two m3ter account exports:
+#   0010800002pezwdAAA  State of Delaware  (USD, "Rate Card D USD Default Pricing")
+#   00108000031Xp6xAAC  Finrate AG         (EUR, "Rate Card B EUR Default Pricing")
+# Both accounts share one m3ter catalog (33 meters, 33 aggregations, identical in
+# both exports), so this is ONE shared catalog + two account overlays.
+#
+# How to read this file
+#   * It sits one level ABOVE rc-config's config/*.json: every entry here implies
+#     a cluster of sObjects (listed under `rc_mapping`). It is meant to be argued
+#     over by people before any sObject is named. rc-config JSON is generated
+#     from it, by hand for the first account and by a small compiler later.
+#   * Keys prefixed `m3ter_` are copied verbatim from the exports so every line
+#     is traceable. Everything else is the recommendation.
+#   * `decision:` blocks record the choices that are not forced by the data.
+#   * `verify_in_org:` marks claims that must be checked against the org before
+#     they become config. Items marked `verified_in_org:` were settled by
+#     building the worked example in m3ter-arm-260 on 2026-10-06 (see the
+#     setup manual, Claude Docs "Revenue Cloud Verification Catalog — Setup Manual").
+#   * Rationale for the mapping is in models/m3ter-to-revenue-cloud.md.
+
+meta:
+  generated: 2026-10-06
+  sources:
+    - 0010800002pezwdAAA-config.json   # State of Delaware
+    - 00108000031Xp6xAAC-config.json   # Finrate AG
+  model: models/claude-catalog-data-model.html
+  status: >-
+    recommendation; worked example (Document Check - Boost + bundle AE, both rate
+    cards, USD/EUR/bundle rate card entries) built by hand in m3ter-arm-260 on
+    2026-10-06 and SOQL-verified Active. Remaining 31 products not yet applied.
+  org_lessons:                        # things the build taught us that change the config
+    - UnitOfMeasureClass is Draft-only on create (same as UsageResource, ProductUsageResource, RateCardEntry, ProductUsageGrant); activate after its default unit exists
+    - UnitOfMeasure.Type offers only "Custom" in the UI (pre-seeded USD is "Cost"); set Type by API if it must match
+    - UsageResource category values are Usage / Token / Currency (not "Verification")
+    - RateCard in this org: Type Base, RateUnitOfMeasure = currency unit, DefaultUnitOfMeasure = resource unit, Negotiable, linked to the Standard Price Book via PriceBookRateCard
+    - ProductClassificationAttr.IsRequired saved as false although ticked in the UI; untested by API
+    - EffectiveFrom is a datetime; a date-only value lands at noon in the UI and needs explicit midnight in the org timezone by API
+
+# ------------------------------------------------------------------------------
+# rc_mapping: what each section of this file becomes in Revenue Cloud, in the
+# load order the model already uses (numbers = the model's `seq`).
+# ------------------------------------------------------------------------------
+rc_mapping:
+  catalog.attributes:        [AttributePicklist(1), AttributePicklistValue(2), AttributeDefinition(3)]
+  catalog.classifications:   [ProductClassification(4), ProductClassificationAttr(5)]
+  catalog.units:             [UnitOfMeasure(6), UnitOfMeasureClass(7)]        # lookup-only if the org has them
+  catalog.products[].resource: [UsageResource(8), ProductUsageResource(15)]  # one per meter
+  catalog.products:          [Product2(10), ProductSellingModelOption(14)]
+  catalog.categories:        [ProductCatalog(11), ProductCategory(12), ProductCategoryProduct(13)]
+  price_books:               [Pricebook2(18), PricebookEntry(19), RateCard(20), PriceBookRateCard(21), RateCardEntry(22)]
+  catalog.attributes (priced): [AttributeBasedAdjRule(23), AttributeAdjustmentCondition(24), RateAdjustmentByAttribute(25)]
+  not_mapped:
+    - ProductUsageGrant / UsagePrdGrantBindingPolicy  # no grants: nothing in m3ter is prepaid or included
+    - accounts[]                                      # contract-level; outside PCM, see decision D4
+
+# ==============================================================================
+catalog:
+  name: Verification Checks
+  selling_model:
+    use: PSM_EvergreenMonthly            # already in config/05-selling-models.json (lookup-only)
+    why: m3ter bills these monthly in arrears with no term; same model the Claude API usage product uses.
+
+  units:
+    class: {code: VERIFICATION-UOM-CLASS, name: Verification Usage}
+    members:
+      - {code: CHECK, name: Check,  m3ter_units_seen: [check, checks, sum]}   # "sum" on mastercard_emea is an m3ter typo
+      - {code: BLOCK, name: Block,  m3ter_units_seen: [blocks]}              # ongoing monitoring only
+    rate_units:                          # RateCardEntry.RateUnitOfMeasureId, as the Claude rate card does with UOM_USD
+      - {code: USD, existing: UOM_USD}
+      - {code: EUR, verified_in_org: "did not exist; created as UnitOfMeasure 'EUR' (Type Custom; USD's is Cost, not offered in the UI) in the pre-seeded Currency class 1BQWs0000005OWPOA2, id 0hEWs0000018yHlMAI, accepted as RateUnitOfMeasure on the EUR rate card and entries; rating with a Custom-type currency unit not tested"}
+
+  attributes:
+    - code: IS-RETRY
+      name: Is Retry
+      m3ter_field: is_retry                # category WHAT on the two ETSI video meters; segmentedFields on their aggregations
+      picklist: {code: PL-VC-ISRETRY, values: [{code: TRUE, value: "true"}, {code: FALSE, value: "false"}]}
+      decision: D2
+      priced_today: false                  # both price lists charge retry == non-retry (see price_books). Define the attribute,
+                                           # add NO AttributeBasedAdjRule until a price delta exists.
+
+  classifications:
+    - code: PC-VERIFICATION-CHECK
+      name: Verification Check
+      attributes: []
+    - code: PC-VERIFICATION-CHECK-RETRY
+      name: Verification Check (retry-aware)
+      attributes: [IS-RETRY]
+      used_by: [document_report_video_ETSI_Certified_IDV, document_report_video_ETSI_Certified_IDV_with_QES_and_OTP]
+
+  product_catalog: {code: CAT-VERIFICATION, name: Verification Catalog}
+  categories:                              # one ProductCategory each, under the catalog above
+
+    - {code: CAT-DOCUMENT-CHECKS, name: 'Document Checks'}
+    - {code: CAT-BIOMETRICS, name: 'Biometrics'}
+    - {code: CAT-WATCHLIST-MONITORING, name: 'Watchlist & Monitoring'}
+    - {code: CAT-IDENTITY-DATA, name: 'Identity Data'}
+    - {code: CAT-EID-SIGNATURES, name: 'eID & Signatures'}
+    - {code: CAT-BUNDLES, name: 'Bundles'}
+
+  # One product per m3ter meter. The aggregation is always SUM(check_count) with
+  # quantityPerUnit 1, so meter == aggregation == product; no information is lost
+  # by collapsing them. Product2.UsageModelType: Pack, like P_ClaudeAPIUsage.
+  products:
+    - code: VC-DOCUMENT-REPORT-STANDARD-HYBRID
+      name: 'Document Check - Boost'
+      category: 'Document Checks'
+      m3ter_meter: document_report_standard_hybrid
+      m3ter_aggregation: document_report_standard_hybrid_count
+      resource: {code: RES-DOCUMENT-REPORT-STANDARD-HYBRID, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      m3ter_dimensions_unpriced: ['rejected', 'country']    # WHAT fields m3ter captures but never prices; not modelled
+    - code: VC-DOCUMENT-REPORT-STANDARD-AUTO
+      name: 'Document Check - Flash'
+      category: 'Document Checks'
+      m3ter_meter: document_report_standard_auto
+      m3ter_aggregation: document_report_standard_auto_count
+      resource: {code: RES-DOCUMENT-REPORT-STANDARD-AUTO, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      m3ter_dimensions_unpriced: ['rejected', 'country']    # WHAT fields m3ter captures but never prices; not modelled
+    - code: VC-DOCUMENT-REPORT-STANDARD-MANUAL
+      name: 'Document Check - Sherlock'
+      category: 'Document Checks'
+      m3ter_meter: document_report_standard_manual
+      m3ter_aggregation: document_report_standard_manual_count
+      resource: {code: RES-DOCUMENT-REPORT-STANDARD-MANUAL, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      m3ter_dimensions_unpriced: ['rejected', 'country']    # WHAT fields m3ter captures but never prices; not modelled
+    - code: VC-DOCUMENT-REPORT-DRIVER-VERIFICATION
+      name: 'Document Check - Driver Verification'
+      category: 'Document Checks'
+      m3ter_meter: document_report_driver_verification
+      m3ter_aggregation: document_report_driver_verification_count
+      resource: {code: RES-DOCUMENT-REPORT-DRIVER-VERIFICATION, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      m3ter_dimensions_unpriced: ['rejected', 'country']    # WHAT fields m3ter captures but never prices; not modelled
+    - code: VC-DOCUMENT-REPORT-VIDEO
+      name: 'Document Check Video - Boost'
+      category: 'Document Checks'
+      m3ter_meter: document_report_video
+      m3ter_aggregation: document_report_video_count
+      resource: {code: RES-DOCUMENT-REPORT-VIDEO, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      m3ter_dimensions_unpriced: ['rejected', 'country']    # WHAT fields m3ter captures but never prices; not modelled
+    - code: VC-DOCUMENT-REPORT-VIDEO-ETSI-CERTIFIED-IDV
+      name: 'Document Check Video - Boost - ETSI Certified IDV'
+      category: 'Document Checks'
+      m3ter_meter: document_report_video_ETSI_Certified_IDV
+      m3ter_aggregation: document_report_video_ETSI_Certified_IDV_count
+      resource: {code: RES-DOCUMENT-REPORT-VIDEO-ETSI-CERTIFIED-IDV, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK-RETRY
+      priced_by: ['is_retry']
+    - code: VC-DOCUMENT-REPORT-VIDEO-ETSI-CERTIFIED-IDV-WITH-QES-AND-OTP
+      name: 'Document Check Video - ETSI Certified IDV with QES and OTP'
+      category: 'Document Checks'
+      m3ter_meter: document_report_video_ETSI_Certified_IDV_with_QES_and_OTP
+      m3ter_aggregation: document_report_video_ETSI_Certified_IDV_with_QES_and_OTP_count
+      m3ter_name: 'Document Check Video'      # renamed: see decision D6
+      resource: {code: RES-DOCUMENT-REPORT-VIDEO-ETSI-CERTIFIED-IDV-WITH-QES-AND-OTP, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK-RETRY
+      priced_by: ['is_retry']
+    - code: VC-AUTOFILL
+      name: 'OCR Autofill'
+      category: 'Document Checks'
+      m3ter_meter: autofill
+      m3ter_aggregation: autofill_count
+      resource: {code: RES-AUTOFILL, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      included: true        # priced 0 in every list: a free add-on, kept as a product so usage still rates to 0
+    - code: VC-FACIAL-SIMILARITY-REPORT-STANDARD
+      name: 'Facial Similarity Check - Selfie Hybrid'
+      category: 'Biometrics'
+      m3ter_meter: facial_similarity_report_standard
+      m3ter_aggregation: facial_similarity_report_standard_count
+      resource: {code: RES-FACIAL-SIMILARITY-REPORT-STANDARD, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      m3ter_dimensions_unpriced: ['rejected']    # WHAT fields m3ter captures but never prices; not modelled
+    - code: VC-FACIAL-SIMILARITY-REPORT-PHOTO-FULLY-AUTO
+      name: 'Facial Similarity Check - Selfie Auto'
+      category: 'Biometrics'
+      m3ter_meter: facial_similarity_report_photo_fully_auto
+      m3ter_aggregation: facial_similarity_report_photo_fully_auto_count
+      resource: {code: RES-FACIAL-SIMILARITY-REPORT-PHOTO-FULLY-AUTO, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      m3ter_dimensions_unpriced: ['rejected']    # WHAT fields m3ter captures but never prices; not modelled
+    - code: VC-FACIAL-SIMILARITY-REPORT-VIDEO
+      name: 'Facial Similarity Check - Video'
+      category: 'Biometrics'
+      m3ter_meter: facial_similarity_report_video
+      m3ter_aggregation: facial_similarity_report_video_count
+      resource: {code: RES-FACIAL-SIMILARITY-REPORT-VIDEO, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      m3ter_dimensions_unpriced: ['rejected']    # WHAT fields m3ter captures but never prices; not modelled
+    - code: VC-FACIAL-SIMILARITY-REPORT-MOTION
+      name: 'Facial Similarity Check - Motion'
+      category: 'Biometrics'
+      m3ter_meter: facial_similarity_report_motion
+      m3ter_aggregation: facial_similarity_report_motion_count
+      m3ter_name: 'Motion PLG'      # renamed: see decision D6
+      resource: {code: RES-FACIAL-SIMILARITY-REPORT-MOTION, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      m3ter_dimensions_unpriced: ['rejected']    # WHAT fields m3ter captures but never prices; not modelled
+    - code: VC-MOTION-AUTHENTICATION
+      name: 'Authentication: Motion'
+      category: 'Biometrics'
+      m3ter_meter: motion_authentication
+      m3ter_aggregation: motion_authentication
+      resource: {code: RES-MOTION-AUTHENTICATION, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+    - code: VC-KNOWN-FACES-REPORT-STANDARD
+      name: 'Facial Similarity Check Upgrade - Known Faces'
+      category: 'Biometrics'
+      m3ter_meter: known_faces_report_standard
+      m3ter_aggregation: known_faces_report_standard_count
+      resource: {code: RES-KNOWN-FACES-REPORT-STANDARD, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      included: true        # priced 0 in every list: a free add-on, kept as a product so usage still rates to 0
+    - code: VC-REPEAT-ATTEMPTS-REPORT-STANDARD
+      name: 'Repeat Attempts'
+      category: 'Biometrics'
+      m3ter_meter: repeat_attempts_report_standard
+      m3ter_aggregation: repeat_attempts_report_standard_count
+      resource: {code: RES-REPEAT-ATTEMPTS-REPORT-STANDARD, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      included: true        # priced 0 in every list: a free add-on, kept as a product so usage still rates to 0
+    - code: VC-APPLICANT-FRAUD-REPORT-STANDARD
+      name: 'Device Intelligence - Standard'
+      category: 'Biometrics'
+      m3ter_meter: applicant_fraud_report_standard
+      m3ter_aggregation: applicant_fraud_report_standard_count
+      resource: {code: RES-APPLICANT-FRAUD-REPORT-STANDARD, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      included: true        # priced 0 in every list: a free add-on, kept as a product so usage still rates to 0
+    - code: VC-WATCHLIST-REPORT-AML
+      name: 'Watchlist - AML'
+      category: 'Watchlist & Monitoring'
+      m3ter_meter: watchlist_report_aml
+      m3ter_aggregation: watchlist_report_aml_count
+      resource: {code: RES-WATCHLIST-REPORT-AML, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+    - code: VC-WATCHLIST-REPORT-KYC
+      name: 'Watchlist - Enhanced (KYC)'
+      category: 'Watchlist & Monitoring'
+      m3ter_meter: watchlist_report_kyc
+      m3ter_aggregation: watchlist_report_kyc_count
+      resource: {code: RES-WATCHLIST-REPORT-KYC, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+    - code: VC-WATCHLIST-REPORT-FULL
+      name: 'Watchlist - Standard (Full)'
+      category: 'Watchlist & Monitoring'
+      m3ter_meter: watchlist_report_full
+      m3ter_aggregation: watchlist_report_full_count
+      resource: {code: RES-WATCHLIST-REPORT-FULL, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+    - code: VC-ONGOING-MONITORING-AML-TOP-UP
+      name: 'Ongoing Monitoring for Watchlist AML Top Up'
+      category: 'Watchlist & Monitoring'
+      m3ter_meter: ongoing_monitoring_aml_top_up
+      m3ter_aggregation: ongoing_monitoring_aml_top_up_count
+      resource: {code: RES-ONGOING-MONITORING-AML-TOP-UP, unit: BLOCK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      included: true        # priced 0 in every list: a free add-on, kept as a product so usage still rates to 0
+    - code: VC-IDENTITY-REPORT-STANDARD
+      name: 'ID Record'
+      category: 'Identity Data'
+      m3ter_meter: identity_report_standard
+      m3ter_aggregation: identity_report_standard_count
+      resource: {code: RES-IDENTITY-REPORT-STANDARD, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      m3ter_dimensions_unpriced: ['country']    # WHAT fields m3ter captures but never prices; not modelled
+    - code: VC-SSN-REPORT-STANDARD
+      name: 'SSN Check'
+      category: 'Identity Data'
+      m3ter_meter: ssn_report_standard
+      m3ter_aggregation: ssn_report_standard_count
+      resource: {code: RES-SSN-REPORT-STANDARD, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+    - code: VC-US-DRIVING-LICENCE-REPORT-STANDARD
+      name: 'AAMVA Check'
+      category: 'Identity Data'
+      m3ter_meter: us_driving_licence_report_standard
+      m3ter_aggregation: us_driving_licence_report_standard_count
+      resource: {code: RES-US-DRIVING-LICENCE-REPORT-STANDARD, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+    - code: VC-INDIA-PAN-REPORT-STANDARD
+      name: 'India Tax ID'
+      category: 'Identity Data'
+      m3ter_meter: india_pan_report_standard
+      m3ter_aggregation: india_pan_report_standard_count
+      resource: {code: RES-INDIA-PAN-REPORT-STANDARD, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+    - code: VC-PROOF-OF-ADDRESS-REPORT-STANDARD
+      name: 'Proof of Address'
+      category: 'Identity Data'
+      m3ter_meter: proof_of_address_report_standard
+      m3ter_aggregation: proof_of_address_report_standard_count
+      resource: {code: RES-PROOF-OF-ADDRESS-REPORT-STANDARD, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      m3ter_dimensions_unpriced: ['country']    # WHAT fields m3ter captures but never prices; not modelled
+    - code: VC-RIGHT-TO-WORK-REPORT-STANDARD
+      name: 'Right to Work (UK Only)'
+      category: 'Identity Data'
+      m3ter_meter: right_to_work_report_standard
+      m3ter_aggregation: right_to_work_report_standard_count
+      resource: {code: RES-RIGHT-TO-WORK-REPORT-STANDARD, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+    - code: VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-AMER
+      name: 'Mastercard Identity - Account Opening (AMER)'
+      category: 'Identity Data'
+      m3ter_meter: mastercard_identity_account_opening_amer
+      m3ter_aggregation: mastercard_identity_account_opening_amer_count
+      m3ter_name: 'Mastercard Identity'      # renamed: see decision D6
+      resource: {code: RES-MASTERCARD-IDENTITY-ACCOUNT-OPENING-AMER, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+    - code: VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-EMEA
+      name: 'Mastercard Identity - Account Opening (EMEA)'
+      category: 'Identity Data'
+      m3ter_meter: mastercard_identity_account_opening_emea
+      m3ter_aggregation: mastercard_identity_account_opening_emea_count
+      m3ter_name: 'Mastercard Identity'      # renamed: see decision D6
+      resource: {code: RES-MASTERCARD-IDENTITY-ACCOUNT-OPENING-EMEA, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+    - code: VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-ROW
+      name: 'Mastercard Identity - Account Opening (ROW)'
+      category: 'Identity Data'
+      m3ter_meter: mastercard_identity_account_opening_row
+      m3ter_aggregation: mastercard_identity_account_opening_row_count
+      m3ter_name: 'Mastercard Identity'      # renamed: see decision D6
+      resource: {code: RES-MASTERCARD-IDENTITY-ACCOUNT-OPENING-ROW, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+    - code: VC-EID-SPID-BASIC
+      name: 'eID, Italy - SPID Basic'
+      category: 'eID & Signatures'
+      m3ter_meter: eid_spid_basic
+      m3ter_aggregation: eid_spid_basic_count
+      resource: {code: RES-EID-SPID-BASIC, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+    - code: VC-EID-SPID-FULL
+      name: 'eID, Italy - SPID Full'
+      category: 'eID & Signatures'
+      m3ter_meter: eid_spid_full
+      m3ter_aggregation: eid_spid_full_count
+      resource: {code: RES-EID-SPID-FULL, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+    - code: VC-UK-EVISA-VERIFICATION
+      name: 'eID, UK eVisa Verification'
+      category: 'eID & Signatures'
+      m3ter_meter: uk_evisa_verification
+      m3ter_aggregation: uk_evisa_verification_count
+      resource: {code: RES-UK-EVISA-VERIFICATION, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+    - code: VC-ADVANCED-ELECTRONIC-SIGNATURE
+      name: 'Signhost (Advanced Electronic Signature)'
+      category: 'eID & Signatures'
+      m3ter_meter: advanced_electronic_signature
+      m3ter_aggregation: advanced_electronic_signature_count
+      m3ter_name: 'Signhost'      # renamed: see decision D6
+      resource: {code: RES-ADVANCED-ELECTRONIC-SIGNATURE, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+
+  # Bundles: m3ter CompoundAggregations. m3ter rates max(component counts) at a
+  # single price and zeroes the components on the account's plan. Revenue Cloud
+  # has no "max of two resources" rating, so each bundle becomes its own product
+  # with its own usage resource, fed by the metering side (decision D3).
+  bundles:
+    - code: VC-BUNDLE-AE
+      name: 'Document Check - Boost PLG & Facial Similarity Check - Selfie Hybrid'
+      category: Bundles
+      m3ter_compound_aggregation: AE
+      m3ter_calculation: 'Math.max(aggregation.document_report_standard_hybrid_count, aggregation.facial_similarity_report_standard_count)'
+      components: ['VC-DOCUMENT-REPORT-STANDARD-HYBRID', 'VC-FACIAL-SIMILARITY-REPORT-STANDARD']
+      rule: max_of_components      # the metering side computes it; RC rates the result
+      resource: {code: RES-BUNDLE-AE, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      observed_price: {USD: 1.54}   # plan-level in m3ter (bespoke, State of Delaware); no list price exists
+    - code: VC-BUNDLE-PLG
+      name: 'Document Check - Boost PLG & Motion'
+      category: Bundles
+      m3ter_compound_aggregation: PLG
+      m3ter_calculation: 'Math.max(aggregation.document_report_standard_hybrid_count,aggregation.facial_similarity_report_motion_count,aggregation.watchlist_report_aml_count)'
+      components: ['VC-DOCUMENT-REPORT-STANDARD-HYBRID', 'VC-FACIAL-SIMILARITY-REPORT-MOTION', 'VC-WATCHLIST-REPORT-AML']
+      rule: max_of_components      # the metering side computes it; RC rates the result
+      resource: {code: RES-BUNDLE-PLG, unit: CHECK, category: Usage}
+      classification: PC-VERIFICATION-CHECK
+      observed_price: {EUR: 1.82}   # plan-level in m3ter (bespoke, Finrate AG); no list price exists
+      anomaly: >-
+        The m3ter calculation includes watchlist_report_aml_count, but customFields.product_1/2 name only
+        two components and Finrate's plan does NOT zero Watchlist-AML (it stays at EUR 0.56). Either
+        Watchlist-AML is double-charged today or the formula is stale. Confirm with the m3ter owner
+        before modelling it as a three-way bundle.
+
+# ==============================================================================
+# One price book per m3ter PlanTemplate. The template IS the price list: its
+# currency, its billing cadence and the list rate for every aggregation.
+# Each becomes a RateCard + PriceBookRateCard under the STANDARD price book
+# (verified in org, see D1) — not a second Pricebook2 — with a 0.00
+# PricebookEntry per product (the pattern PBE_ClaudeAPIUsage uses) and the real
+# rate on a RateCardEntry. See decision D1 for why rate cards and not PBE.UnitPrice.
+price_books:
+  - code: PB-RATECARD-D-USD
+    name: 'Rate Card D (USD)'
+    currency: USD
+    m3ter_plan_template: rate_card_d_usd_default_pricing
+    m3ter_bill_frequency: MONTHLY x1; standing charge 0.0; no minimum spend
+    rate_card: {name: 'Verification Rate Card D (USD)', type: Base, effective_from: 2025-09-14}   # Base: matches every pre-seeded rate card in the org
+    rate_unit: USD
+    note: m3ter has a single undated version (1900-01-01 → open), so effective_from is the earliest contract that uses it.
+    rates:                        # per CHECK (or BLOCK); flat, one band, no tiers, no fixed component
+      VC-DOCUMENT-REPORT-STANDARD-HYBRID: 1.59
+      VC-DOCUMENT-REPORT-STANDARD-AUTO: 0.54
+      VC-DOCUMENT-REPORT-STANDARD-MANUAL: 2.78
+      VC-DOCUMENT-REPORT-DRIVER-VERIFICATION: 1.59
+      VC-DOCUMENT-REPORT-VIDEO: 2.05
+      VC-DOCUMENT-REPORT-VIDEO-ETSI-CERTIFIED-IDV: {IS-RETRY=FALSE: 3.72, IS-RETRY=TRUE: 3.72}   # identical today: no adjustment rule needed (D2)
+      VC-DOCUMENT-REPORT-VIDEO-ETSI-CERTIFIED-IDV-WITH-QES-AND-OTP: {IS-RETRY=FALSE: 4.03, IS-RETRY=TRUE: 4.03}   # identical today: no adjustment rule needed (D2)
+      VC-AUTOFILL: 0.0
+      VC-FACIAL-SIMILARITY-REPORT-STANDARD: 0.95
+      VC-FACIAL-SIMILARITY-REPORT-PHOTO-FULLY-AUTO: 0.77
+      VC-FACIAL-SIMILARITY-REPORT-VIDEO: 1.36
+      VC-FACIAL-SIMILARITY-REPORT-MOTION: 1.21
+      VC-MOTION-AUTHENTICATION: 0.4
+      VC-KNOWN-FACES-REPORT-STANDARD: 0.0
+      VC-REPEAT-ATTEMPTS-REPORT-STANDARD: 0.0
+      VC-APPLICANT-FRAUD-REPORT-STANDARD: 0.0
+      VC-WATCHLIST-REPORT-AML: 0.49
+      VC-WATCHLIST-REPORT-KYC: 0.49
+      VC-WATCHLIST-REPORT-FULL: 0.42
+      VC-ONGOING-MONITORING-AML-TOP-UP: 0.0
+      VC-IDENTITY-REPORT-STANDARD: 1.38
+      VC-SSN-REPORT-STANDARD: 1.0
+      VC-US-DRIVING-LICENCE-REPORT-STANDARD: 1.98
+      VC-INDIA-PAN-REPORT-STANDARD: 0.25
+      VC-PROOF-OF-ADDRESS-REPORT-STANDARD: 2.36
+      VC-RIGHT-TO-WORK-REPORT-STANDARD: 6.53
+      VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-AMER: 0.3
+      VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-EMEA: 0.3
+      VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-ROW: 0.3
+      VC-EID-SPID-BASIC: 5.97
+      VC-EID-SPID-FULL: 10.29
+      VC-UK-EVISA-VERIFICATION: 1.59
+      VC-ADVANCED-ELECTRONIC-SIGNATURE: 1.33
+      VC-BUNDLE-AE: 1.54      # from the account plan, not the template: confirm as list price
+
+  - code: PB-RATECARD-B-EUR
+    name: 'Rate Card B (EUR)'
+    currency: EUR
+    m3ter_plan_template: rate_card_b_eur_default_pricing
+    m3ter_bill_frequency: MONTHLY x1; standing charge 0.0; no minimum spend
+    rate_card: {name: 'Verification Rate Card B (EUR)', type: Base, effective_from: 2025-01-27}
+    rate_unit: EUR
+    note: m3ter holds four dated versions of every rate; only the current one is loaded (decision D5). Prior versions below for the record.
+    rates:                        # per CHECK (or BLOCK); flat, one band, no tiers, no fixed component
+      VC-DOCUMENT-REPORT-STANDARD-HYBRID: 2.28
+      VC-DOCUMENT-REPORT-STANDARD-AUTO: 0.65
+      VC-DOCUMENT-REPORT-STANDARD-MANUAL: 3.02
+      VC-DOCUMENT-REPORT-DRIVER-VERIFICATION: 2.28
+      VC-DOCUMENT-REPORT-VIDEO: 2.28
+      VC-DOCUMENT-REPORT-VIDEO-ETSI-CERTIFIED-IDV: {IS-RETRY=FALSE: 3.57, IS-RETRY=TRUE: 3.57}   # identical today: no adjustment rule needed (D2)
+      VC-DOCUMENT-REPORT-VIDEO-ETSI-CERTIFIED-IDV-WITH-QES-AND-OTP: {IS-RETRY=FALSE: 3.87, IS-RETRY=TRUE: 3.87}   # identical today: no adjustment rule needed (D2)
+      VC-AUTOFILL: 0.0
+      VC-FACIAL-SIMILARITY-REPORT-STANDARD: 1.08
+      VC-FACIAL-SIMILARITY-REPORT-PHOTO-FULLY-AUTO: 0.88
+      VC-FACIAL-SIMILARITY-REPORT-VIDEO: 1.53
+      VC-FACIAL-SIMILARITY-REPORT-MOTION: 1.36
+      VC-MOTION-AUTHENTICATION: 0.38
+      VC-KNOWN-FACES-REPORT-STANDARD: 0.0
+      VC-REPEAT-ATTEMPTS-REPORT-STANDARD: 0.0
+      VC-APPLICANT-FRAUD-REPORT-STANDARD: 0.0
+      VC-WATCHLIST-REPORT-AML: 0.56
+      VC-WATCHLIST-REPORT-KYC: 0.56
+      VC-WATCHLIST-REPORT-FULL: 0.47
+      VC-ONGOING-MONITORING-AML-TOP-UP: 0.0
+      VC-IDENTITY-REPORT-STANDARD: 1.72
+      VC-SSN-REPORT-STANDARD: 0.96
+      VC-US-DRIVING-LICENCE-REPORT-STANDARD: 1.9
+      VC-INDIA-PAN-REPORT-STANDARD: 0.24
+      VC-PROOF-OF-ADDRESS-REPORT-STANDARD: 2.28
+      VC-RIGHT-TO-WORK-REPORT-STANDARD: 6.02
+      VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-AMER: 0.29
+      VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-EMEA: 0.29
+      VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-ROW: 0.29
+      VC-EID-SPID-BASIC: 5.73
+      VC-EID-SPID-FULL: 9.88
+      VC-UK-EVISA-VERIFICATION: 2.28
+      VC-ADVANCED-ELECTRONIC-SIGNATURE: 1.28
+      VC-BUNDLE-PLG: 1.82      # from the account plan, not the template: confirm as list price
+    history_not_loaded:            # (start, end): rates. Same shape per version; retry segments collapsed (always equal).
+      '1900-01-01 → 2022-02-01':
+        VC-DOCUMENT-REPORT-STANDARD-HYBRID: 2.01
+        VC-DOCUMENT-REPORT-STANDARD-AUTO: 0.58
+        VC-DOCUMENT-REPORT-STANDARD-MANUAL: 2.67
+        VC-DOCUMENT-REPORT-DRIVER-VERIFICATION: 2.01
+        VC-DOCUMENT-REPORT-VIDEO: 2.01
+        VC-DOCUMENT-REPORT-VIDEO-ETSI-CERTIFIED-IDV: 3.15
+        VC-DOCUMENT-REPORT-VIDEO-ETSI-CERTIFIED-IDV-WITH-QES-AND-OTP: 3.41
+        VC-AUTOFILL: 0.0
+        VC-FACIAL-SIMILARITY-REPORT-STANDARD: 0.96
+        VC-FACIAL-SIMILARITY-REPORT-PHOTO-FULLY-AUTO: 0.78
+        VC-FACIAL-SIMILARITY-REPORT-VIDEO: 1.35
+        VC-FACIAL-SIMILARITY-REPORT-MOTION: 1.2
+        VC-MOTION-AUTHENTICATION: 0.34
+        VC-KNOWN-FACES-REPORT-STANDARD: 0.0
+        VC-REPEAT-ATTEMPTS-REPORT-STANDARD: 0.0
+        VC-APPLICANT-FRAUD-REPORT-STANDARD: 0.0
+        VC-WATCHLIST-REPORT-AML: 0.49
+        VC-WATCHLIST-REPORT-KYC: 0.49
+        VC-WATCHLIST-REPORT-FULL: 0.41
+        VC-ONGOING-MONITORING-AML-TOP-UP: 0.0
+        VC-IDENTITY-REPORT-STANDARD: 1.51
+        VC-SSN-REPORT-STANDARD: 0.85
+        VC-US-DRIVING-LICENCE-REPORT-STANDARD: 1.68
+        VC-INDIA-PAN-REPORT-STANDARD: 0.21
+        VC-PROOF-OF-ADDRESS-REPORT-STANDARD: 2.01
+        VC-RIGHT-TO-WORK-REPORT-STANDARD: 5.31
+        VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-AMER: 0.25
+        VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-EMEA: 0.25
+        VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-ROW: 0.25
+        VC-EID-SPID-BASIC: 5.05
+        VC-EID-SPID-FULL: 8.71
+        VC-UK-EVISA-VERIFICATION: 2.01
+        VC-ADVANCED-ELECTRONIC-SIGNATURE: 1.13
+      '2022-02-01 → 2023-02-01':
+        VC-DOCUMENT-REPORT-STANDARD-HYBRID: 2.11
+        VC-DOCUMENT-REPORT-STANDARD-AUTO: 0.61
+        VC-DOCUMENT-REPORT-STANDARD-MANUAL: 2.8
+        VC-DOCUMENT-REPORT-DRIVER-VERIFICATION: 2.11
+        VC-DOCUMENT-REPORT-VIDEO: 2.11
+        VC-DOCUMENT-REPORT-VIDEO-ETSI-CERTIFIED-IDV: 3.31
+        VC-DOCUMENT-REPORT-VIDEO-ETSI-CERTIFIED-IDV-WITH-QES-AND-OTP: 3.59
+        VC-AUTOFILL: 0.0
+        VC-FACIAL-SIMILARITY-REPORT-STANDARD: 1.01
+        VC-FACIAL-SIMILARITY-REPORT-PHOTO-FULLY-AUTO: 0.82
+        VC-FACIAL-SIMILARITY-REPORT-VIDEO: 1.42
+        VC-FACIAL-SIMILARITY-REPORT-MOTION: 1.26
+        VC-MOTION-AUTHENTICATION: 0.36
+        VC-KNOWN-FACES-REPORT-STANDARD: 0.0
+        VC-REPEAT-ATTEMPTS-REPORT-STANDARD: 0.0
+        VC-APPLICANT-FRAUD-REPORT-STANDARD: 0.0
+        VC-WATCHLIST-REPORT-AML: 0.52
+        VC-WATCHLIST-REPORT-KYC: 0.52
+        VC-WATCHLIST-REPORT-FULL: 0.44
+        VC-ONGOING-MONITORING-AML-TOP-UP: 0.0
+        VC-IDENTITY-REPORT-STANDARD: 1.59
+        VC-SSN-REPORT-STANDARD: 0.89
+        VC-US-DRIVING-LICENCE-REPORT-STANDARD: 1.76
+        VC-INDIA-PAN-REPORT-STANDARD: 0.22
+        VC-PROOF-OF-ADDRESS-REPORT-STANDARD: 2.11
+        VC-RIGHT-TO-WORK-REPORT-STANDARD: 5.58
+        VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-AMER: 0.27
+        VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-EMEA: 0.27
+        VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-ROW: 0.27
+        VC-EID-SPID-BASIC: 5.31
+        VC-EID-SPID-FULL: 9.16
+        VC-UK-EVISA-VERIFICATION: 2.11
+        VC-ADVANCED-ELECTRONIC-SIGNATURE: 1.18
+      '2023-02-01 → 2025-01-27':
+        VC-DOCUMENT-REPORT-STANDARD-HYBRID: 2.28
+        VC-DOCUMENT-REPORT-STANDARD-AUTO: 0.65
+        VC-DOCUMENT-REPORT-STANDARD-MANUAL: 3.02
+        VC-DOCUMENT-REPORT-DRIVER-VERIFICATION: 2.28
+        VC-DOCUMENT-REPORT-VIDEO: 2.28
+        VC-DOCUMENT-REPORT-VIDEO-ETSI-CERTIFIED-IDV: 3.57
+        VC-DOCUMENT-REPORT-VIDEO-ETSI-CERTIFIED-IDV-WITH-QES-AND-OTP: 3.87
+        VC-AUTOFILL: 0.0
+        VC-FACIAL-SIMILARITY-REPORT-STANDARD: 1.08
+        VC-FACIAL-SIMILARITY-REPORT-PHOTO-FULLY-AUTO: 0.88
+        VC-FACIAL-SIMILARITY-REPORT-VIDEO: 1.53
+        VC-FACIAL-SIMILARITY-REPORT-MOTION: 1.36
+        VC-MOTION-AUTHENTICATION: 0.38
+        VC-KNOWN-FACES-REPORT-STANDARD: 0.0
+        VC-REPEAT-ATTEMPTS-REPORT-STANDARD: 0.0
+        VC-APPLICANT-FRAUD-REPORT-STANDARD: 0.0
+        VC-WATCHLIST-REPORT-AML: 0.56
+        VC-WATCHLIST-REPORT-KYC: 0.56
+        VC-WATCHLIST-REPORT-FULL: 0.47
+        VC-ONGOING-MONITORING-AML-TOP-UP: 0.0
+        VC-IDENTITY-REPORT-STANDARD: 1.72
+        VC-SSN-REPORT-STANDARD: 0.96
+        VC-US-DRIVING-LICENCE-REPORT-STANDARD: 1.9
+        VC-INDIA-PAN-REPORT-STANDARD: 0.24
+        VC-PROOF-OF-ADDRESS-REPORT-STANDARD: 2.28
+        VC-RIGHT-TO-WORK-REPORT-STANDARD: 6.02
+        VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-AMER: 0.29
+        VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-EMEA: 0.29
+        VC-MASTERCARD-IDENTITY-ACCOUNT-OPENING-ROW: 0.29
+        VC-EID-SPID-BASIC: 5.73
+        VC-EID-SPID-FULL: 9.88
+        VC-UK-EVISA-VERIFICATION: 2.28
+        VC-ADVANCED-ELECTRONIC-SIGNATURE: 1.28
+
+# ==============================================================================
+# Account overlays. NOT catalog: this is what each customer's contract does on
+# top of the price book. Recorded so the recommendation is complete and so the
+# quote/contract side (outside rc-config) knows what it has to reproduce.
+accounts:
+  - name: 'State of Delaware'
+    m3ter_account: 0010800002pezwdAAA
+    currency: USD
+    price_book: PB-RATECARD-D-USD
+    market_segment: 'Enterprise'
+    contracts:
+      - m3ter_opportunity: 006So00000R0Pi3IAF
+        period: {start: 2025-09-14, end: 2025-12-29}
+        m3ter_plans: ['Verification Check Plan: The State of Delaware - Auto-Renewal - August 2025', 'Product Bundle Plan 006So00000R0Pi3IAF']
+        bundle: {product: VC-BUNDLE-AE, rate: 1.54}
+        overrides:                   # negotiated rates on the checks plan; 0 = component absorbed by the bundle
+          VC-FACIAL-SIMILARITY-REPORT-STANDARD: 0.0   # list 0.95
+          VC-DOCUMENT-REPORT-STANDARD-HYBRID: 0.0   # list 1.59
+      - m3ter_opportunity: 006So00000XJj3HIAT
+        period: {start: 2025-12-29, end: open}
+        m3ter_plans: ['Product Bundle Plan 006So00000XJj3HIAT', 'Verification Check Plan: The State of Delaware - Amendment - adding motion']
+        bundle: {product: VC-BUNDLE-AE, rate: 1.54}
+        overrides:                   # negotiated rates on the checks plan; 0 = component absorbed by the bundle
+          VC-DOCUMENT-REPORT-STANDARD-HYBRID: 0.0   # list 1.59
+          VC-FACIAL-SIMILARITY-REPORT-MOTION: 0.77   # list 1.21
+          VC-FACIAL-SIMILARITY-REPORT-STANDARD: 0.0   # list 0.95
+  - name: 'Finrate AG'
+    m3ter_account: 00108000031Xp6xAAC
+    currency: EUR
+    price_book: PB-RATECARD-B-EUR
+    market_segment: 'Mid Market'
+    contracts:
+      - m3ter_opportunity: 006So00000GOSQAIA5
+        period: {start: 2024-12-13, end: open}
+        m3ter_plans: ['Verification Check Plan: Staking Rewards- plg Q4 2024', 'Product Bundle Plan 006So00000GOSQAIA5']
+        bundle: {product: VC-BUNDLE-PLG, rate: 1.82}
+        overrides:                   # negotiated rates on the checks plan; 0 = component absorbed by the bundle
+          VC-AUTOFILL: 0.0   # same as list: redundant override in m3ter
+          VC-FACIAL-SIMILARITY-REPORT-MOTION: 0.0   # list 1.36
+          VC-REPEAT-ATTEMPTS-REPORT-STANDARD: 0.0   # same as list: redundant override in m3ter
+          VC-APPLICANT-FRAUD-REPORT-STANDARD: 0.0   # same as list: redundant override in m3ter
+          VC-KNOWN-FACES-REPORT-STANDARD: 0.0   # same as list: redundant override in m3ter
+          VC-DOCUMENT-REPORT-STANDARD-HYBRID: 0.0   # list 2.28
+
+# ==============================================================================
+decisions:
+  D1:
+    title: Rate cards carry the price; PricebookEntry.UnitPrice stays 0
+    because: >-
+      Usage rating in Revenue Cloud runs off RateCardEntry, which also gives dated
+      effectivity (m3ter's versioned price lists) and attribute adjustments
+      (m3ter's segments). PricebookEntry has neither. The Claude catalog already
+      does exactly this for P_ClaudeAPIUsage.
+    verified_in_org: >-
+      m3ter-arm-260 has only the Standard Price Book and every pre-seeded RateCard
+      hangs off it through PriceBookRateCard. Both Verification rate cards were
+      built that way (PRC-00000009 USD, PRC-00000010 EUR). "Rate Card D (USD)" and
+      "Rate Card B (EUR)" are therefore two RateCards under one price book; the
+      price_books[] entries here are rate cards, and `code: PB-…` is a misnomer
+      kept for traceability.
+  D2:
+    title: Define IS-RETRY, price nothing on it yet
+    because: >-
+      Both templates charge is_retry:true and is_retry:false the same. An
+      AttributeBasedAdjRule with a 0 adjustment is noise; the attribute itself is
+      cheap and matches m3ter's data model, so the day a retry discount appears it
+      is one rule, not a product change. Same mechanism the token rate card uses.
+  D3:
+    title: Bundles are products with their own usage resource
+    because: >-
+      Revenue Cloud cannot rate max(resource_a, resource_b). Inventing it with
+      decision tables or Apex would put rating logic in two systems. The metering
+      side already computes the max (that is what the CompoundAggregation is), so
+      RC receives one usage record for the bundle resource and rates it at one
+      price. Components rated at 0 under the contract, as m3ter does today.
+    rejected:
+      - Bundle Product2 with component products as a configured bundle (ProductRelatedComponent):
+          "a sales bundle, not a rating bundle; it does not change what is rated"
+      - Grants (ProductUsageGrant) to absorb component usage:
+          "grants are quantity-based prepaid allowances, not a max() function"
+  D4:
+    title: Account overlays are recorded, not built
+    because: >-
+      Plan-level overrides and bundle prices are contract terms, not catalog. In
+      Revenue Cloud they live on the quote line / contract (negotiated price,
+      price adjustments), which rc-config does not manage. The overlay section
+      exists so whoever builds the contract side has the exact numbers.
+  D5:
+    title: Load only the current EUR price version
+    because: >-
+      rc-config matches RateCardEntry on (RateCardId, ProductId), so it can hold
+      one entry per product per card. Historic versions would need either
+      EffectiveFrom in the match key or one RateCard per version. Nothing in RC
+      needs to re-rate 2022 usage.
+    follow_up: if price history must be queryable in RC, extend rc-config's match key before loading.
+  D6:
+    title: Product names come from m3ter, de-duplicated and de-jargoned
+    because: >-
+      Product2.Name must be unique and customer-facing. Three meters are all named
+      "Mastercard Identity" (region is only in the code), "Motion PLG" names a
+      go-to-market motion rather than the product, and "Document Check Video" is
+      ambiguous next to "Document Check Video - Boost". m3ter codes are kept
+      verbatim as the traceable key.
+  D7:
+    title: Free add-ons stay in the catalog at 0
+    because: >-
+      autofill, device intelligence, known faces, repeat attempts and ongoing
+      monitoring top-up are 0 in every list. Dropping them would leave their usage
+      unrated and unreported; keeping them costs one product each.
+
+open_questions:
+  - Is "Rate Card B" vs "Rate Card D" a currency split or a pricing tier? Only one template per currency was exported, so this file treats them as currency rate cards. If tiers exist (A/C/E...), each is another RateCard under the Standard Price Book with the same products.
+  - ProductClassificationAttr.IsRequired would not save as true from the UI; decide whether Is Retry must be required at quote time and set it by API if so.
+  - PLG bundle: two-way or three-way? See bundles[].anomaly.
+  - The DAILY-billed "Product Bundles" m3ter product is a billing-cadence artefact of how m3ter carries compound aggregations; nothing in RC should be daily.
+  - Grants: nothing in these two accounts is prepaid or committed. If other accounts have minimum spend or committed volumes, that is where ProductUsageGrant enters.
