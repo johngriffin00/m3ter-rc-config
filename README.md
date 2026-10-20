@@ -97,7 +97,7 @@ the Entrust snapshots and the legacy Python handlers moved here from `m3ter-conf
 both syncs replay offline from the snapshots (`tests/test_replay.py`, 7 tests). Behaviour
 is unchanged from the 15 Oct / 20 Oct versions except: the two context classes share
 `BaseSyncContext`, the date helpers live in one module, and snapshots are written under
-`customers/entrust/snapshots/`. Not yet run live from here — the next live run (John's
-terminal, `uv run python -m sync.ordersync.sync_order --order 00000102 --dry-run`) is the
-confirmation. Next: `docs/restructure-plan.md` phase 4 (move the Entrust catalog, docs
+`customers/entrust/snapshots/`. Confirmed live the same evening: the order sync replayed
+from the 00000102 snapshot in `--dry-run` against the m3ter org from John's terminal —
+everything found via external mapping, nothing to create. Next: `docs/restructure-plan.md` phase 4 (move the Entrust catalog, docs
 and analysis out of `revenue-cloud-config`).

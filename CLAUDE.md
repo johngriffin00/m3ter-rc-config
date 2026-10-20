@@ -73,8 +73,8 @@ against the org" are different claims.
 
 **20 Oct 2026.** Phases 1–3 of `docs/restructure-plan.md` done: the syncs live and
 run here (`sync/ordersync`, `sync/billsync`, shared bricks in `sync/core`), with the
-Salesforce SDK and the Entrust snapshots; `uv run pytest` replays both offline. They
-have not yet been run live from this repo. The Entrust catalog, docs and analysis still
+Salesforce SDK and the Entrust snapshots; `uv run pytest` replays both offline, and the
+order sync's live `--from-file --dry-run` against the m3ter org passed from here on 20 Oct. The Entrust catalog, docs and analysis still
 live in `revenue-cloud-config` (phase 4 next); `mapping.py` is still module-level
 (phase 6). Parked work on the syncs, carried over unchanged: commitment as a m3ter
 Balance, the Commit card's tiers, amendments, the Flask front doors, a granted
