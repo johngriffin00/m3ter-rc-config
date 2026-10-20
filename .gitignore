@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Credentials — never commit
+parameters/
+*.env
+*.pickle
+token.json
+credentials.json
+
+# Local run artefacts
+logs/
+
+# OS / IDE noise
+.DS_Store
+.idea/workspace.xml
+.idea/.name
+!parameters/README.md

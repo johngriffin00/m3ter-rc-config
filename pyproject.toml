@@ -1,0 +1,44 @@
+[project]
+name = "m3ter-rc-config"
+version = "0.1.0"
+description = "The m3ter <-> Salesforce Revenue Cloud integration: the sync code and the customers that span both platforms"
+readme = "README.md"
+requires-python = ">=3.14"
+authors = [{ name = "John Griffin" }]
+dependencies = [
+    "m3ter-config",            # m3sdk, m3shsdk, m3utils — editable path dependency, see [tool.uv.sources]
+    "revenue-cloud-config",    # rc_config — editable path dependency
+    "simple-salesforce>=1.12.6",
+    "python-dotenv>=1.2.2",
+    "requests>=2.33.1",
+    "flask>=3.1.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "ruff>=0.5",
+]
+
+# The two platform tools are sibling checkouts on the Mac. Editable, so a fix
+# made in a tool repo is visible here immediately, without reinstalling.
+[tool.uv.sources]
+m3ter-config = { path = "../m3ter-config", editable = true }
+revenue-cloud-config = { path = "../revenue-cloud-config", editable = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["sync", "salesforcesdk", "webhooks"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
