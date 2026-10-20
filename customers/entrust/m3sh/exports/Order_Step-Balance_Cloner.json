@@ -1,0 +1,218 @@
+{
+  "name": "Order Step: Balance Cloner",
+  "code": "order_step_balance_cloner",
+  "description": "Assumes m3Balance is in State. And nrClones.",
+  "originalOrgId": "9a3a717e-40a0-4b92-9163-70db1110f21c",
+  "version": 2,
+  "versionDescription": "Assumes m3Balance is in State. And nrClones.",
+  "functions": [
+    {
+      "functionId": "df029e5a-ebbc-4b2a-a44d-52a38f9f0ba2",
+      "title": "Set month",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "monthCounter"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "String( nrClones )",
+          "lookupType": "CALCULATION"
+        }
+      },
+      "exits": {
+        "NEXT": "315f95ad-7984-4928-83cb-014891f9ba58"
+      }
+    },
+    {
+      "functionId": "315f95ad-7984-4928-83cb-014891f9ba58",
+      "title": "Fake Looper",
+      "description": "",
+      "className": "SOQLSalesforceQueryFunction",
+      "parameters": {
+        "soqlQuery": {
+          "@type": "string",
+          "value": "SELECT Id FROM TransactionUsageEntitlement Limit {{monthCounter}}"
+        },
+        "outputResultsStateVariable": {
+          "@type": "statevariable",
+          "value": "monthIterator"
+        },
+        "apiVersion": {
+          "@type": "string",
+          "value": "65.0"
+        },
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+        }
+      },
+      "exits": {
+        "NEXT": "4666b384-fb44-45b1-9845-ce3ff59932ab"
+      }
+    },
+    {
+      "functionId": "4666b384-fb44-45b1-9845-ce3ff59932ab",
+      "title": "Loop Fake Looper",
+      "description": "",
+      "className": "LoopFunction",
+      "parameters": {
+        "sourceObjectPath": {
+          "@type": "statevariable",
+          "value": "monthIterator"
+        },
+        "counterVariableName": {
+          "@type": "string",
+          "value": "acc"
+        },
+        "elementVariableName": {
+          "@type": "string",
+          "value": "currentMonth"
+        }
+      },
+      "exits": {},
+      "initialFunction": "ee95afe8-ea2c-409f-80bc-f072dae5fb7e",
+      "functions": [
+        {
+          "functionId": "ee95afe8-ea2c-409f-80bc-f072dae5fb7e",
+          "title": "Clone Balance",
+          "description": "",
+          "className": "SetMultiFieldsFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "newBalance"
+            },
+            "lookups": {
+              "@type": "keyvaluelookup",
+              "value": {
+                "accountId": {
+                  "@type": "lookup",
+                  "value": "m3Balance.accountId",
+                  "lookupType": "STATE_PATH"
+                },
+                "lineItemTypes": {
+                  "@type": "lookup",
+                  "value": "m3Balance.lineItemTypes",
+                  "lookupType": "STATE_PATH"
+                },
+                "productIds": {
+                  "@type": "lookup",
+                  "value": "m3Balance.productIds",
+                  "lookupType": "STATE_PATH"
+                },
+                "currency": {
+                  "@type": "lookup",
+                  "value": "m3Balance.currency",
+                  "lookupType": "STATE_PATH"
+                },
+                "startDate": {
+                  "@type": "lookup",
+                  "value": "DateTime.dateAdd(m3BalanceResponse.startDate, Number(acc) + 1, \"MONTHS\") ",
+                  "lookupType": "CALCULATION"
+                },
+                "endDate": {
+                  "@type": "lookup",
+                  "value": "DateTime.dateAdd(m3BalanceResponse.endDate, Number(acc) + 1, \"MONTHS\") ",
+                  "lookupType": "CALCULATION"
+                },
+                "name": {
+                  "@type": "lookup",
+                  "value": "String.replace(m3Balance.name, DateTime.dateFormat( m3BalanceResponse.startDate , \"MMMM\"), DateTime.dateFormat( DateTime.dateAdd(m3BalanceResponse.startDate, Number(acc) + 1, \"MONTHS\") , \"MMMM\") )",
+                  "lookupType": "CALCULATION"
+                },
+                "code": {
+                  "@type": "lookup",
+                  "value": "m3Balance.code +  acc",
+                  "lookupType": "CALCULATION"
+                }
+              }
+            }
+          },
+          "exits": {
+            "NEXT": "7a5b44f8-cec4-4b37-92ab-6dd20ed4f848"
+          }
+        },
+        {
+          "functionId": "7a5b44f8-cec4-4b37-92ab-6dd20ed4f848",
+          "title": "Create m3 Balance",
+          "description": "",
+          "className": "CreateM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Balance"
+            },
+            "payloadPath": {
+              "@type": "statevariable",
+              "value": "newBalance"
+            },
+            "responsePath": {
+              "@type": "statevariable",
+              "value": "newBalanceResponse"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {
+            "NEXT": "a3e68318-9ce2-40bc-ad96-dd1907c08f64"
+          }
+        },
+        {
+          "functionId": "a3e68318-9ce2-40bc-ad96-dd1907c08f64",
+          "title": "Create m3 Balance Tx",
+          "description": "",
+          "className": "CreateM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Balance__BalanceTransaction"
+            },
+            "payloadPath": {
+              "@type": "statevariable",
+              "value": "m3BalanceTransaction"
+            },
+            "responsePath": {
+              "@type": "statevariable",
+              "value": "m3BalanceTransactionResponse"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable",
+              "value": "newBalanceResponse.id"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {}
+        }
+      ]
+    }
+  ],
+  "globalParameters": [],
+  "trigger": {
+    "enabled": true,
+    "firstFunction": "df029e5a-ebbc-4b2a-a44d-52a38f9f0ba2",
+    "eventTypes": []
+  },
+  "credentials": [
+    {
+      "credentialsId": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30",
+      "destinationType": "M3TER",
+      "type": "M3TER_SERVICE_USER"
+    },
+    {
+      "credentialsId": "e089ad7e-8d96-4fb4-b527-4176dd055f81",
+      "destinationType": "SALESFORCE",
+      "type": "OAUTH_CLIENT_CREDENTIALS"
+    }
+  ]
+}

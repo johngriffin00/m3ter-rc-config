@@ -1,0 +1,290 @@
+{
+  "name": "Order: Account creation",
+  "code": "order_account_creation",
+  "description": "Create account, or load if existing ",
+  "originalOrgId": "9a3a717e-40a0-4b92-9163-70db1110f21c",
+  "version": 4,
+  "versionDescription": "Create account, or load if existing ",
+  "functions": [
+    {
+      "functionId": "df9eb31b-7b4d-4d45-9709-2a9e72094a90",
+      "title": "Is there an external mapping already?",
+      "description": "",
+      "className": "ExternalMappingExistsForSystemFunction",
+      "parameters": {
+        "externalSystem": {
+          "@type": "string",
+          "value": "Salesforce"
+        },
+        "externalTable": {
+          "@type": "string",
+          "value": "Account"
+        },
+        "externalIdPath": {
+          "@type": "statevariable",
+          "value": "sfOrder.AccountId"
+        },
+        "stateVariable": {
+          "@type": "statevariable",
+          "value": "m3AccountId"
+        }
+      },
+      "exits": {
+        "FALSE": "78c10880-5d3e-4e4e-91ab-eca5723051c3",
+        "TRUE": "e8aaa3a0-9819-4e5f-ba99-463d2f7cfe9b"
+      }
+    },
+    {
+      "functionId": "e8aaa3a0-9819-4e5f-ba99-463d2f7cfe9b",
+      "title": "Get m3Account",
+      "description": "",
+      "className": "GetM3terEntityFunction",
+      "parameters": {
+        "m3terEntity": {
+          "@type": "string",
+          "value": "Account"
+        },
+        "m3terEntityIdPath": {
+          "@type": "statevariable",
+          "value": "m3AccountId"
+        },
+        "responsePath": {
+          "@type": "statevariable",
+          "value": "m3Account"
+        },
+        "parentM3terEntityIdPath": {
+          "@type": "statevariable"
+        },
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+        }
+      },
+      "exits": {}
+    },
+    {
+      "functionId": "78c10880-5d3e-4e4e-91ab-eca5723051c3",
+      "title": "Get SF account",
+      "description": "",
+      "className": "ReadSalesforceObjectFunction",
+      "parameters": {
+        "resourceName": {
+          "@type": "string",
+          "value": "Account"
+        },
+        "resourceIdStateVariable": {
+          "@type": "statevariable",
+          "value": "sfOrder.AccountId"
+        },
+        "resourceOutputStateVariable": {
+          "@type": "statevariable",
+          "value": "sfAccount"
+        },
+        "apiVersion": {
+          "@type": "string",
+          "value": "65.0"
+        },
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+        }
+      },
+      "exits": {
+        "NEXT": "f2bfc188-e0b4-4d0e-849f-a1bb823121a0"
+      }
+    },
+    {
+      "functionId": "f2bfc188-e0b4-4d0e-849f-a1bb823121a0",
+      "title": "sf Account to m3 Account",
+      "description": "",
+      "className": "ApplyTransformationFunction",
+      "parameters": {
+        "sourceName": {
+          "@type": "statevariable",
+          "value": "sfAccount"
+        },
+        "stateVariable": {
+          "@type": "statevariable",
+          "value": "m3Account"
+        },
+        "integrationTransformationId": {
+          "@type": "m3terEntity",
+          "value": "d4a3d03d-33df-4f80-8001-43cd3f703ba3"
+        }
+      },
+      "exits": {
+        "NEXT": "b01fb30b-f0be-40b7-b655-1ec01aa45bff"
+      }
+    },
+    {
+      "functionId": "b01fb30b-f0be-40b7-b655-1ec01aa45bff",
+      "title": "Create m3 Account",
+      "description": "",
+      "className": "CreateM3terEntityFunction",
+      "parameters": {
+        "m3terEntity": {
+          "@type": "string",
+          "value": "Account"
+        },
+        "payloadPath": {
+          "@type": "statevariable",
+          "value": "m3Account"
+        },
+        "responsePath": {
+          "@type": "statevariable",
+          "value": "m3AccountResponse"
+        },
+        "parentM3terEntityIdPath": {
+          "@type": "statevariable"
+        },
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+        }
+      },
+      "exits": {
+        "NEXT": "0067f3b5-a856-427e-8535-271efe9c3d6c"
+      }
+    },
+    {
+      "functionId": "0067f3b5-a856-427e-8535-271efe9c3d6c",
+      "title": "Create m3ter external mapping for Accounts",
+      "description": "",
+      "className": "CreateExternalMappingFunction",
+      "parameters": {
+        "m3terEntity": {
+          "@type": "string",
+          "value": "Account"
+        },
+        "m3terIdPath": {
+          "@type": "statevariable",
+          "value": "m3AccountResponse.id"
+        },
+        "externalSystem": {
+          "@type": "string",
+          "value": "Salesforce"
+        },
+        "externalTable": {
+          "@type": "string",
+          "value": "Account"
+        },
+        "externalIdPath": {
+          "@type": "statevariable",
+          "value": "sfAccount.Id"
+        },
+        "duplicateRunForEntity": {
+          "@type": "boolean",
+          "value": true
+        }
+      },
+      "exits": {
+        "NEXT": "87c51f81-5589-4737-900a-bf0367e5c273"
+      }
+    },
+    {
+      "functionId": "87c51f81-5589-4737-900a-bf0367e5c273",
+      "title": "Set m3AccountId",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "m3AccountId"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "m3AccountResponse.id",
+          "lookupType": "STATE_PATH"
+        }
+      },
+      "exits": {
+        "NEXT": "9b0206ce-776f-42d7-a488-893ecc29654e"
+      }
+    },
+    {
+      "functionId": "9b0206ce-776f-42d7-a488-893ecc29654e",
+      "title": "Set m3Account.id",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "m3Account.id"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "m3AccountId",
+          "lookupType": "STATE_PATH"
+        }
+      },
+      "exits": {}
+    }
+  ],
+  "globalParameters": [],
+  "trigger": {
+    "enabled": true,
+    "firstFunction": "df9eb31b-7b4d-4d45-9709-2a9e72094a90",
+    "eventTypes": []
+  },
+  "transformations": [
+    {
+      "orgId": "9a3a717e-40a0-4b92-9163-70db1110f21c",
+      "transformationId": "d4a3d03d-33df-4f80-8001-43cd3f703ba3",
+      "name": "SF Account to m3 Account",
+      "description": "Converting SF Account to m3 Account",
+      "sourceSystem": "Salesforce",
+      "destinationSystem": "m3ter",
+      "sourceTable": "Account",
+      "destinationTable": "Account",
+      "transformations": [
+        {
+          "destinationField": "name",
+          "type": "LOOKUP",
+          "sourceField": "Name"
+        },
+        {
+          "destinationField": "code",
+          "type": "LOOKUP",
+          "sourceField": "Id"
+        },
+        {
+          "destinationField": "address.country",
+          "type": "LOOKUP",
+          "sourceField": "BillingAddress.country"
+        },
+        {
+          "destinationField": "address.addressLine1",
+          "type": "LOOKUP",
+          "sourceField": "BillingAddress.street"
+        },
+        {
+          "destinationField": "address.postCode",
+          "type": "LOOKUP",
+          "sourceField": "BillingAddress.postalCode"
+        },
+        {
+          "destinationField": "address.locality",
+          "type": "LOOKUP",
+          "sourceField": "BillingAddress.city"
+        },
+        {
+          "destinationField": "emailAddress",
+          "type": "STATIC",
+          "value": "accounts@m3terdemo.com"
+        }
+      ]
+    }
+  ],
+  "credentials": [
+    {
+      "credentialsId": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30",
+      "destinationType": "M3TER",
+      "type": "M3TER_SERVICE_USER"
+    },
+    {
+      "credentialsId": "e089ad7e-8d96-4fb4-b527-4176dd055f81",
+      "destinationType": "SALESFORCE",
+      "type": "OAUTH_CLIENT_CREDENTIALS"
+    }
+  ]
+}

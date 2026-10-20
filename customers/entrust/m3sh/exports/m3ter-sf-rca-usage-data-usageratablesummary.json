@@ -1,0 +1,152 @@
+{
+  "name": "m3ter -> SF RCA Usage Data - UsageRatableSummary",
+  "code": "m3ter_sf_rca_usage_data_usageratablesummary",
+  "description": "Sync of Usage data to RCA objects - UsageRatableSummary",
+  "originalOrgId": "9a3a717e-40a0-4b92-9163-70db1110f21c",
+  "version": 5,
+  "versionDescription": "Sync of Usage data to RCA objects - UsageRatableSummary",
+  "functions": [
+    {
+      "functionId": "f5b594ad-c22a-493f-a052-1efd7c1b6f19",
+      "title": "If sfUsageSummary has no Ratable Summary",
+      "description": "",
+      "className": "CalculationFunction",
+      "parameters": {
+        "calculation": {
+          "@type": "calculation",
+          "value": "sfUsageSummary.RatableSummaryId == null "
+        }
+      },
+      "exits": {
+        "TRUE": "ad9fdb92-d0aa-4e91-a986-6ef93c2b5093",
+        "FALSE": "f8b54f64-36a3-46df-a54b-a7a159df8e7d"
+      }
+    },
+    {
+      "functionId": "f8b54f64-36a3-46df-a54b-a7a159df8e7d",
+      "title": "Set sfUsageRatableSummaryId",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "sfUsageRatableSummaryId"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "sfUsageSummary.RatableSummaryId",
+          "lookupType": "STATE_PATH"
+        }
+      },
+      "exits": {
+        "NEXT": "6fdb180e-a1a8-42ab-89d4-86164a934ebd"
+      }
+    },
+    {
+      "functionId": "6fdb180e-a1a8-42ab-89d4-86164a934ebd",
+      "title": "Remove Status",
+      "description": "",
+      "className": "RemoveFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "UsageRatableSummaryToCreate.Status"
+        }
+      },
+      "exits": {
+        "NEXT": "dd689e5e-c81a-423e-925d-3f3a279569bd"
+      }
+    },
+    {
+      "functionId": "dd689e5e-c81a-423e-925d-3f3a279569bd",
+      "title": "Update UsageRatableSummary",
+      "description": "",
+      "className": "UpdateSalesforceObjectFunction",
+      "parameters": {
+        "resourceName": {
+          "@type": "string",
+          "value": "UsageRatableSummary"
+        },
+        "resourceIdStateVariable": {
+          "@type": "statevariable",
+          "value": "sfUsageRatableSummaryId"
+        },
+        "resource": {
+          "@type": "string",
+          "value": "UsageRatableSummaryToCreate"
+        },
+        "apiVersion": {
+          "@type": "string",
+          "value": "65.0"
+        },
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+        }
+      },
+      "exits": {}
+    },
+    {
+      "functionId": "ad9fdb92-d0aa-4e91-a986-6ef93c2b5093",
+      "title": "Create UsageRatableSummary",
+      "description": "",
+      "className": "CreateSalesforceObjectFunction",
+      "parameters": {
+        "resourceName": {
+          "@type": "string",
+          "value": "UsageRatableSummary"
+        },
+        "resource": {
+          "@type": "string",
+          "value": "UsageRatableSummaryToCreate"
+        },
+        "outputResourceIdStateVariable": {
+          "@type": "statevariable",
+          "value": "UsageRatableSummaryCreated"
+        },
+        "apiVersion": {
+          "@type": "string",
+          "value": "65.0"
+        },
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+        }
+      },
+      "exits": {
+        "NEXT": "88987927-2dc7-4675-8c90-d394b5d63b90"
+      }
+    },
+    {
+      "functionId": "88987927-2dc7-4675-8c90-d394b5d63b90",
+      "title": "Set sfUsageRatableSummaryId",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "sfUsageRatableSummaryId"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "UsageRatableSummaryCreated",
+          "lookupType": "STATE_PATH"
+        }
+      },
+      "exits": {}
+    }
+  ],
+  "globalParameters": [],
+  "trigger": {
+    "enabled": true,
+    "firstFunction": "f5b594ad-c22a-493f-a052-1efd7c1b6f19",
+    "eventTypes": []
+  },
+  "credentials": [
+    {
+      "credentialsId": "e089ad7e-8d96-4fb4-b527-4176dd055f81",
+      "destinationType": "SALESFORCE",
+      "type": "OAUTH_CLIENT_CREDENTIALS"
+    }
+  ]
+}

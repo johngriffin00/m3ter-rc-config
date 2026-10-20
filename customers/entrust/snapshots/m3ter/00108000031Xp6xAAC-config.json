@@ -1,0 +1,4223 @@
+{
+    "Products": [
+        {
+            "name": "Product Bundles",
+            "code": "product_bundles"
+        },
+        {
+            "name": "Verification Check",
+            "code": "verification_check"
+        }
+    ],
+    "Meters": [
+        {
+            "name": "Mastercard Identity",
+            "code": "mastercard_identity_account_opening_row",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Watchlist - AML",
+            "code": "watchlist_report_aml",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Facial Similarity Check - Selfie Hybrid",
+            "code": "facial_similarity_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "OCR Autofill",
+            "code": "autofill",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check - Driver Verification",
+            "code": "document_report_driver_verification",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Ongoing Monitoring for Watchlist AML Top Up",
+            "code": "ongoing_monitoring_aml_top_up",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "blocks",
+                    "name": "Blocks",
+                    "unit": "blocks"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Mastercard Identity",
+            "code": "mastercard_identity_account_opening_amer",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check Video",
+            "code": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP",
+            "dataFields": [
+                {
+                    "category": "METADATA",
+                    "code": "workflow_id",
+                    "name": "workflow_id"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "sf_opportunity_id"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "is_retry",
+                    "name": "is_retry"
+                },
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "check_count",
+                    "unit": "check"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Device Intelligence - Standard",
+            "code": "applicant_fraud_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "ID Record",
+            "code": "identity_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check - Boost",
+            "code": "document_report_standard_hybrid",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Mastercard Identity",
+            "code": "mastercard_identity_account_opening_emea",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Watchlist - Standard (Full)",
+            "code": "watchlist_report_full",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check Video - Boost - ETSI Certified IDV",
+            "code": "document_report_video_ETSI_Certified_IDV",
+            "dataFields": [
+                {
+                    "category": "METADATA",
+                    "code": "workflow_id",
+                    "name": "workflow_id"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "sf_opportunity_id"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "is_retry",
+                    "name": "is_retry"
+                },
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "check_count",
+                    "unit": "check"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Right to Work (UK Only)",
+            "code": "right_to_work_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Repeat Attempts",
+            "code": "repeat_attempts_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check Video - Boost",
+            "code": "document_report_video",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "AAMVA Check",
+            "code": "us_driving_licence_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Facial Similarity Check - Selfie Auto",
+            "code": "facial_similarity_report_photo_fully_auto",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Proof of Address",
+            "code": "proof_of_address_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Motion PLG",
+            "code": "facial_similarity_report_motion",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "eID, Italy - SPID Full",
+            "code": "eid_spid_full",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check - Flash",
+            "code": "document_report_standard_auto",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "eID, Italy - SPID Basic",
+            "code": "eid_spid_basic",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Signhost",
+            "code": "advanced_electronic_signature",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check - Sherlock",
+            "code": "document_report_standard_manual",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Facial Similarity Check Upgrade - Known Faces",
+            "code": "known_faces_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "eID, UK eVisa Verification",
+            "code": "uk_evisa_verification",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Authentication: Motion",
+            "code": "motion_authentication",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Facial Similarity Check - Video",
+            "code": "facial_similarity_report_video",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "SSN Check",
+            "code": "ssn_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Watchlist - Enhanced (KYC)",
+            "code": "watchlist_report_kyc",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "India Tax ID",
+            "code": "india_pan_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        }
+    ],
+    "Aggregations": [
+        {
+            "name": "eID, Italy - SPID Full",
+            "code": "eid_spid_full_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "accountingProductId": "0f451167-8385-4f65-a1e8-5b22163badc7",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "defaultValue": 0,
+            "meterCode": "eid_spid_full"
+        },
+        {
+            "name": "Repeat Attempts",
+            "code": "repeat_attempts_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "c689b07f-8767-4687-9920-206aca76bad3",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "repeat_attempts_report_standard"
+        },
+        {
+            "name": "Signhost",
+            "code": "advanced_electronic_signature_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "accountingProductId": "8a024d67-b2c1-4d42-8247-b677cbe81c9a",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "meterCode": "advanced_electronic_signature"
+        },
+        {
+            "name": "SSN Check",
+            "code": "ssn_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "d6bd76f3-f74d-497f-a1d7-653ae8c2091c",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "ssn_report_standard"
+        },
+        {
+            "name": "Proof of Address",
+            "code": "proof_of_address_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "fb8cda0d-93b9-456e-afdc-1a5971e5e7d8",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "proof_of_address_report_standard"
+        },
+        {
+            "name": "Facial Similarity Check Upgrade - Known Faces",
+            "code": "known_faces_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "d76d5aee-8794-475d-b4b8-fd8f7cedcae4",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "known_faces_report_standard"
+        },
+        {
+            "name": "eID, Italy - SPID Basic",
+            "code": "eid_spid_basic_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "accountingProductId": "c5061ada-e8bd-492b-96a6-9dc990bf8082",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "defaultValue": 0,
+            "meterCode": "eid_spid_basic"
+        },
+        {
+            "name": "OCR Autofill",
+            "code": "autofill_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "807bfa40-2165-41e4-9206-d5a825254957",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "autofill"
+        },
+        {
+            "name": "Document Check Video - Boost",
+            "code": "document_report_video_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "79c9707a-f461-4c6d-a577-5a347e08f409",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "document_report_video"
+        },
+        {
+            "name": "Watchlist - Enhanced (KYC)",
+            "code": "watchlist_report_kyc_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "cd90afdd-2a40-4578-adb9-1c00012f2a85",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "watchlist_report_kyc"
+        },
+        {
+            "name": "Ongoing Monitoring for Watchlist AML Top Up",
+            "code": "ongoing_monitoring_aml_top_up_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "blocks",
+            "accountingProductId": "3604d70c-8a39-4b28-8309-ebd44f51d65d",
+            "targetField": "blocks",
+            "aggregation": "SUM",
+            "meterCode": "ongoing_monitoring_aml_top_up"
+        },
+        {
+            "name": "Document Check - Flash",
+            "code": "document_report_standard_auto_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "2788cbd0-a512-435c-88eb-744576733e50",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "document_report_standard_auto"
+        },
+        {
+            "name": "Watchlist - Standard (Full)",
+            "code": "watchlist_report_full_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "5b0bc1ef-5b72-44bd-b421-397be77e3c8c",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "watchlist_report_full"
+        },
+        {
+            "name": "India Tax ID",
+            "code": "india_pan_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "ac92ff3c-cf1f-432c-9ad3-28e70be7e6db",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "india_pan_report_standard"
+        },
+        {
+            "name": "Facial Similarity Check - Video",
+            "code": "facial_similarity_report_video_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "e46cda73-35c8-4cef-9633-7622d37ccc0f",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "facial_similarity_report_video"
+        },
+        {
+            "name": "Mastercard Identity",
+            "code": "mastercard_identity_account_opening_amer_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "accountingProductId": "e6bfe153-b73f-4300-9890-4a6f9720985b",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "meterCode": "mastercard_identity_account_opening_amer"
+        },
+        {
+            "name": "eID, UK eVisa Verification",
+            "code": "uk_evisa_verification_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "checks",
+            "accountingProductId": "9d7c74cd-d643-4acb-86a6-8f943c192e2d",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "defaultValue": 0,
+            "meterCode": "uk_evisa_verification"
+        },
+        {
+            "name": "Watchlist - AML",
+            "code": "watchlist_report_aml_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "5fb95ea5-49b5-444f-9941-c13f04dd2ec0",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "watchlist_report_aml"
+        },
+        {
+            "name": "Document Check - Driver Verification",
+            "code": "document_report_driver_verification_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "checks",
+            "accountingProductId": "312b1ac0-4fd7-4a96-8025-54a364a3e8f7",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "meterCode": "document_report_driver_verification"
+        },
+        {
+            "name": "Mastercard Identity",
+            "code": "mastercard_identity_account_opening_row_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "accountingProductId": "df616f27-c134-4df4-b4a5-4fff56090385",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "meterCode": "mastercard_identity_account_opening_row"
+        },
+        {
+            "name": "Document Check - Boost",
+            "code": "document_report_standard_hybrid_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "488d3e80-1a4a-4239-b129-267e225bab49",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "document_report_standard_hybrid"
+        },
+        {
+            "name": "Right to Work (UK Only)",
+            "code": "right_to_work_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "4ffdf876-b82d-4c55-8981-04c692e62fe6",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "right_to_work_report_standard"
+        },
+        {
+            "name": "Motion PLG",
+            "code": "facial_similarity_report_motion_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "4378a01a-d2e9-45b5-9e78-9b78750b45ba",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "facial_similarity_report_motion"
+        },
+        {
+            "name": "Document Check Video - Boost - ETSI Certified IDV",
+            "code": "document_report_video_ETSI_Certified_IDV_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [
+                {
+                    "is_retry": "false"
+                },
+                {
+                    "is_retry": "true"
+                }
+            ],
+            "accountingProductId": "97fff0cc-0eab-45e4-bb2b-b6d23c978d8f",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [
+                "is_retry"
+            ],
+            "meterCode": "document_report_video_ETSI_Certified_IDV"
+        },
+        {
+            "name": "Facial Similarity Check - Selfie Hybrid",
+            "code": "facial_similarity_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "78ad3fea-3b1a-41f9-bdb2-ea721b48188d",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "facial_similarity_report_standard"
+        },
+        {
+            "name": "Authentication: Motion",
+            "code": "motion_authentication",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "accountingProductId": "b08766ae-d19c-403f-a7f7-7f8708e261fb",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "defaultValue": 0,
+            "meterCode": "motion_authentication"
+        },
+        {
+            "name": "Document Check - Sherlock",
+            "code": "document_report_standard_manual_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "2a1358d3-ad49-48e2-adb1-6eec8817f9bb",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "document_report_standard_manual"
+        },
+        {
+            "name": "Document Check Video",
+            "code": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [
+                {
+                    "is_retry": "false"
+                },
+                {
+                    "is_retry": "true"
+                }
+            ],
+            "accountingProductId": "17fc0695-3278-4433-81ed-51d282eb4abd",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [
+                "is_retry"
+            ],
+            "meterCode": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP"
+        },
+        {
+            "name": "Mastercard Identity",
+            "code": "mastercard_identity_account_opening_emea_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "sum",
+            "accountingProductId": "73cde75d-488c-44ea-a96c-028070f66171",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "meterCode": "mastercard_identity_account_opening_emea"
+        },
+        {
+            "name": "ID Record",
+            "code": "identity_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "9d177ee4-9db4-4273-a98e-711ff2545d74",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "identity_report_standard"
+        },
+        {
+            "name": "AAMVA Check",
+            "code": "us_driving_licence_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "44e24a74-d791-4b12-88df-fba80d6c7688",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "us_driving_licence_report_standard"
+        },
+        {
+            "name": "Device Intelligence - Standard",
+            "code": "applicant_fraud_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "49356a9d-d6e9-4d9d-ab5f-9bb9e5c766be",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "applicant_fraud_report_standard"
+        },
+        {
+            "name": "Facial Similarity Check - Selfie Auto",
+            "code": "facial_similarity_report_photo_fully_auto_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "6a3c25c1-3161-46cb-ad50-17b00e291e25",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "facial_similarity_report_photo_fully_auto"
+        }
+    ],
+    "CompoundAggregations": [
+        {
+            "customFields": {
+                "cpq_sku_id": "CPQ_ID_1189",
+                "product_2": "facial_similarity_report_motion_count",
+                "netsuite_product_id": "3896",
+                "product_1": "document_report_standard_hybrid_count"
+            },
+            "name": "Document Check - Boost PLG & Motion",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "checks",
+            "code": "PLG",
+            "segments": [],
+            "accountingProductId": "612c96df-f800-42e0-ae57-7ed930ffcf24",
+            "calculation": "Math.max(aggregation.document_report_standard_hybrid_count,aggregation.facial_similarity_report_motion_count,aggregation.watchlist_report_aml_count)",
+            "evaluateNullAggregations": false
+        }
+    ],
+    "PlanTemplates": [
+        {
+            "name": "Product Bundles (EUR)",
+            "currency": "EUR",
+            "standingCharge": 0.0,
+            "standingChargeDescription": "",
+            "standingChargeInterval": 1,
+            "standingChargeOffset": 0,
+            "billFrequencyInterval": 1,
+            "billFrequency": "DAILY",
+            "ordinal": 1,
+            "code": "product_bundles_eur",
+            "minimumSpendDescription": "",
+            "productCode": "product_bundles"
+        },
+        {
+            "name": "Rate Card B EUR Default Pricing",
+            "currency": "EUR",
+            "standingCharge": 0.0,
+            "standingChargeInterval": 1,
+            "standingChargeOffset": 0,
+            "billFrequencyInterval": 1,
+            "billFrequency": "MONTHLY",
+            "ordinal": 1,
+            "code": "rate_card_b_eur_default_pricing",
+            "productCode": "verification_check"
+        }
+    ],
+    "Plans": [
+        {
+            "name": "Verification Check Plan: Staking Rewards- plg Q4 2024",
+            "code": "checks_006So00000GOSQAIA5",
+            "customFields": {
+                "opportunityId": "006So00000GOSQAIA5",
+                "contractStartDate": "2024-12-13",
+                "subsidiaryId": "5"
+            },
+            "productId": "58674a95-82ea-4194-b6fb-86269309bad9",
+            "bespoke": true,
+            "accountId": "19c031ae-e441-429c-bd95-37eb17df1620",
+            "planTemplateCode": "rate_card_b_eur_default_pricing"
+        },
+        {
+            "name": "Product Bundle Plan 006So00000GOSQAIA5",
+            "code": "product_bundle_plan_006So00000GOSQAIA5",
+            "customFields": {
+                "opportunityId": "006So00000GOSQAIA5"
+            },
+            "productId": "3da57859-2ef4-49ae-a42a-13133669cfe1",
+            "bespoke": true,
+            "accountId": "19c031ae-e441-429c-bd95-37eb17df1620",
+            "planTemplateCode": "product_bundles_eur"
+        }
+    ],
+    "Pricings": [
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "3aef9ab7-63df-4bde-ba40-5b9233ed605d",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.13
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "advanced_electronic_signature_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "4f1e4823-486e-46fe-8e96-195e37af72fc",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.36
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "motion_authentication"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "f43e1525-f073-440c-85a0-fd8115ae434f",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.82
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "COMPOUND",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "product_bundle_plan_006So00000GOSQAIA5",
+            "compoundAggregationCode": "PLG"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "d50c378f-3dc0-4212-9d6a-81b91f5b85a7",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.01
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "proof_of_address_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "56935ce4-4644-4fc4-ac8b-57eb4dc99cc7",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.26
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_motion_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "91e2975c-ced5-4618-9b09-5073161eadb2",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.29
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "mastercard_identity_account_opening_amer_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "43ec759a-8350-401c-85e3-7552b3768c15",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "known_faces_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "1ca44238-2220-414b-989a-1e03f3e7375f",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.51
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "identity_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "39a3ba25-5773-4a90-9206-27240caa1ce7",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.85
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "ssn_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "e29f63d3-3555-46d0-9353-7eb81073c3a2",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.38
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "motion_authentication"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "af0b1afa-5e11-4886-a857-81228802d477",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.82
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_photo_fully_auto_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "db30c087-e66b-4137-8120-f6c9b816e027",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 5.31
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "eid_spid_basic_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "884029ce-e920-43b7-a90a-c5f29216109a",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 6.02
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "right_to_work_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "9c029938-60b5-4aa1-b3d7-edff2fb8896c",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.87
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "false"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:false",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "db8e7bd6-a89a-4a53-ad33-60d4540e9afa",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 9.16
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "eid_spid_full_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "0f3a0127-90b6-4e69-bc00-481bf06e8a6c",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "ongoing_monitoring_aml_top_up_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "71cec5d4-bdc8-41fe-a817-67da2148c62f",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.01
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "uk_evisa_verification_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "beeda64e-5328-480f-a497-4642d7664da8",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.59
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "true"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:true",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "85ee595f-29d8-4dde-9496-7c9da4e71863",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.59
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "identity_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "387c9e2f-13e6-4f08-8782-91b71f2c3c0f",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.27
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "mastercard_identity_account_opening_row_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "5e00894c-526e-4cc0-8758-ddf579a7cd6a",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.29
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "mastercard_identity_account_opening_row_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "1c15d723-70db-4e38-be39-1bf25df2db90",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.87
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "true"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:true",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "af0c8ad2-c546-4b84-b361-dea538192691",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.31
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "true"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:true",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "6d4ce887-afbf-4c24-84bf-c06952c1cb29",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "applicant_fraud_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "e3521f25-4598-410c-8e2a-3b60e2bba446",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.29
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "mastercard_identity_account_opening_emea_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "b800aa27-0426-4121-864c-f52ff2752dde",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.57
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "true"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:true",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "889fc5dd-6af1-4218-ba24-146b467a730f",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.29
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "mastercard_identity_account_opening_row_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "2ce65942-be67-4138-bdb1-5cc59ff37758",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.28
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_standard_hybrid_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "1b05c371-9859-4e03-9c20-d06e1ac2eeec",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "applicant_fraud_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "b8234394-c1bb-4c74-a562-a4abd152f9e9",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.96
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "ssn_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "2f60c9b8-5267-422b-a248-177de4fa8820",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.88
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_photo_fully_auto_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "42933123-efe1-4351-959b-cd7ae402a85e",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "known_faces_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "18910937-3598-499a-be4e-5291f2c7c6b4",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.35
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_video_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "f835f704-5df0-4a8f-8591-34ba6013a22b",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.49
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "watchlist_report_kyc_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "037469a7-dd5f-4627-ba66-2c343c5001eb",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.11
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_driver_verification_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "b1dadf18-001a-47bb-8415-a50b05c30cb0",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.2
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_motion_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "b2ecb472-d502-4e98-916b-9c2c27197b40",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.01
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "70acfac5-ebff-45e7-9bd6-c949ca035c3f",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.36
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_motion_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "9a138940-f47f-4fef-8bdf-13a04b82a5e9",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.89
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "ssn_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "f92e7e76-f42c-4cce-9d06-1a98ad6bdc4a",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.21
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "india_pan_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "4a7f1a6a-35ae-476e-8706-f052712c4394",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "known_faces_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "5c4e700d-cf1d-4f5d-9085-c1211d328b9f",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.25
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "mastercard_identity_account_opening_emea_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "4127c198-695a-46ca-975d-bc7abdd0dd7e",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 5.31
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "right_to_work_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "fa4d8089-f037-4fd5-a254-a544d622c012",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.01
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_driver_verification_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "241a4246-bcfc-4ae7-9bc1-47b21746748a",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.56
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "watchlist_report_aml_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "4e7b90c3-058c-4b6b-9584-1eb719d25be6",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.28
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "uk_evisa_verification_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "29570e82-23dd-4632-adb7-6692957160d9",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "checks_006So00000GOSQAIA5",
+            "aggregationCode": "autofill_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "af4dc3a9-6126-498e-a649-d79545294b2b",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.47
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "watchlist_report_full_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "c7ddf05e-a463-4984-8f15-f494de63126f",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 6.02
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "right_to_work_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "4875e9b6-3e23-4e01-9271-da48eba7ede5",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.24
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "india_pan_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "1286a05f-0b03-4514-834a-a230800cf368",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.41
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "true"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:true",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "533951cb-3728-4875-a62c-63de4483e283",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.28
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "uk_evisa_verification_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "463c3f4a-3c25-4575-9cf2-0b5936dd2c56",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.28
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_driver_verification_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "ae1155e8-0f11-4fcc-8a26-a750e18c4ed8",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "checks_006So00000GOSQAIA5",
+            "aggregationCode": "facial_similarity_report_motion_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "ecd6f47a-5aaa-44cd-987d-fa555581c620",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.42
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_video_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "4c80a8e0-4d45-47ed-8e57-46bf9d75d30c",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "repeat_attempts_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "c4a7952c-539b-49e1-94e9-8206545fd626",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.28
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "advanced_electronic_signature_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "cff5aa45-f80d-4859-8565-b6c16cb08f6d",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.53
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_video_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "40d23f38-07fc-40fb-b017-0102ccc35bf2",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 8.71
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "eid_spid_full_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "3134a937-08bd-457b-9c59-b1e9775c912a",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.65
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_standard_auto_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "2079735c-c3cd-4e07-b183-97631a164d95",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.88
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_photo_fully_auto_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "0a471c5e-0067-4e7f-a109-984ecd289ce2",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.11
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "uk_evisa_verification_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "6f359294-4561-428b-bdb9-fecc7caa84a6",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "ongoing_monitoring_aml_top_up_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "6f247229-9b2a-47f8-89f6-58895a3bfb90",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 5.73
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "eid_spid_basic_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "f5106bb4-b4cc-4dae-949c-fa7a340de66b",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 5.73
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "eid_spid_basic_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "46490f80-0962-4625-ac88-6b57202ca707",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "repeat_attempts_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "1ec39402-d3bc-4016-ac83-8e03cec2749e",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "applicant_fraud_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "12c0d60a-3d06-41d0-a448-de58692fccc2",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.72
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "identity_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "b303d70f-9943-4f6e-8ad5-54af27dcd924",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.29
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "mastercard_identity_account_opening_amer_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "c528d74a-337b-4852-8af3-a53ae9418369",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.28
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "proof_of_address_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "583b4ac1-e49e-4964-9def-af46c234a703",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.15
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "true"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:true",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "d9df378f-4e16-4122-9e47-fef53ab11323",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.01
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "f944e904-0bdf-47da-b2dd-c18347beea5c",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "checks_006So00000GOSQAIA5",
+            "aggregationCode": "repeat_attempts_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "869f69c8-a776-4bcf-8c69-de12ea0b3cd0",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "autofill_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "49ee8233-f4a4-4a4f-8454-4ef722ef7f86",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.18
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "advanced_electronic_signature_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "f80701fa-9c58-4fa0-a161-ca91f7117ae9",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.27
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "mastercard_identity_account_opening_amer_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "2c4b6db1-7b78-488f-ba1d-c6807d650451",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.28
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "proof_of_address_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "da9d5439-468a-4d42-8deb-7a5da4dc4396",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "ongoing_monitoring_aml_top_up_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "2df9a9f4-fecb-4d98-a0d4-8cc0725671db",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.56
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "watchlist_report_kyc_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "5ca2d7df-1588-46e0-9d0d-32e95d6601d5",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "checks_006So00000GOSQAIA5",
+            "aggregationCode": "applicant_fraud_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "4cd30f1f-bcce-4e6c-b009-978a35e4aec5",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.72
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "identity_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "316d7674-abbd-4e21-81a8-86c5c68d78b0",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "known_faces_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "e6a65f68-cdf4-40de-b86a-59e72f8646c8",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.11
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "proof_of_address_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "61f9d26c-ff11-4282-8477-4ea694470483",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.58
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_standard_auto_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "8a3ae67e-6e8f-458a-894b-edb8e5048812",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.65
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_standard_auto_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "0c3af624-46ee-4cdc-94b1-888b75452c1a",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.08
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "dcc42446-4da2-4352-a82d-f484571b1852",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.27
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "mastercard_identity_account_opening_emea_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "8391af07-592e-4450-be2d-d4dfc53b76bd",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 5.58
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "right_to_work_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "dabff18b-3ddd-4e94-8092-e62c413d9da7",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "checks_006So00000GOSQAIA5",
+            "aggregationCode": "known_faces_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "6ca3513d-c7df-4dfd-ae7a-279dc8bddf54",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.44
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "watchlist_report_full_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "931e7ffc-4e8d-4566-819a-3f83642f8995",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.34
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "motion_authentication"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "f938af0e-9500-49fa-83eb-50d44ebb7f6c",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.67
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_standard_manual_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "10b08158-256e-4785-b015-bb588c063d24",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.57
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "false"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:false",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "40761275-0447-4e3a-95cc-1d4c02ce1451",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.11
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_standard_hybrid_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "a0536a26-d872-45a5-8a50-b01639487ea4",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.56
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "watchlist_report_kyc_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "74bb672b-2499-4589-9a9d-3f34fd62e4b0",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.41
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "false"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:false",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "d34c74a5-2253-4092-be9a-a9ce9ab0b09f",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.28
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_standard_hybrid_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "0a9439f9-4be8-4608-8c4e-656c5a3185bd",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.11
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "e50de6d9-4250-4fb1-873e-2ac2e29b166d",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "applicant_fraud_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "9318be9d-be36-4301-aa8e-3825543c3d10",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.8
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_standard_manual_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "eb23e74c-b66a-4926-80fb-42514e6b9617",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.59
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "false"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:false",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "7aeba62c-ce2c-486e-a87f-38fe8e0f9816",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.41
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "watchlist_report_full_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "e84fb9a4-7c80-4fc7-a674-2d82462f178d",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.08
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "ff4c0886-1327-4816-a48f-d778b9196d11",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.28
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "advanced_electronic_signature_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "23e8a05e-20d1-4a17-bee3-5051342ef4f9",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.24
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "india_pan_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "9f36926f-84d8-406e-9fa6-53ff0f6753a1",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.9
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "us_driving_licence_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "c0a3238a-9e3b-40cd-b612-c5d371e39f3f",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.61
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_standard_auto_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "81c3e51d-6995-43ad-bce8-b548fb28c380",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.52
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "watchlist_report_aml_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "b687ea8d-dee0-4f6f-99a7-848b02dd28a1",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 9.88
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "eid_spid_full_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "6263b673-4757-4c80-8af4-4a53c10191e9",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.28
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "01c4fc83-a6a7-4c93-b32f-f89170e30443",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.49
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "watchlist_report_aml_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "00932566-d9e0-4f9a-ab0a-903534bfed52",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.53
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_video_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "24567d1a-2677-4a7d-94ca-3a10d5d7c25c",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "ongoing_monitoring_aml_top_up_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "415094d8-3c37-48a1-9938-9aee707ce9ff",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.36
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_motion_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "7adaf9ac-c741-44fb-9ef6-f7d97554faf8",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.9
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "us_driving_licence_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "14217e46-a0a9-4c93-b716-9d504fc914d7",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "checks_006So00000GOSQAIA5",
+            "aggregationCode": "document_report_standard_hybrid_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "4e7101be-4d14-4a7c-9581-c0fbcb136586",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.96
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "ssn_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "11c6759d-05c1-4524-8b1e-c6263c293214",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.47
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "watchlist_report_full_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "168a2695-0f75-44a1-a364-42549e33dd95",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.22
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "india_pan_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "f2e08efa-ba4d-4b68-a2de-b71873d9cf1c",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.56
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "watchlist_report_aml_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "9c09ecf4-351f-47ca-b443-aea323560bdb",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 9.88
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "eid_spid_full_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "2cff3c26-e357-4c4b-9806-531ab653d9e5",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.38
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "motion_authentication"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "557f56dc-6ba4-49e4-a905-97ecf2bb1014",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.25
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "mastercard_identity_account_opening_amer_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "21061acd-3ff4-4343-8a31-a94db3ce7a4e",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.78
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_photo_fully_auto_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "4d4d3244-c525-4474-9efe-e913d3a9a67a",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.01
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_standard_hybrid_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "dc5ac3f8-35c0-4903-ba0a-76fd0d1c3aba",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.29
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "mastercard_identity_account_opening_emea_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "80e4eab7-3c5b-4e25-b61b-77dea4c3c14b",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.02
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_standard_manual_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "7b9d1d66-8e9b-43a9-b442-a3786a4e4c57",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.02
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_standard_manual_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "b092e5f9-cd77-43a8-a3b9-b1d617f15a10",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.76
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "us_driving_licence_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "0f08085f-f758-4a62-9564-fb62f1963777",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.57
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "false"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:false",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "50a078e0-6b89-4ada-ad99-9ca15dab48ff",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.15
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "false"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:false",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "f416a8f0-87af-442b-bc0a-d30ed10f1228",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.28
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "0ad60c68-fee7-4ac2-8fa5-36926e3c1847",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "repeat_attempts_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "7a9f7043-f292-4a1f-988d-9ca7bf96dd02",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "autofill_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "c076817b-72d4-4fe5-8ce5-e4debf1add5e",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "autofill_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "e2c766a6-d27f-4b7a-8e74-03fd91a7255a",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "autofill_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "d187de33-ad6d-4936-960c-ce7d06bc5baf",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.31
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "false"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:false",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "e6cb0f3d-0d70-41bd-ae92-da4d6eff2e60",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.25
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "mastercard_identity_account_opening_row_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2022-02-01T00:00:00.000Z",
+            "endDate": "2023-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "7f004510-792c-4114-bc46-0f8d4c826335",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.52
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "watchlist_report_kyc_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "4c4695e4-740d-4aa0-85e1-bff35b9a9736",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "repeat_attempts_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "2e76cce2-9b3c-4dbd-8762-1a374408febd",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.68
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "us_driving_licence_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "36664ed1-6010-4b82-bcab-aa1b4c146777",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.87
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "true"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:true",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2023-02-01T00:00:00.000Z",
+            "endDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "8f011c81-189a-4ef6-8bfe-2cad8bae3af9",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.57
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "true"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:true",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "521654f6-f9b5-4fd9-9aa2-105f142635d4",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.96
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "facial_similarity_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "349d1e2b-9b81-4121-b0a3-bc3212d59a28",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.28
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_driver_verification_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "endDate": "2022-02-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "f70b7b23-d477-46e1-8084-4977b90f31bf",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 5.05
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "eid_spid_basic_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2025-01-27T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "220bca02-51a8-467b-9f77-b0ed07dd24f7",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.87
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "false"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:false",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_b_eur_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP_count"
+        }
+    ],
+    "Accounts": [
+        {
+            "name": "Finrate AG",
+            "code": "00108000031Xp6xAAC",
+            "emailAddress": "billing@stakingrewards.com",
+            "customFields": {
+                "subVertical": "12",
+                "addressee": "003So00000FmsAMIAZ",
+                "phone": "00491784994010",
+                "terms": "13",
+                "a2Code": "CH",
+                "taxCountry": "Switzerland",
+                "attention": "003So00000FmsAMIAZ",
+                "vertical": "1",
+                "defaultTaxReg": "CH-320.3.090.392-3",
+                "subsidiary": "5",
+                "marketSegment": "Mid Market"
+            },
+            "address": {
+                "addressLine1": "Sch\u00fctzengasse 7",
+                "addressLine2": "St. Gallen",
+                "locality": "Null",
+                "region": "St. Gallen, Switzerland",
+                "postCode": "9000",
+                "country": "150"
+            },
+            "currency": "EUR"
+        }
+    ],
+    "AccountPlans": [
+        {
+            "startDate": "2024-12-13T00:00:00.000Z",
+            "contractId": "825e2bf4-eb4f-4e6b-a828-a2447246b4c7",
+            "childBillingMode": "PARENT_BREAKDOWN",
+            "planCode": "checks_006So00000GOSQAIA5",
+            "accountCode": "00108000031Xp6xAAC"
+        },
+        {
+            "startDate": "2024-12-13T00:00:00.000Z",
+            "contractId": "825e2bf4-eb4f-4e6b-a828-a2447246b4c7",
+            "childBillingMode": "PARENT_BREAKDOWN",
+            "planCode": "product_bundle_plan_006So00000GOSQAIA5",
+            "accountCode": "00108000031Xp6xAAC"
+        }
+    ]
+}

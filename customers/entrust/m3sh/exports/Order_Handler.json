@@ -1,0 +1,1877 @@
+{
+  "name": "Order Handler",
+  "code": "order_handler",
+  "description": "Handles Order, creates account, attaches accountplans, creates balances",
+  "originalOrgId": "9a3a717e-40a0-4b92-9163-70db1110f21c",
+  "version": 23,
+  "versionDescription": "Handles Order, creates account, attaches accountplans, creates balances",
+  "functions": [
+    {
+      "functionId": "2f200b5a-d481-490d-9f88-cb0c5f4888f4",
+      "title": "Get Order from path",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "sfOrder"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "body.records[0].data",
+          "lookupType": "STATE_PATH"
+        }
+      },
+      "exits": {
+        "NEXT": "d2c5e00b-eca6-4a9d-a022-5dab50cf4482"
+      }
+    },
+    {
+      "functionId": "d2c5e00b-eca6-4a9d-a022-5dab50cf4482",
+      "title": "Run Init ",
+      "description": "",
+      "className": "RunWorkflowFunction",
+      "parameters": {
+        "integrationDestinationId": {
+          "@type": "m3terEntity",
+          "value": "8ed67db2-08b4-437d-b032-04084fd28f7e"
+        }
+      },
+      "exits": {
+        "NEXT": "390f2617-d3f0-4efa-ae9d-a72f86087e9a"
+      }
+    },
+    {
+      "functionId": "390f2617-d3f0-4efa-ae9d-a72f86087e9a",
+      "title": "Run Account creation",
+      "description": "",
+      "className": "RunWorkflowFunction",
+      "parameters": {
+        "integrationDestinationId": {
+          "@type": "m3terEntity",
+          "value": "48962c87-3d3c-45cd-b268-3c7dd2298efc"
+        }
+      },
+      "exits": {
+        "NEXT": "0ec3b44f-146d-40c0-855c-f7eafeda34d6"
+      }
+    },
+    {
+      "functionId": "0ec3b44f-146d-40c0-855c-f7eafeda34d6",
+      "title": "Load SF OrderItems & TransactionUsageEntitlements",
+      "description": "",
+      "className": "SOQLSalesforceQueryFunction",
+      "parameters": {
+        "soqlQuery": {
+          "@type": "string",
+          "value": "SELECT Id, AssetId, OrderItemId, UsageResourceId, AccountId, EffectiveStartDateTime, EffectiveEndDateTime, ProductId, TransactionQuantity, EntitlementQuantity, UsageModelType, EntitlementUomId, EntitlementUomClassId FROM TransactionUsageEntitlement Where OrderItemId IN (SELECT Id FROM OrderItem WHERE OrderId = '{{sfOrder.Id}}') "
+        },
+        "outputResultsStateVariable": {
+          "@type": "statevariable",
+          "value": "sfTransactionUsageEntitlements"
+        },
+        "apiVersion": {
+          "@type": "string",
+          "value": "65.0"
+        },
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+        }
+      },
+      "exits": {
+        "NEXT": "be9b570c-1b05-4073-8151-4c136c5c5b7f"
+      }
+    },
+    {
+      "functionId": "be9b570c-1b05-4073-8151-4c136c5c5b7f",
+      "title": "Create m3Products drawdown",
+      "description": "",
+      "className": "CreateStateListFunction",
+      "parameters": {
+        "listName": {
+          "@type": "statevariable",
+          "value": "m3ProductDrawdownIds"
+        },
+        "listType": {
+          "@type": "string",
+          "value": "String"
+        }
+      },
+      "exits": {
+        "NEXT": "8a5c1836-893a-4af1-a3ac-483d3d351403"
+      }
+    },
+    {
+      "functionId": "8a5c1836-893a-4af1-a3ac-483d3d351403",
+      "title": "Create TUE no match list",
+      "description": "",
+      "className": "CreateStateListFunction",
+      "parameters": {
+        "listName": {
+          "@type": "statevariable",
+          "value": "sfTUEnoMatch"
+        },
+        "listType": {
+          "@type": "string",
+          "value": "Object"
+        }
+      },
+      "exits": {
+        "NEXT": "301037b2-934b-42ca-bcf9-326f800080ad"
+      }
+    },
+    {
+      "functionId": "301037b2-934b-42ca-bcf9-326f800080ad",
+      "title": "Loop Transaction Usage Entitlements",
+      "description": "",
+      "className": "LoopFunction",
+      "parameters": {
+        "sourceObjectPath": {
+          "@type": "statevariable",
+          "value": "sfTransactionUsageEntitlements"
+        },
+        "counterVariableName": {
+          "@type": "string",
+          "value": "accSfTransactionUsageEntitlements"
+        },
+        "elementVariableName": {
+          "@type": "string",
+          "value": "sfTransactionUsageEntitlement"
+        }
+      },
+      "exits": {
+        "NEXT": "0622f6b6-7027-4c6b-a5d4-e3983c2eec5c"
+      },
+      "initialFunction": "99479a43-7e11-434a-a924-e8f2ef0ecf5d",
+      "functions": [
+        {
+          "functionId": "99479a43-7e11-434a-a924-e8f2ef0ecf5d",
+          "title": "Read sf Asset",
+          "description": "",
+          "className": "ReadSalesforceObjectFunction",
+          "parameters": {
+            "resourceName": {
+              "@type": "string",
+              "value": "Asset"
+            },
+            "resourceIdStateVariable": {
+              "@type": "statevariable",
+              "value": "sfTransactionUsageEntitlement.AssetId"
+            },
+            "resourceOutputStateVariable": {
+              "@type": "statevariable",
+              "value": "sfAsset"
+            },
+            "apiVersion": {
+              "@type": "string",
+              "value": "65.0"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+            }
+          },
+          "exits": {
+            "NEXT": "24436304-bca4-41a9-a126-2d15b016183a"
+          }
+        },
+        {
+          "functionId": "24436304-bca4-41a9-a126-2d15b016183a",
+          "title": "Set matchingkey - sfTUEkey",
+          "description": "",
+          "className": "SetFieldFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "sfTUEkey"
+            },
+            "lookup": {
+              "@type": "lookup",
+              "value": "sfTransactionUsageEntitlement.ProductId + \"#\" + sfTransactionUsageEntitlement.UsageResourceId",
+              "lookupType": "CALCULATION"
+            }
+          },
+          "exits": {
+            "NEXT": "98c54b4c-beae-45eb-ae4d-a83ae5d03683"
+          }
+        },
+        {
+          "functionId": "98c54b4c-beae-45eb-ae4d-a83ae5d03683",
+          "title": "Lookup m3ter Product UUID",
+          "description": "",
+          "className": "ExternalMappingExistsForSystemFunction",
+          "parameters": {
+            "externalSystem": {
+              "@type": "string",
+              "value": "Salesforce"
+            },
+            "externalTable": {
+              "@type": "string",
+              "value": "Product#UsageResource"
+            },
+            "externalIdPath": {
+              "@type": "statevariable",
+              "value": "sfTUEkey"
+            },
+            "stateVariable": {
+              "@type": "statevariable",
+              "value": "m3ProductId"
+            }
+          },
+          "exits": {
+            "TRUE": "cd4c429a-0fc8-4f06-9ade-cdb3b1e2b2cf",
+            "FALSE": "7dc36754-94f5-4483-a8e6-fb61fa76001b"
+          }
+        },
+        {
+          "functionId": "cd4c429a-0fc8-4f06-9ade-cdb3b1e2b2cf",
+          "title": "Get m3Product",
+          "description": "",
+          "className": "GetM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Product"
+            },
+            "m3terEntityIdPath": {
+              "@type": "statevariable",
+              "value": "m3ProductId"
+            },
+            "responsePath": {
+              "@type": "statevariable",
+              "value": "m3Product"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {
+            "NEXT": "3a2fd4f3-d2e4-4b0d-8686-e4e4d449077f"
+          }
+        },
+        {
+          "functionId": "3a2fd4f3-d2e4-4b0d-8686-e4e4d449077f",
+          "title": "If m3Product is enabled for plan attachment",
+          "description": "",
+          "className": "CalculationFunction",
+          "parameters": {
+            "calculation": {
+              "@type": "calculation",
+              "value": "m3Product.customFields.planStatus != \"NOT\""
+            }
+          },
+          "exits": {
+            "TRUE": "ec863239-6a6b-4c8b-a417-2c9aafc36eec"
+          }
+        },
+        {
+          "functionId": "7dc36754-94f5-4483-a8e6-fb61fa76001b",
+          "title": "Add sfTransactionUsageEntitlement to  sfTUEnoMatch List",
+          "description": "",
+          "className": "AddToListFunction",
+          "parameters": {
+            "listName": {
+              "@type": "statevariable",
+              "value": "sfTUEnoMatch"
+            },
+            "path": {
+              "@type": "statevariable",
+              "value": "sfTransactionUsageEntitlement"
+            }
+          },
+          "exits": {}
+        },
+        {
+          "functionId": "ec863239-6a6b-4c8b-a417-2c9aafc36eec",
+          "title": "Run Account Plan creation",
+          "description": "",
+          "className": "RunWorkflowFunction",
+          "parameters": {
+            "integrationDestinationId": {
+              "@type": "m3terEntity",
+              "value": "030716b1-5399-4263-9356-d8c65129fe47"
+            }
+          },
+          "exits": {
+            "NEXT": "d50dbb78-731c-46c4-aa96-eea9e4d060cf"
+          }
+        },
+        {
+          "functionId": "d50dbb78-731c-46c4-aa96-eea9e4d060cf",
+          "title": "Add to m3ProductDrawdownIds",
+          "description": "",
+          "className": "AddToListFunction",
+          "parameters": {
+            "listName": {
+              "@type": "statevariable",
+              "value": "m3ProductDrawdownIds"
+            },
+            "path": {
+              "@type": "statevariable",
+              "value": "m3ProductId"
+            }
+          },
+          "exits": {}
+        }
+      ]
+    },
+    {
+      "functionId": "0622f6b6-7027-4c6b-a5d4-e3983c2eec5c",
+      "title": "Read UsgGrants",
+      "description": "",
+      "className": "SOQLSalesforceQueryFunction",
+      "parameters": {
+        "soqlQuery": {
+          "@type": "string",
+          "value": "SELECT Id, GrantQuantity, OrderItemId, GrantType, Name, ProductUsageGrantId, UsageResourceId FROM OrderItemUsageRsrcGrant Where OrderItemId IN (SELECT Id FROM OrderItem WHERE OrderId = '{{sfOrder.Id}}') AND GrantQuantity > 0"
+        },
+        "outputResultsStateVariable": {
+          "@type": "statevariable",
+          "value": "sfUsgResourceGrants"
+        },
+        "apiVersion": {
+          "@type": "string",
+          "value": "65.0"
+        },
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+        }
+      },
+      "exits": {
+        "NEXT": "e9be5e25-cb0d-40fb-8524-c45fcb876eab"
+      }
+    },
+    {
+      "functionId": "e9be5e25-cb0d-40fb-8524-c45fcb876eab",
+      "title": "Has Grants?",
+      "description": "",
+      "className": "HasResultsFunction",
+      "parameters": {
+        "sourceObjectPath": {
+          "@type": "statevariable",
+          "value": "sfUsgResourceGrants"
+        }
+      },
+      "exits": {
+        "TRUE": "efa7c3da-92a9-4d68-ba31-2c48cc1a5fc5"
+      }
+    },
+    {
+      "functionId": "efa7c3da-92a9-4d68-ba31-2c48cc1a5fc5",
+      "title": "Loop Grants",
+      "description": "",
+      "className": "LoopFunction",
+      "parameters": {
+        "sourceObjectPath": {
+          "@type": "statevariable",
+          "value": "sfUsgResourceGrants"
+        },
+        "counterVariableName": {
+          "@type": "string",
+          "value": "accUsgResourceGrants"
+        },
+        "elementVariableName": {
+          "@type": "string",
+          "value": "sfUsgResourceGrant"
+        }
+      },
+      "exits": {},
+      "initialFunction": "0793b6bd-34e4-4911-a0c1-43cdd16aacd7",
+      "functions": [
+        {
+          "functionId": "0793b6bd-34e4-4911-a0c1-43cdd16aacd7",
+          "title": "Query sfAssetGrant",
+          "description": "",
+          "className": "QuerySalesforceSingleObjectFunction",
+          "parameters": {
+            "soqlQuery": {
+              "@type": "string",
+              "value": "SELECT Id, Name, LifecycleStartDate, LifecycleEndDate, CurrencyIsoCode, ProductCode FROM Asset WHERE Id IN ( SELECT AssetId FROM TransactionUsageEntitlement  Where OrderItemId = '{{sfUsgResourceGrant.OrderItemId}}' )"
+            },
+            "stateVariable": {
+              "@type": "statevariable",
+              "value": "sfAssetGrant"
+            },
+            "apiVersion": {
+              "@type": "string",
+              "value": "65.0"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+            }
+          },
+          "exits": {
+            "NEXT": "192272a6-4487-4ad2-9593-71acd1e60c27"
+          }
+        },
+        {
+          "functionId": "192272a6-4487-4ad2-9593-71acd1e60c27",
+          "title": "Read ProductUsageGrant",
+          "description": "",
+          "className": "ReadSalesforceObjectFunction",
+          "parameters": {
+            "resourceName": {
+              "@type": "string",
+              "value": "ProductUsageGrant"
+            },
+            "resourceIdStateVariable": {
+              "@type": "statevariable",
+              "value": "sfUsgResourceGrant.ProductUsageGrantId"
+            },
+            "resourceOutputStateVariable": {
+              "@type": "statevariable",
+              "value": "sfProductUsageGrant"
+            },
+            "apiVersion": {
+              "@type": "string",
+              "value": "65.0"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+            }
+          },
+          "exits": {
+            "NEXT": "e40b3432-3582-456f-82e7-cc59bb86add7"
+          }
+        },
+        {
+          "functionId": "e40b3432-3582-456f-82e7-cc59bb86add7",
+          "title": "Lookup pre-existing Balance",
+          "description": "",
+          "className": "ExternalMappingExistsForSystemFunction",
+          "parameters": {
+            "externalSystem": {
+              "@type": "string",
+              "value": "Salesforce"
+            },
+            "externalTable": {
+              "@type": "string",
+              "value": "ProductUsageGrant"
+            },
+            "externalIdPath": {
+              "@type": "statevariable",
+              "value": "sfProductUsageGrant.Id"
+            },
+            "stateVariable": {
+              "@type": "statevariable",
+              "value": "m3BalanceIdGrant"
+            }
+          },
+          "exits": {
+            "FALSE": "5df05d0f-dd33-496d-9afd-49e53bbc2108"
+          }
+        },
+        {
+          "functionId": "5df05d0f-dd33-496d-9afd-49e53bbc2108",
+          "title": "If UsageModelType == \"Anchor\"",
+          "description": "",
+          "className": "CalculationFunction",
+          "parameters": {
+            "calculation": {
+              "@type": "calculation",
+              "value": "sfProductUsageGrant.UsageModelType == \"Anchor\" AND sfProductUsageGrant.Type == \"Grant\""
+            }
+          },
+          "exits": {
+            "FALSE": "fa103032-bd52-4728-a137-d12fb170541a",
+            "TRUE": "0d6c10ad-ec33-4644-b5a0-df6376d897eb"
+          }
+        },
+        {
+          "functionId": "fa103032-bd52-4728-a137-d12fb170541a",
+          "title": "If UsageModelType == \"Commit\"",
+          "description": "",
+          "className": "CalculationFunction",
+          "parameters": {
+            "calculation": {
+              "@type": "calculation",
+              "value": "sfProductUsageGrant.UsageModelType == \"Commit\" AND sfProductUsageGrant.Type == \"Commit\""
+            }
+          },
+          "exits": {
+            "TRUE": "549c0873-adec-4a04-9457-067cf08ffdd0",
+            "FALSE": "42168f92-8db3-4493-9967-39e470f922d1"
+          }
+        },
+        {
+          "functionId": "42168f92-8db3-4493-9967-39e470f922d1",
+          "title": "If UsageModelType == \"CommitmentSpend\"",
+          "description": "",
+          "className": "CalculationFunction",
+          "parameters": {
+            "calculation": {
+              "@type": "calculation",
+              "value": "sfProductUsageGrant.UsageModelType == \"CommitmentSpend\" AND sfProductUsageGrant.Type == \"Commit\""
+            }
+          },
+          "exits": {
+            "TRUE": "c78ce378-3cb8-4c38-adad-dd117ed35618",
+            "FALSE": "6832ac16-ba22-4ce9-acb6-5dd62f956253"
+          }
+        },
+        {
+          "functionId": "6832ac16-ba22-4ce9-acb6-5dd62f956253",
+          "title": "If UsageModelType == \"CommitmentQuantity\"",
+          "description": "",
+          "className": "CalculationFunction",
+          "parameters": {
+            "calculation": {
+              "@type": "calculation",
+              "value": "sfProductUsageGrant.UsageModelType == \"CommitmentQuantity\" AND sfProductUsageGrant.Type == \"Commit\""
+            }
+          },
+          "exits": {
+            "TRUE": "fb56cd56-5dec-4052-a62d-b85e266f40fe"
+          }
+        },
+        {
+          "functionId": "fb56cd56-5dec-4052-a62d-b85e266f40fe",
+          "title": "Query TransactionQuantity",
+          "description": "",
+          "className": "QuerySalesforceSingleObjectFunction",
+          "parameters": {
+            "soqlQuery": {
+              "@type": "string",
+              "value": "SELECT TransactionQuantity FROM TransactionUsageEntitlement WHERE AssetId = '{{sfAssetGrant.Id}}' AND OrderItemId='{{sfUsgResourceGrant.OrderItemId}}' AND UsageResourceId='{{sfProductUsageGrant.UsageRsrcId}}'"
+            },
+            "stateVariable": {
+              "@type": "statevariable",
+              "value": "sfTransactionQtt"
+            },
+            "apiVersion": {
+              "@type": "string",
+              "value": "65.0"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+            }
+          },
+          "exits": {
+            "NEXT": "7c1bac32-f5d8-4a25-acaf-8b2da09bda34"
+          }
+        },
+        {
+          "functionId": "7c1bac32-f5d8-4a25-acaf-8b2da09bda34",
+          "title": "Set ProductId#UsageRsrcId",
+          "description": "",
+          "className": "SetFieldFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "sfProductKey"
+            },
+            "lookup": {
+              "@type": "lookup",
+              "value": "sfProductUsageGrant.ProductId + \"#\" + sfProductUsageGrant.UsageRsrcId",
+              "lookupType": "CALCULATION"
+            }
+          },
+          "exits": {
+            "NEXT": "d93981fe-9fc6-41f0-8a00-b0db938ca08d"
+          }
+        },
+        {
+          "functionId": "d93981fe-9fc6-41f0-8a00-b0db938ca08d",
+          "title": "Lookup m3 ProductId",
+          "description": "",
+          "className": "ExternalMappingExistsForSystemFunction",
+          "parameters": {
+            "externalSystem": {
+              "@type": "string",
+              "value": "Salesforce"
+            },
+            "externalTable": {
+              "@type": "string",
+              "value": "CommitmentProduct#UsageResource"
+            },
+            "externalIdPath": {
+              "@type": "statevariable",
+              "value": "sfProductKey"
+            },
+            "stateVariable": {
+              "@type": "statevariable",
+              "value": "m3ProductBalanceId"
+            }
+          },
+          "exits": {
+            "TRUE": "b31fdcf9-5dcb-4062-89ac-0f58075025b5"
+          }
+        },
+        {
+          "functionId": "b31fdcf9-5dcb-4062-89ac-0f58075025b5",
+          "title": "Get m3ter Product for this Balance",
+          "description": "",
+          "className": "GetM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Product"
+            },
+            "m3terEntityIdPath": {
+              "@type": "statevariable",
+              "value": "m3ProductBalanceId"
+            },
+            "responsePath": {
+              "@type": "statevariable",
+              "value": "m3ProductBalance"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {
+            "NEXT": "493df1ad-a99d-4224-bd85-2d2ecd8b5bad"
+          }
+        },
+        {
+          "functionId": "493df1ad-a99d-4224-bd85-2d2ecd8b5bad",
+          "title": "Create oneProductList - m3SingleProductList",
+          "description": "",
+          "className": "CreateStateListFunction",
+          "parameters": {
+            "listName": {
+              "@type": "statevariable",
+              "value": "m3SingleProductList"
+            },
+            "listType": {
+              "@type": "string",
+              "value": "String"
+            }
+          },
+          "exits": {
+            "NEXT": "3c764e4c-8e2b-42df-a11b-60260246eb97"
+          }
+        },
+        {
+          "functionId": "3c764e4c-8e2b-42df-a11b-60260246eb97",
+          "title": "Add to m3SingleProductList",
+          "description": "",
+          "className": "AddToListFunction",
+          "parameters": {
+            "listName": {
+              "@type": "statevariable",
+              "value": "m3SingleProductList"
+            },
+            "path": {
+              "@type": "statevariable",
+              "value": "m3ProductBalanceId"
+            }
+          },
+          "exits": {
+            "NEXT": "9d0a1aeb-f0c5-45b6-8e79-c277e0b7a1ac"
+          }
+        },
+        {
+          "functionId": "9d0a1aeb-f0c5-45b6-8e79-c277e0b7a1ac",
+          "title": "Set Balance fields - CommitmentQuantity",
+          "description": "",
+          "className": "SetMultiFieldsFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "m3Balance"
+            },
+            "lookups": {
+              "@type": "keyvaluelookup",
+              "value": {
+                "accountId": {
+                  "@type": "lookup",
+                  "value": "m3AccountId",
+                  "lookupType": "STATE_PATH"
+                },
+                "lineItemTypes": {
+                  "@type": "lookup",
+                  "value": "m3LineItemTypes",
+                  "lookupType": "STATE_PATH"
+                },
+                "productIds": {
+                  "@type": "lookup",
+                  "value": "m3SingleProductList",
+                  "lookupType": "STATE_PATH"
+                },
+                "currency": {
+                  "@type": "lookup",
+                  "value": "sfAssetGrant.CurrencyIsoCode",
+                  "lookupType": "STATE_PATH"
+                },
+                "startDate": {
+                  "@type": "lookup",
+                  "value": "sfAssetGrant.LifecycleStartDate",
+                  "lookupType": "STATE_PATH"
+                },
+                "code": {
+                  "@type": "lookup",
+                  "value": "sfProductUsageGrant.Id + \"--\"",
+                  "lookupType": "CALCULATION"
+                },
+                "endDate": {
+                  "@type": "lookup",
+                  "value": "DateTime.dateAdd( DateTime.eoMonth(  String.left( sfAssetGrant.LifecycleStartDate, 22) + \"Z\", 0), 1, \"DAYS\")\n",
+                  "lookupType": "CALCULATION"
+                },
+                "name": {
+                  "@type": "lookup",
+                  "value": "m3Account.name + \" Quantity \" + m3ProductBalance.customFields.balanceCurrencyCode + \" to USD (\" + DateTime.dateFormat( String.left( sfAssetGrant.LifecycleStartDate, 22) + \"Z\" , \"MMMM\") + \")\"",
+                  "lookupType": "CALCULATION"
+                }
+              }
+            }
+          },
+          "exits": {
+            "NEXT": "dd5bd544-5a7a-45fd-bd71-75f3e636af6d"
+          }
+        },
+        {
+          "functionId": "dd5bd544-5a7a-45fd-bd71-75f3e636af6d",
+          "title": "Run Hack endDate",
+          "description": "",
+          "className": "RunWorkflowFunction",
+          "parameters": {
+            "integrationDestinationId": {
+              "@type": "m3terEntity",
+              "value": "1ef403a1-8211-4b48-a58c-d5f3ac45d414"
+            }
+          },
+          "exits": {
+            "NEXT": "8f91375d-281f-499f-a291-49faffd2f98e"
+          }
+        },
+        {
+          "functionId": "8f91375d-281f-499f-a291-49faffd2f98e",
+          "title": "Create CommitmentQuantity Balance",
+          "description": "",
+          "className": "CreateM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Balance"
+            },
+            "payloadPath": {
+              "@type": "statevariable",
+              "value": "m3Balance"
+            },
+            "responsePath": {
+              "@type": "statevariable",
+              "value": "m3BalanceResponse"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {
+            "NEXT": "8a7bd992-4301-4228-8493-71bb02021ed9"
+          }
+        },
+        {
+          "functionId": "8a7bd992-4301-4228-8493-71bb02021ed9",
+          "title": "Create m3ter Balance external mapping",
+          "description": "",
+          "className": "CreateExternalMappingFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Balance"
+            },
+            "m3terIdPath": {
+              "@type": "statevariable",
+              "value": "m3BalanceResponse.id"
+            },
+            "externalSystem": {
+              "@type": "string",
+              "value": "Salesforce"
+            },
+            "externalTable": {
+              "@type": "string",
+              "value": "ProductUsageGrant"
+            },
+            "externalIdPath": {
+              "@type": "statevariable",
+              "value": "sfProductUsageGrant.Id"
+            },
+            "duplicateRunForEntity": {
+              "@type": "boolean",
+              "value": false
+            }
+          },
+          "exits": {
+            "NEXT": "1f0e397a-28c7-4370-addc-40cff81dcb22"
+          }
+        },
+        {
+          "functionId": "1f0e397a-28c7-4370-addc-40cff81dcb22",
+          "title": "Set BalanceTx Fields",
+          "description": "",
+          "className": "SetMultiFieldsFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "m3BalanceTransaction"
+            },
+            "lookups": {
+              "@type": "keyvaluelookup",
+              "value": {
+                "amount": {
+                  "@type": "lookup",
+                  "value": " Number( String( sfTransactionQtt.TransactionQuantity) )  *  Number( String(sfUsgResourceGrant.GrantQuantity ) )",
+                  "lookupType": "CALCULATION"
+                },
+                "description": {
+                  "@type": "lookup",
+                  "value": "\"Initial \" + m3ProductBalance.customFields.balanceCurrencyCode +  \" Quantity Commitment Purchase\"",
+                  "lookupType": "CALCULATION"
+                },
+                "transactionTypeId": {
+                  "@type": "lookup",
+                  "value": "m3TTCommit",
+                  "lookupType": "STATE_PATH"
+                }
+              }
+            }
+          },
+          "exits": {
+            "NEXT": "1842a480-d181-4a5c-8170-31da2b6c08e7"
+          }
+        },
+        {
+          "functionId": "1842a480-d181-4a5c-8170-31da2b6c08e7",
+          "title": "Create CommitmentSpend Balance Tx",
+          "description": "",
+          "className": "CreateM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Balance__BalanceTransaction"
+            },
+            "payloadPath": {
+              "@type": "statevariable",
+              "value": "m3BalanceTransaction"
+            },
+            "responsePath": {
+              "@type": "statevariable",
+              "value": "m3BalanceTransactionResponse"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable",
+              "value": "m3BalanceResponse.id"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {
+            "NEXT": "3903193d-4eec-4d35-b188-93860cfbdc74"
+          }
+        },
+        {
+          "functionId": "3903193d-4eec-4d35-b188-93860cfbdc74",
+          "title": "Remove Grant",
+          "description": "",
+          "className": "RunWorkflowFunction",
+          "parameters": {
+            "integrationDestinationId": {
+              "@type": "m3terEntity",
+              "value": "36173a1d-10c9-4493-8700-7010e8d99ee4"
+            }
+          },
+          "exits": {}
+        },
+        {
+          "functionId": "c78ce378-3cb8-4c38-adad-dd117ed35618",
+          "title": "Read UsageResource - CommitmentSpend",
+          "description": "",
+          "className": "ReadSalesforceObjectFunction",
+          "parameters": {
+            "resourceName": {
+              "@type": "string",
+              "value": "UsageResource"
+            },
+            "resourceIdStateVariable": {
+              "@type": "statevariable",
+              "value": "sfProductUsageGrant.UsageRsrcId"
+            },
+            "resourceOutputStateVariable": {
+              "@type": "statevariable",
+              "value": "sfUsageResourceCommit"
+            },
+            "apiVersion": {
+              "@type": "string",
+              "value": "65.0"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+            }
+          },
+          "exits": {
+            "NEXT": "7b89a81a-0ed5-4daf-8365-2079751baa36"
+          }
+        },
+        {
+          "functionId": "7b89a81a-0ed5-4daf-8365-2079751baa36",
+          "title": "If usageResource contains USD",
+          "description": "",
+          "className": "CalculationFunction",
+          "parameters": {
+            "calculation": {
+              "@type": "calculation",
+              "value": "String.contains(sfUsageResourceCommit.Code, \"USD\")"
+            }
+          },
+          "exits": {
+            "TRUE": "2970b0b1-c219-42e6-8e0a-c5d470d6c7be"
+          }
+        },
+        {
+          "functionId": "2970b0b1-c219-42e6-8e0a-c5d470d6c7be",
+          "title": "Set Balance fields - CommitmentSpend",
+          "description": "",
+          "className": "SetMultiFieldsFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "m3Balance"
+            },
+            "lookups": {
+              "@type": "keyvaluelookup",
+              "value": {
+                "accountId": {
+                  "@type": "lookup",
+                  "value": "m3AccountId",
+                  "lookupType": "STATE_PATH"
+                },
+                "lineItemTypes": {
+                  "@type": "lookup",
+                  "value": "m3LineItemTypes",
+                  "lookupType": "STATE_PATH"
+                },
+                "currency": {
+                  "@type": "lookup",
+                  "value": "USD",
+                  "lookupType": "STATIC"
+                },
+                "startDate": {
+                  "@type": "lookup",
+                  "value": "sfAssetGrant.LifecycleStartDate",
+                  "lookupType": "STATE_PATH"
+                },
+                "code": {
+                  "@type": "lookup",
+                  "value": "sfProductUsageGrant.Id + \"--\"",
+                  "lookupType": "CALCULATION"
+                },
+                "endDate": {
+                  "@type": "lookup",
+                  "value": "DateTime.dateAdd( DateTime.eoMonth(  String.left( sfAssetGrant.LifecycleStartDate, 22) + \"Z\", 0), 1, \"DAYS\")",
+                  "lookupType": "CALCULATION"
+                },
+                "name": {
+                  "@type": "lookup",
+                  "value": "m3Account.name + \" USD CommitmentSpend (\" + DateTime.dateFormat( String.left( sfAssetGrant.LifecycleStartDate, 22) + \"Z\" , \"MMMM\") + \")\"",
+                  "lookupType": "CALCULATION"
+                }
+              }
+            }
+          },
+          "exits": {
+            "NEXT": "5c376541-79d1-4605-a34a-679a55b28367"
+          }
+        },
+        {
+          "functionId": "5c376541-79d1-4605-a34a-679a55b28367",
+          "title": "Run Hack endDate",
+          "description": "",
+          "className": "RunWorkflowFunction",
+          "parameters": {
+            "integrationDestinationId": {
+              "@type": "m3terEntity",
+              "value": "1ef403a1-8211-4b48-a58c-d5f3ac45d414"
+            }
+          },
+          "exits": {
+            "NEXT": "276214b2-4204-46a8-95f6-3d580e5d135b"
+          }
+        },
+        {
+          "functionId": "276214b2-4204-46a8-95f6-3d580e5d135b",
+          "title": "Create CommitmentSpend Balance",
+          "description": "",
+          "className": "CreateM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Balance"
+            },
+            "payloadPath": {
+              "@type": "statevariable",
+              "value": "m3Balance"
+            },
+            "responsePath": {
+              "@type": "statevariable",
+              "value": "m3BalanceResponse"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {
+            "NEXT": "43355b49-dfdb-4d21-81d8-20b0ce00d15b"
+          }
+        },
+        {
+          "functionId": "43355b49-dfdb-4d21-81d8-20b0ce00d15b",
+          "title": "Create m3ter Balance external mapping",
+          "description": "",
+          "className": "CreateExternalMappingFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Balance"
+            },
+            "m3terIdPath": {
+              "@type": "statevariable",
+              "value": "m3BalanceResponse.id"
+            },
+            "externalSystem": {
+              "@type": "string",
+              "value": "Salesforce"
+            },
+            "externalTable": {
+              "@type": "string",
+              "value": "ProductUsageGrant"
+            },
+            "externalIdPath": {
+              "@type": "statevariable",
+              "value": "sfProductUsageGrant.Id"
+            },
+            "duplicateRunForEntity": {
+              "@type": "boolean",
+              "value": false
+            }
+          },
+          "exits": {
+            "NEXT": "1a51eb0c-6c47-460e-b794-334b9e612d3e"
+          }
+        },
+        {
+          "functionId": "1a51eb0c-6c47-460e-b794-334b9e612d3e",
+          "title": "Set BalanceTx Fields",
+          "description": "",
+          "className": "SetMultiFieldsFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "m3BalanceTransaction"
+            },
+            "lookups": {
+              "@type": "keyvaluelookup",
+              "value": {
+                "amount": {
+                  "@type": "lookup",
+                  "value": "sfUsgResourceGrant.GrantQuantity",
+                  "lookupType": "STATE_PATH"
+                },
+                "description": {
+                  "@type": "lookup",
+                  "value": "Initial Token Commitment Purchase",
+                  "lookupType": "STATIC"
+                },
+                "transactionTypeId": {
+                  "@type": "lookup",
+                  "value": "m3TTCommit",
+                  "lookupType": "STATE_PATH"
+                }
+              }
+            }
+          },
+          "exits": {
+            "NEXT": "2f1321fc-b4cf-4f2f-9141-4ff1cbe9c1fb"
+          }
+        },
+        {
+          "functionId": "2f1321fc-b4cf-4f2f-9141-4ff1cbe9c1fb",
+          "title": "Create CommitmentSpend Balance Tx",
+          "description": "",
+          "className": "CreateM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Balance__BalanceTransaction"
+            },
+            "payloadPath": {
+              "@type": "statevariable",
+              "value": "m3BalanceTransaction"
+            },
+            "responsePath": {
+              "@type": "statevariable",
+              "value": "m3BalanceTransactionResponse"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable",
+              "value": "m3BalanceResponse.id"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {
+            "NEXT": "c5274c6c-3f32-4062-9e96-ec7bffbb0645"
+          }
+        },
+        {
+          "functionId": "c5274c6c-3f32-4062-9e96-ec7bffbb0645",
+          "title": "Set nrClones - SpendCommitment",
+          "description": "",
+          "className": "SetFieldFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "nrClones"
+            },
+            "lookup": {
+              "@type": "lookup",
+              "value": "DateTime.dateDiff(String.left(sfAssetGrant.LifecycleStartDate, 22)  + \"Z\", String.left(sfAssetGrant.LifecycleEndDate, 22)  + \"Z\", \"MONTHS\") ",
+              "lookupType": "CALCULATION"
+            }
+          },
+          "exits": {
+            "NEXT": "3189b6f1-09fa-40b7-876e-ca6fb90e6768"
+          }
+        },
+        {
+          "functionId": "549c0873-adec-4a04-9457-067cf08ffdd0",
+          "title": "Read UsageResource - Commit",
+          "description": "",
+          "className": "ReadSalesforceObjectFunction",
+          "parameters": {
+            "resourceName": {
+              "@type": "string",
+              "value": "UsageResource"
+            },
+            "resourceIdStateVariable": {
+              "@type": "statevariable",
+              "value": "sfProductUsageGrant.UsageRsrcId"
+            },
+            "resourceOutputStateVariable": {
+              "@type": "statevariable",
+              "value": "sfUsageResourceCommit"
+            },
+            "apiVersion": {
+              "@type": "string",
+              "value": "65.0"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+            }
+          },
+          "exits": {
+            "NEXT": "250712ec-f4e6-4b2a-83d0-1b7cc572e17f"
+          }
+        },
+        {
+          "functionId": "250712ec-f4e6-4b2a-83d0-1b7cc572e17f",
+          "title": "If usageResource.Code == \"ACME_TKN\"",
+          "description": "",
+          "className": "CalculationFunction",
+          "parameters": {
+            "calculation": {
+              "@type": "calculation",
+              "value": "sfUsageResourceCommit.Code == \"ACME_TKN\""
+            }
+          },
+          "exits": {
+            "TRUE": "b74e4483-730b-4ab0-96ea-23552dfcf2f4"
+          }
+        },
+        {
+          "functionId": "b74e4483-730b-4ab0-96ea-23552dfcf2f4",
+          "title": "Set Balance fields - Commit",
+          "description": "",
+          "className": "SetMultiFieldsFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "m3Balance"
+            },
+            "lookups": {
+              "@type": "keyvaluelookup",
+              "value": {
+                "accountId": {
+                  "@type": "lookup",
+                  "value": "m3AccountId",
+                  "lookupType": "STATE_PATH"
+                },
+                "lineItemTypes": {
+                  "@type": "lookup",
+                  "value": "m3LineItemTypes",
+                  "lookupType": "STATE_PATH"
+                },
+                "currency": {
+                  "@type": "lookup",
+                  "value": "TOK",
+                  "lookupType": "STATIC"
+                },
+                "startDate": {
+                  "@type": "lookup",
+                  "value": "DateTime.dateSub(DateTime.dateAdd( DateTime.eoMonth(  String.left( sfAssetGrant.LifecycleStartDate, 22) + \"Z\", 0), 1, \"DAYS\"), 1, \"MONTHS\")",
+                  "lookupType": "CALCULATION"
+                },
+                "code": {
+                  "@type": "lookup",
+                  "value": "sfProductUsageGrant.Id + \"--\"",
+                  "lookupType": "CALCULATION"
+                },
+                "endDate": {
+                  "@type": "lookup",
+                  "value": "DateTime.dateAdd( DateTime.eoMonth(  String.left( sfAssetGrant.LifecycleStartDate, 22) + \"Z\", 0), 1, \"DAYS\")",
+                  "lookupType": "CALCULATION"
+                },
+                "name": {
+                  "@type": "lookup",
+                  "value": "m3Account.name + \" TOK Commit (\" + DateTime.dateFormat( String.left( sfAssetGrant.LifecycleStartDate, 22) + \"Z\" , \"MMMM\") + \")\"",
+                  "lookupType": "CALCULATION"
+                }
+              }
+            }
+          },
+          "exits": {
+            "NEXT": "66ea37b1-742d-4627-8ca2-b2405b05cac4"
+          }
+        },
+        {
+          "functionId": "66ea37b1-742d-4627-8ca2-b2405b05cac4",
+          "title": "Run Hack endDate",
+          "description": "",
+          "className": "RunWorkflowFunction",
+          "parameters": {
+            "integrationDestinationId": {
+              "@type": "m3terEntity",
+              "value": "1ef403a1-8211-4b48-a58c-d5f3ac45d414"
+            }
+          },
+          "exits": {
+            "NEXT": "f9899444-2dbd-4cbc-bbce-268d117cb7b0"
+          }
+        },
+        {
+          "functionId": "f9899444-2dbd-4cbc-bbce-268d117cb7b0",
+          "title": "Create Commit Balance",
+          "description": "",
+          "className": "CreateM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Balance"
+            },
+            "payloadPath": {
+              "@type": "statevariable",
+              "value": "m3Balance"
+            },
+            "responsePath": {
+              "@type": "statevariable",
+              "value": "m3BalanceResponse"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {
+            "NEXT": "8e898abe-c002-4f84-9701-e1888c7204ec"
+          }
+        },
+        {
+          "functionId": "8e898abe-c002-4f84-9701-e1888c7204ec",
+          "title": "Create m3ter Balance external mapping",
+          "description": "",
+          "className": "CreateExternalMappingFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Balance"
+            },
+            "m3terIdPath": {
+              "@type": "statevariable",
+              "value": "m3BalanceResponse.id"
+            },
+            "externalSystem": {
+              "@type": "string",
+              "value": "Salesforce"
+            },
+            "externalTable": {
+              "@type": "string",
+              "value": "ProductUsageGrant"
+            },
+            "externalIdPath": {
+              "@type": "statevariable",
+              "value": "sfProductUsageGrant.Id"
+            },
+            "duplicateRunForEntity": {
+              "@type": "boolean",
+              "value": false
+            }
+          },
+          "exits": {
+            "NEXT": "7e9ebdb0-64e7-4af5-ae49-6c35edd993ab"
+          }
+        },
+        {
+          "functionId": "7e9ebdb0-64e7-4af5-ae49-6c35edd993ab",
+          "title": "Set BalanceTx Fields",
+          "description": "",
+          "className": "SetMultiFieldsFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "m3BalanceTransaction"
+            },
+            "lookups": {
+              "@type": "keyvaluelookup",
+              "value": {
+                "amount": {
+                  "@type": "lookup",
+                  "value": "sfProductUsageGrant.Quantity",
+                  "lookupType": "STATE_PATH"
+                },
+                "description": {
+                  "@type": "lookup",
+                  "value": "Initial Token Commitment Purchase",
+                  "lookupType": "STATIC"
+                },
+                "transactionTypeId": {
+                  "@type": "lookup",
+                  "value": "m3TTCommit",
+                  "lookupType": "STATE_PATH"
+                }
+              }
+            }
+          },
+          "exits": {
+            "NEXT": "eeeb4bdd-2cd2-4702-88b2-dca420d047e7"
+          }
+        },
+        {
+          "functionId": "eeeb4bdd-2cd2-4702-88b2-dca420d047e7",
+          "title": "Create Commit Balance Tx",
+          "description": "",
+          "className": "CreateM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Balance__BalanceTransaction"
+            },
+            "payloadPath": {
+              "@type": "statevariable",
+              "value": "m3BalanceTransaction"
+            },
+            "responsePath": {
+              "@type": "statevariable",
+              "value": "m3BalanceTransactionResponse"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable",
+              "value": "m3BalanceResponse.id"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {
+            "NEXT": "c7b18d17-94e4-4d1c-957b-27e98a405c50"
+          }
+        },
+        {
+          "functionId": "c7b18d17-94e4-4d1c-957b-27e98a405c50",
+          "title": "Set nrClones",
+          "description": "",
+          "className": "SetFieldFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "nrClones"
+            },
+            "lookup": {
+              "@type": "lookup",
+              "value": " 12 - Number( DateTime.dateStringFormat(String.left(m3Balance.startDate, 10), \"YYYY-MM-DD\", \"MM\") ) ",
+              "lookupType": "CALCULATION"
+            }
+          },
+          "exits": {
+            "NEXT": "3189b6f1-09fa-40b7-876e-ca6fb90e6768"
+          }
+        },
+        {
+          "functionId": "3189b6f1-09fa-40b7-876e-ca6fb90e6768",
+          "title": "Run Balance Cloner",
+          "description": "",
+          "className": "RunWorkflowFunction",
+          "parameters": {
+            "integrationDestinationId": {
+              "@type": "m3terEntity",
+              "value": "9f6c3548-b456-4a3e-ad66-5af8dde52341"
+            }
+          },
+          "exits": {}
+        },
+        {
+          "functionId": "0d6c10ad-ec33-4644-b5a0-df6376d897eb",
+          "title": "Set ProductId#UsageRsrcId",
+          "description": "",
+          "className": "SetFieldFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "sfProductKey"
+            },
+            "lookup": {
+              "@type": "lookup",
+              "value": "sfProductUsageGrant.ProductId + \"#\" + sfProductUsageGrant.UsageRsrcId",
+              "lookupType": "CALCULATION"
+            }
+          },
+          "exits": {
+            "NEXT": "f9ec40c5-60f4-4091-af9b-bd14e2f3ca4a"
+          }
+        },
+        {
+          "functionId": "f9ec40c5-60f4-4091-af9b-bd14e2f3ca4a",
+          "title": "Lookup m3 ProductId",
+          "description": "",
+          "className": "ExternalMappingExistsForSystemFunction",
+          "parameters": {
+            "externalSystem": {
+              "@type": "string",
+              "value": "Salesforce"
+            },
+            "externalTable": {
+              "@type": "string",
+              "value": "Product#UsageResource"
+            },
+            "externalIdPath": {
+              "@type": "statevariable",
+              "value": "sfProductKey"
+            },
+            "stateVariable": {
+              "@type": "statevariable",
+              "value": "m3ProductBalanceId"
+            }
+          },
+          "exits": {
+            "TRUE": "98504cfd-e071-4faa-9705-e5d4d4bacb70"
+          }
+        },
+        {
+          "functionId": "98504cfd-e071-4faa-9705-e5d4d4bacb70",
+          "title": "Get m3ter Product for this Balance",
+          "description": "",
+          "className": "GetM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Product"
+            },
+            "m3terEntityIdPath": {
+              "@type": "statevariable",
+              "value": "m3ProductBalanceId"
+            },
+            "responsePath": {
+              "@type": "statevariable",
+              "value": "m3ProductBalance"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {
+            "NEXT": "9afbf4ea-a6b6-4092-b72e-691cbf01de7b"
+          }
+        },
+        {
+          "functionId": "9afbf4ea-a6b6-4092-b72e-691cbf01de7b",
+          "title": "Create oneProductList - m3SingleProductList",
+          "description": "",
+          "className": "CreateStateListFunction",
+          "parameters": {
+            "listName": {
+              "@type": "statevariable",
+              "value": "m3SingleProductList"
+            },
+            "listType": {
+              "@type": "string",
+              "value": "String"
+            }
+          },
+          "exits": {
+            "NEXT": "07eb1cb1-7735-4bfa-b69d-18dcdb70632e"
+          }
+        },
+        {
+          "functionId": "07eb1cb1-7735-4bfa-b69d-18dcdb70632e",
+          "title": "Set productId1",
+          "description": "",
+          "className": "SetFieldFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "prod1"
+            },
+            "lookup": {
+              "@type": "lookup",
+              "value": "8afbbe85-095f-459b-8aa1-5cc1a98f66e3",
+              "lookupType": "STATIC"
+            }
+          },
+          "exits": {
+            "NEXT": "befa32dc-4708-4c9b-9a91-9fa1763ebf76"
+          }
+        },
+        {
+          "functionId": "befa32dc-4708-4c9b-9a91-9fa1763ebf76",
+          "title": "Add to m3SingleProductList",
+          "description": "",
+          "className": "AddToListFunction",
+          "parameters": {
+            "listName": {
+              "@type": "statevariable",
+              "value": "m3SingleProductList"
+            },
+            "path": {
+              "@type": "statevariable",
+              "value": "prod1"
+            }
+          },
+          "exits": {
+            "NEXT": "4c9b93ef-6efb-42ac-823f-bce6840fd3f8"
+          }
+        },
+        {
+          "functionId": "4c9b93ef-6efb-42ac-823f-bce6840fd3f8",
+          "title": "Set productId2",
+          "description": "",
+          "className": "SetFieldFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "prod2"
+            },
+            "lookup": {
+              "@type": "lookup",
+              "value": "2ee7eaf1-0770-48db-ab34-931cb9ac1e18",
+              "lookupType": "STATIC"
+            }
+          },
+          "exits": {
+            "NEXT": "9439f61c-5042-451d-abee-0222db6c149a"
+          }
+        },
+        {
+          "functionId": "9439f61c-5042-451d-abee-0222db6c149a",
+          "title": "Add to m3SingleProductList",
+          "description": "",
+          "className": "AddToListFunction",
+          "parameters": {
+            "listName": {
+              "@type": "statevariable",
+              "value": "m3SingleProductList"
+            },
+            "path": {
+              "@type": "statevariable",
+              "value": "prod2"
+            }
+          },
+          "exits": {
+            "NEXT": "e26eb59f-5c60-4362-a38c-13699a0aacdd"
+          }
+        },
+        {
+          "functionId": "e26eb59f-5c60-4362-a38c-13699a0aacdd",
+          "title": "Set Balance fields - Grant",
+          "description": "",
+          "className": "SetMultiFieldsFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "m3Balance"
+            },
+            "lookups": {
+              "@type": "keyvaluelookup",
+              "value": {
+                "accountId": {
+                  "@type": "lookup",
+                  "value": "m3AccountId",
+                  "lookupType": "STATE_PATH"
+                },
+                "lineItemTypes": {
+                  "@type": "lookup",
+                  "value": "m3LineItemTypes",
+                  "lookupType": "STATE_PATH"
+                },
+                "productIds": {
+                  "@type": "lookup",
+                  "value": "m3SingleProductList",
+                  "lookupType": "STATE_PATH"
+                },
+                "currency": {
+                  "@type": "lookup",
+                  "value": "m3ProductBalance.customFields.balanceCurrencyCode",
+                  "lookupType": "STATE_PATH"
+                },
+                "startDate": {
+                  "@type": "lookup",
+                  "value": "sfAssetGrant.LifecycleStartDate",
+                  "lookupType": "STATE_PATH"
+                },
+                "code": {
+                  "@type": "lookup",
+                  "value": "sfProductUsageGrant.Id + \"--\"",
+                  "lookupType": "CALCULATION"
+                },
+                "endDate": {
+                  "@type": "lookup",
+                  "value": "DateTime.dateAdd( DateTime.eoMonth(  String.left( sfAssetGrant.LifecycleStartDate, 22) + \"Z\", 0), 1, \"DAYS\")\n",
+                  "lookupType": "CALCULATION"
+                },
+                "name": {
+                  "@type": "lookup",
+                  "value": "m3Account.name + \" \" + m3ProductBalance.customFields.balanceCurrencyCode + \" Grant (\" + DateTime.dateFormat( String.left( sfAssetGrant.LifecycleStartDate, 22) + \"Z\" , \"MMMM\") + \")\"",
+                  "lookupType": "CALCULATION"
+                }
+              }
+            }
+          },
+          "exits": {
+            "NEXT": "d1bc10f6-4f51-4503-b8ee-5ffc3f368dcb"
+          }
+        },
+        {
+          "functionId": "d1bc10f6-4f51-4503-b8ee-5ffc3f368dcb",
+          "title": "Run Hack endDate",
+          "description": "",
+          "className": "RunWorkflowFunction",
+          "parameters": {
+            "integrationDestinationId": {
+              "@type": "m3terEntity",
+              "value": "1ef403a1-8211-4b48-a58c-d5f3ac45d414"
+            }
+          },
+          "exits": {
+            "NEXT": "96e9994a-4747-49b4-a656-46723a1db1c5"
+          }
+        },
+        {
+          "functionId": "96e9994a-4747-49b4-a656-46723a1db1c5",
+          "title": "Create Grant Balance",
+          "description": "",
+          "className": "CreateM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Balance"
+            },
+            "payloadPath": {
+              "@type": "statevariable",
+              "value": "m3Balance"
+            },
+            "responsePath": {
+              "@type": "statevariable",
+              "value": "m3BalanceResponse"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {
+            "NEXT": "f143632c-72e9-49b6-8c03-9f713d11e264"
+          }
+        },
+        {
+          "functionId": "f143632c-72e9-49b6-8c03-9f713d11e264",
+          "title": "Create m3ter Balance external mapping",
+          "description": "",
+          "className": "CreateExternalMappingFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Balance"
+            },
+            "m3terIdPath": {
+              "@type": "statevariable",
+              "value": "m3BalanceResponse.id"
+            },
+            "externalSystem": {
+              "@type": "string",
+              "value": "Salesforce"
+            },
+            "externalTable": {
+              "@type": "string",
+              "value": "ProductUsageGrant"
+            },
+            "externalIdPath": {
+              "@type": "statevariable",
+              "value": "sfProductUsageGrant.Id"
+            },
+            "duplicateRunForEntity": {
+              "@type": "boolean",
+              "value": false
+            }
+          },
+          "exits": {
+            "NEXT": "719987cb-17b5-4f23-9d48-cb3e60634acf"
+          }
+        },
+        {
+          "functionId": "719987cb-17b5-4f23-9d48-cb3e60634acf",
+          "title": "Set BalanceTx Fields",
+          "description": "",
+          "className": "SetMultiFieldsFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "m3BalanceTransaction"
+            },
+            "lookups": {
+              "@type": "keyvaluelookup",
+              "value": {
+                "amount": {
+                  "@type": "lookup",
+                  "value": "sfProductUsageGrant.Quantity",
+                  "lookupType": "STATE_PATH"
+                },
+                "description": {
+                  "@type": "lookup",
+                  "value": "Initial Grant Commitment Purchase",
+                  "lookupType": "STATIC"
+                },
+                "transactionTypeId": {
+                  "@type": "lookup",
+                  "value": "m3TTGrant",
+                  "lookupType": "STATE_PATH"
+                }
+              }
+            }
+          },
+          "exits": {
+            "NEXT": "a3fc2f3e-b6f3-4485-a3f6-b90b0080c4e8"
+          }
+        },
+        {
+          "functionId": "a3fc2f3e-b6f3-4485-a3f6-b90b0080c4e8",
+          "title": "Create Grant Balance Tx",
+          "description": "",
+          "className": "CreateM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Balance__BalanceTransaction"
+            },
+            "payloadPath": {
+              "@type": "statevariable",
+              "value": "m3BalanceTransaction"
+            },
+            "responsePath": {
+              "@type": "statevariable",
+              "value": "m3BalanceTransactionResponse"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable",
+              "value": "m3BalanceResponse.id"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {
+            "NEXT": "8255b1d6-c137-4f66-a1c2-ac52f3b75495"
+          }
+        },
+        {
+          "functionId": "8255b1d6-c137-4f66-a1c2-ac52f3b75495",
+          "title": "Set nrClones",
+          "description": "",
+          "className": "SetFieldFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "nrClones"
+            },
+            "lookup": {
+              "@type": "lookup",
+              "value": "DateTime.dateDiff(String.left(sfAssetGrant.LifecycleStartDate, 22) + \"Z\", String.left(sfAssetGrant.LifecycleEndDate, 22) + \"Z\", \"MONTHS\" )",
+              "lookupType": "CALCULATION"
+            }
+          },
+          "exits": {
+            "NEXT": "55a44a09-68ec-48ee-9ea7-7c28649043f0"
+          }
+        },
+        {
+          "functionId": "55a44a09-68ec-48ee-9ea7-7c28649043f0",
+          "title": "Run Balance Cloner",
+          "description": "",
+          "className": "RunWorkflowFunction",
+          "parameters": {
+            "integrationDestinationId": {
+              "@type": "m3terEntity",
+              "value": "9f6c3548-b456-4a3e-ad66-5af8dde52341"
+            }
+          },
+          "exits": {}
+        }
+      ]
+    }
+  ],
+  "globalParameters": [],
+  "trigger": {
+    "enabled": true,
+    "firstFunction": "2f200b5a-d481-490d-9f88-cb0c5f4888f4",
+    "eventTypes": []
+  },
+  "credentials": [
+    {
+      "credentialsId": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30",
+      "destinationType": "M3TER",
+      "type": "M3TER_SERVICE_USER"
+    },
+    {
+      "credentialsId": "e089ad7e-8d96-4fb4-b527-4176dd055f81",
+      "destinationType": "SALESFORCE",
+      "type": "OAUTH_CLIENT_CREDENTIALS"
+    }
+  ]
+}

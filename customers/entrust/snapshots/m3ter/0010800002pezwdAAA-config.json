@@ -1,0 +1,2129 @@
+{
+    "Products": [
+        {
+            "name": "Product Bundles",
+            "code": "product_bundles"
+        },
+        {
+            "name": "Verification Check",
+            "code": "verification_check"
+        }
+    ],
+    "Meters": [
+        {
+            "name": "Mastercard Identity",
+            "code": "mastercard_identity_account_opening_row",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Watchlist - AML",
+            "code": "watchlist_report_aml",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Facial Similarity Check - Selfie Hybrid",
+            "code": "facial_similarity_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "OCR Autofill",
+            "code": "autofill",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check - Driver Verification",
+            "code": "document_report_driver_verification",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Ongoing Monitoring for Watchlist AML Top Up",
+            "code": "ongoing_monitoring_aml_top_up",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "blocks",
+                    "name": "Blocks",
+                    "unit": "blocks"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Mastercard Identity",
+            "code": "mastercard_identity_account_opening_amer",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check Video",
+            "code": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP",
+            "dataFields": [
+                {
+                    "category": "METADATA",
+                    "code": "workflow_id",
+                    "name": "workflow_id"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "sf_opportunity_id"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "is_retry",
+                    "name": "is_retry"
+                },
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "check_count",
+                    "unit": "check"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Device Intelligence - Standard",
+            "code": "applicant_fraud_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "ID Record",
+            "code": "identity_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check - Boost",
+            "code": "document_report_standard_hybrid",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Mastercard Identity",
+            "code": "mastercard_identity_account_opening_emea",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Watchlist - Standard (Full)",
+            "code": "watchlist_report_full",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check Video - Boost - ETSI Certified IDV",
+            "code": "document_report_video_ETSI_Certified_IDV",
+            "dataFields": [
+                {
+                    "category": "METADATA",
+                    "code": "workflow_id",
+                    "name": "workflow_id"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "sf_opportunity_id"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "is_retry",
+                    "name": "is_retry"
+                },
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "check_count",
+                    "unit": "check"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Right to Work (UK Only)",
+            "code": "right_to_work_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Repeat Attempts",
+            "code": "repeat_attempts_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check Video - Boost",
+            "code": "document_report_video",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "AAMVA Check",
+            "code": "us_driving_licence_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Facial Similarity Check - Selfie Auto",
+            "code": "facial_similarity_report_photo_fully_auto",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Proof of Address",
+            "code": "proof_of_address_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Motion PLG",
+            "code": "facial_similarity_report_motion",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "eID, Italy - SPID Full",
+            "code": "eid_spid_full",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check - Flash",
+            "code": "document_report_standard_auto",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "eID, Italy - SPID Basic",
+            "code": "eid_spid_basic",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Signhost",
+            "code": "advanced_electronic_signature",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check - Sherlock",
+            "code": "document_report_standard_manual",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Facial Similarity Check Upgrade - Known Faces",
+            "code": "known_faces_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "eID, UK eVisa Verification",
+            "code": "uk_evisa_verification",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Authentication: Motion",
+            "code": "motion_authentication",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Facial Similarity Check - Video",
+            "code": "facial_similarity_report_video",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "SSN Check",
+            "code": "ssn_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Watchlist - Enhanced (KYC)",
+            "code": "watchlist_report_kyc",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "India Tax ID",
+            "code": "india_pan_report_standard",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "METADATA",
+                    "code": "sf_opportunity_id",
+                    "name": "SF Opportunity ID"
+                }
+            ],
+            "derivedFields": []
+        }
+    ],
+    "Aggregations": [
+        {
+            "name": "eID, Italy - SPID Full",
+            "code": "eid_spid_full_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "accountingProductId": "0f451167-8385-4f65-a1e8-5b22163badc7",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "defaultValue": 0,
+            "meterCode": "eid_spid_full"
+        },
+        {
+            "name": "Repeat Attempts",
+            "code": "repeat_attempts_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "c689b07f-8767-4687-9920-206aca76bad3",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "repeat_attempts_report_standard"
+        },
+        {
+            "name": "Signhost",
+            "code": "advanced_electronic_signature_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "accountingProductId": "8a024d67-b2c1-4d42-8247-b677cbe81c9a",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "meterCode": "advanced_electronic_signature"
+        },
+        {
+            "name": "SSN Check",
+            "code": "ssn_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "d6bd76f3-f74d-497f-a1d7-653ae8c2091c",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "ssn_report_standard"
+        },
+        {
+            "name": "Proof of Address",
+            "code": "proof_of_address_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "fb8cda0d-93b9-456e-afdc-1a5971e5e7d8",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "proof_of_address_report_standard"
+        },
+        {
+            "name": "Facial Similarity Check Upgrade - Known Faces",
+            "code": "known_faces_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "d76d5aee-8794-475d-b4b8-fd8f7cedcae4",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "known_faces_report_standard"
+        },
+        {
+            "name": "eID, Italy - SPID Basic",
+            "code": "eid_spid_basic_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "accountingProductId": "c5061ada-e8bd-492b-96a6-9dc990bf8082",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "defaultValue": 0,
+            "meterCode": "eid_spid_basic"
+        },
+        {
+            "name": "OCR Autofill",
+            "code": "autofill_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "807bfa40-2165-41e4-9206-d5a825254957",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "autofill"
+        },
+        {
+            "name": "Document Check Video - Boost",
+            "code": "document_report_video_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "79c9707a-f461-4c6d-a577-5a347e08f409",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "document_report_video"
+        },
+        {
+            "name": "Watchlist - Enhanced (KYC)",
+            "code": "watchlist_report_kyc_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "cd90afdd-2a40-4578-adb9-1c00012f2a85",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "watchlist_report_kyc"
+        },
+        {
+            "name": "Ongoing Monitoring for Watchlist AML Top Up",
+            "code": "ongoing_monitoring_aml_top_up_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "blocks",
+            "accountingProductId": "3604d70c-8a39-4b28-8309-ebd44f51d65d",
+            "targetField": "blocks",
+            "aggregation": "SUM",
+            "meterCode": "ongoing_monitoring_aml_top_up"
+        },
+        {
+            "name": "Document Check - Flash",
+            "code": "document_report_standard_auto_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "2788cbd0-a512-435c-88eb-744576733e50",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "document_report_standard_auto"
+        },
+        {
+            "name": "Watchlist - Standard (Full)",
+            "code": "watchlist_report_full_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "5b0bc1ef-5b72-44bd-b421-397be77e3c8c",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "watchlist_report_full"
+        },
+        {
+            "name": "India Tax ID",
+            "code": "india_pan_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "ac92ff3c-cf1f-432c-9ad3-28e70be7e6db",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "india_pan_report_standard"
+        },
+        {
+            "name": "Facial Similarity Check - Video",
+            "code": "facial_similarity_report_video_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "e46cda73-35c8-4cef-9633-7622d37ccc0f",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "facial_similarity_report_video"
+        },
+        {
+            "name": "Mastercard Identity",
+            "code": "mastercard_identity_account_opening_amer_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "accountingProductId": "e6bfe153-b73f-4300-9890-4a6f9720985b",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "meterCode": "mastercard_identity_account_opening_amer"
+        },
+        {
+            "name": "eID, UK eVisa Verification",
+            "code": "uk_evisa_verification_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "checks",
+            "accountingProductId": "9d7c74cd-d643-4acb-86a6-8f943c192e2d",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "defaultValue": 0,
+            "meterCode": "uk_evisa_verification"
+        },
+        {
+            "name": "Watchlist - AML",
+            "code": "watchlist_report_aml_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "5fb95ea5-49b5-444f-9941-c13f04dd2ec0",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "watchlist_report_aml"
+        },
+        {
+            "name": "Document Check - Driver Verification",
+            "code": "document_report_driver_verification_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "checks",
+            "accountingProductId": "312b1ac0-4fd7-4a96-8025-54a364a3e8f7",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "meterCode": "document_report_driver_verification"
+        },
+        {
+            "name": "Mastercard Identity",
+            "code": "mastercard_identity_account_opening_row_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "accountingProductId": "df616f27-c134-4df4-b4a5-4fff56090385",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "meterCode": "mastercard_identity_account_opening_row"
+        },
+        {
+            "name": "Document Check - Boost",
+            "code": "document_report_standard_hybrid_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "488d3e80-1a4a-4239-b129-267e225bab49",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "document_report_standard_hybrid"
+        },
+        {
+            "name": "Right to Work (UK Only)",
+            "code": "right_to_work_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "4ffdf876-b82d-4c55-8981-04c692e62fe6",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "right_to_work_report_standard"
+        },
+        {
+            "name": "Motion PLG",
+            "code": "facial_similarity_report_motion_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "4378a01a-d2e9-45b5-9e78-9b78750b45ba",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "facial_similarity_report_motion"
+        },
+        {
+            "name": "Document Check Video - Boost - ETSI Certified IDV",
+            "code": "document_report_video_ETSI_Certified_IDV_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [
+                {
+                    "is_retry": "false"
+                },
+                {
+                    "is_retry": "true"
+                }
+            ],
+            "accountingProductId": "97fff0cc-0eab-45e4-bb2b-b6d23c978d8f",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [
+                "is_retry"
+            ],
+            "meterCode": "document_report_video_ETSI_Certified_IDV"
+        },
+        {
+            "name": "Facial Similarity Check - Selfie Hybrid",
+            "code": "facial_similarity_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "78ad3fea-3b1a-41f9-bdb2-ea721b48188d",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "facial_similarity_report_standard"
+        },
+        {
+            "name": "Authentication: Motion",
+            "code": "motion_authentication",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "accountingProductId": "b08766ae-d19c-403f-a7f7-7f8708e261fb",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "defaultValue": 0,
+            "meterCode": "motion_authentication"
+        },
+        {
+            "name": "Document Check - Sherlock",
+            "code": "document_report_standard_manual_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "2a1358d3-ad49-48e2-adb1-6eec8817f9bb",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "document_report_standard_manual"
+        },
+        {
+            "name": "Document Check Video",
+            "code": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [
+                {
+                    "is_retry": "false"
+                },
+                {
+                    "is_retry": "true"
+                }
+            ],
+            "accountingProductId": "17fc0695-3278-4433-81ed-51d282eb4abd",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [
+                "is_retry"
+            ],
+            "meterCode": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP"
+        },
+        {
+            "name": "Mastercard Identity",
+            "code": "mastercard_identity_account_opening_emea_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "sum",
+            "accountingProductId": "73cde75d-488c-44ea-a96c-028070f66171",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "meterCode": "mastercard_identity_account_opening_emea"
+        },
+        {
+            "name": "ID Record",
+            "code": "identity_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "9d177ee4-9db4-4273-a98e-711ff2545d74",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "identity_report_standard"
+        },
+        {
+            "name": "AAMVA Check",
+            "code": "us_driving_licence_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "44e24a74-d791-4b12-88df-fba80d6c7688",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "us_driving_licence_report_standard"
+        },
+        {
+            "name": "Device Intelligence - Standard",
+            "code": "applicant_fraud_report_standard_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "49356a9d-d6e9-4d9d-ab5f-9bb9e5c766be",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "applicant_fraud_report_standard"
+        },
+        {
+            "name": "Facial Similarity Check - Selfie Auto",
+            "code": "facial_similarity_report_photo_fully_auto_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [],
+            "accountingProductId": "6a3c25c1-3161-46cb-ad50-17b00e291e25",
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [],
+            "defaultValue": 0,
+            "meterCode": "facial_similarity_report_photo_fully_auto"
+        }
+    ],
+    "CompoundAggregations": [
+        {
+            "customFields": {
+                "netsuite_id": "1880",
+                "cpq_sku_id": "CPQ_ID_1012",
+                "product_2": "facial_similarity_report_standard_count",
+                "product_1": "document_report_standard_hybrid_count"
+            },
+            "name": "Document Check - Boost PLG & Facial Similarity Check - Selfie Hybrid",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "checks",
+            "code": "AE",
+            "segments": [],
+            "accountingProductId": "54cb8304-b38e-46df-ab36-7235fb91be6e",
+            "calculation": "Math.max(aggregation.document_report_standard_hybrid_count, aggregation.facial_similarity_report_standard_count)",
+            "evaluateNullAggregations": false
+        }
+    ],
+    "PlanTemplates": [
+        {
+            "name": "Product Bundles (USD)",
+            "currency": "USD",
+            "standingCharge": 0.0,
+            "standingChargeDescription": "",
+            "standingChargeInterval": 1,
+            "standingChargeOffset": 0,
+            "billFrequencyInterval": 1,
+            "billFrequency": "DAILY",
+            "ordinal": 1,
+            "code": "product_bundles_usd",
+            "minimumSpendDescription": "",
+            "productCode": "product_bundles"
+        },
+        {
+            "name": "Rate Card D USD Default Pricing",
+            "currency": "USD",
+            "standingCharge": 0.0,
+            "standingChargeInterval": 1,
+            "standingChargeOffset": 0,
+            "billFrequencyInterval": 1,
+            "billFrequency": "MONTHLY",
+            "ordinal": 1,
+            "code": "rate_card_d_usd_default_pricing",
+            "productCode": "verification_check"
+        }
+    ],
+    "Plans": [
+        {
+            "name": "Product Bundle Plan 006So00000XJj3HIAT",
+            "code": "product_bundle_plan_006So00000XJj3HIAT",
+            "customFields": {
+                "opportunityId": "006So00000XJj3HIAT"
+            },
+            "productId": "3da57859-2ef4-49ae-a42a-13133669cfe1",
+            "bespoke": true,
+            "accountId": "cfaab317-daaf-4fa8-90f3-a0ed8cb3ec78",
+            "planTemplateCode": "product_bundles_usd"
+        },
+        {
+            "name": "Verification Check Plan: The State of Delaware - Auto-Renewal - August 2025",
+            "code": "checks_006So00000R0Pi3IAF",
+            "customFields": {
+                "opportunityId": "006So00000R0Pi3IAF",
+                "contractStartDate": "2025-09-14",
+                "superseededOppId": "006So00000B8WnZIAV",
+                "subsidiaryId": "9"
+            },
+            "productId": "58674a95-82ea-4194-b6fb-86269309bad9",
+            "bespoke": true,
+            "accountId": "cfaab317-daaf-4fa8-90f3-a0ed8cb3ec78",
+            "planTemplateCode": "rate_card_d_usd_default_pricing"
+        },
+        {
+            "name": "Product Bundle Plan 006So00000R0Pi3IAF",
+            "code": "product_bundle_plan_006So00000R0Pi3IAF",
+            "customFields": {
+                "opportunityId": "006So00000R0Pi3IAF"
+            },
+            "productId": "3da57859-2ef4-49ae-a42a-13133669cfe1",
+            "bespoke": true,
+            "accountId": "cfaab317-daaf-4fa8-90f3-a0ed8cb3ec78",
+            "planTemplateCode": "product_bundles_usd"
+        },
+        {
+            "name": "Verification Check Plan: The State of Delaware - Amendment - adding motion",
+            "code": "checks_006So00000XJj3HIAT",
+            "customFields": {
+                "opportunityId": "006So00000XJj3HIAT",
+                "contractStartDate": "2025-12-29",
+                "subsidiaryId": "9"
+            },
+            "productId": "58674a95-82ea-4194-b6fb-86269309bad9",
+            "bespoke": true,
+            "accountId": "cfaab317-daaf-4fa8-90f3-a0ed8cb3ec78",
+            "planTemplateCode": "rate_card_d_usd_default_pricing"
+        }
+    ],
+    "Pricings": [
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "f3efa762-1f2b-4c4f-8d6a-d9e7edc34ea2",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.42
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "watchlist_report_full_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "983b9ae8-6b8e-4cba-bc20-dd57cadfedfe",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.59
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "uk_evisa_verification_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "1daf539e-0d35-4ec1-9b8b-8608f5832783",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.78
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "document_report_standard_manual_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "6cf93a69-2201-4270-a10b-3ece5f480264",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 4.03
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "true"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:true",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "a42cd3c1-9430-48b7-afdd-0bce4d6dcbe0",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "checks_006So00000XJj3HIAT",
+            "aggregationCode": "document_report_standard_hybrid_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "7670d63c-ab88-4531-8617-61e566e365b8",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.72
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "false"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:false",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "0eb6618c-7ef5-4042-9c93-92fb7f5cd23b",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 5.97
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "eid_spid_basic_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "a736536d-e97c-41b1-b573-d77e7bb354a2",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.3
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "mastercard_identity_account_opening_row_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "c42a41f2-8e1e-4701-bf37-6fd7d902a0ba",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.95
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "facial_similarity_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "26e583e0-dd86-46d9-9361-0281c5b22c09",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.77
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "facial_similarity_report_photo_fully_auto_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "7f850350-7052-477a-addb-501d967950a2",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.54
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "COMPOUND",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "product_bundle_plan_006So00000XJj3HIAT",
+            "compoundAggregationCode": "AE"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "142d7360-0b82-44d6-b6b8-fff547e5e957",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.33
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "advanced_electronic_signature_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "1a8ab99d-e110-43d6-8829-278ab68a930f",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "ssn_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "cb942bd8-f639-4cf8-b159-7f348ea0812c",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.36
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "facial_similarity_report_video_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "552125e2-9d8e-407b-beed-5d3f339ec305",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 3.72
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "true"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:true",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "95795a6b-7a70-4000-bd0d-cb9657a0e7f9",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.49
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "watchlist_report_aml_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "accountingProductId": "002139a3-a530-40a4-a58c-1f0330317ade",
+            "pricingBands": [
+                {
+                    "id": "423cb0c7-00c0-4c86-aa3a-5a68f2a60799",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.77
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "checks_006So00000XJj3HIAT",
+            "aggregationCode": "facial_similarity_report_motion_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "8fd998d3-37af-4657-9638-2e4cd49eb934",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 6.53
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "right_to_work_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "47a4044b-a2c8-47b9-bf68-acecbebc9c14",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "checks_006So00000R0Pi3IAF",
+            "aggregationCode": "facial_similarity_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "9980543d-6036-4425-9d91-e8ae3d623521",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.59
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "document_report_driver_verification_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "33494b80-46a7-4e60-8b4b-0a13ccc37577",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.3
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "mastercard_identity_account_opening_amer_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "c76ee09d-4c77-4932-904c-bf5e090c8337",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 4.03
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "is_retry": "false"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "is_retry:false",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "document_report_video_ETSI_Certified_IDV_with_QES_and_OTP_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "e18019ec-cbb8-46fb-ae85-d241e22b43c1",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.3
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "mastercard_identity_account_opening_emea_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "226deccd-a8d1-478d-8d68-ba8af6f0e806",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.25
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "india_pan_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "bab39ef5-fdcb-4eb9-90b6-038e4bc32e99",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 10.29
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "eid_spid_full_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "36eba441-0fa9-40e5-95ac-603874fc11dc",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.54
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "document_report_standard_auto_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "bbe7546c-3219-4479-96db-a73ccfcd1242",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "checks_006So00000R0Pi3IAF",
+            "aggregationCode": "document_report_standard_hybrid_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "acfdc557-d07d-4fec-8a66-9363ceee9ace",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.05
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "document_report_video_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "97c0029e-2484-40b7-b6bc-07f00a00cb4a",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.98
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "us_driving_licence_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "af7cbb3c-7eee-494f-8e07-644980ac3571",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "known_faces_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "2e8c6602-2ea3-433f-a573-dcebced7b4f8",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.21
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "facial_similarity_report_motion_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "624d7ad9-1b83-49e5-bbb0-3be3457d97d9",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "ongoing_monitoring_aml_top_up_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "048df414-dc53-4e9c-9e48-3d7e64e85c18",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "repeat_attempts_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "92b2e3c5-7f1e-4bb5-b379-7b5dc88e2bae",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "checks_006So00000XJj3HIAT",
+            "aggregationCode": "facial_similarity_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "822566e8-8791-4ee3-8119-8d2dbb1f40cb",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.38
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "identity_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "34b30bbd-10f1-409d-b0dd-43a91e94c742",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.54
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "COMPOUND",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "product_bundle_plan_006So00000R0Pi3IAF",
+            "compoundAggregationCode": "AE"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "7c62d3fb-7918-468f-bac0-845ec7266bb0",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "applicant_fraud_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "3aeed06b-9ad2-4ff8-b30b-935b707b1439",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.49
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "watchlist_report_kyc_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "a86e62f3-c1ef-4198-b28e-7b0eb22b5f6d",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.4
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "motion_authentication"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "91f25de7-494e-45c3-9855-7ac18bda465e",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "autofill_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "5e223038-d503-4320-be1d-555cd123af35",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.36
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "proof_of_address_report_standard_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "1900-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "55b999f3-cd5d-491e-9601-94a7366aa2fe",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.59
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "rate_card_d_usd_default_pricing",
+            "aggregationCode": "document_report_standard_hybrid_count"
+        }
+    ],
+    "Accounts": [
+        {
+            "name": "State of Delaware",
+            "code": "0010800002pezwdAAA",
+            "emailAddress": "solomon.adote@delaware.gov",
+            "customFields": {
+                "subVertical": "13",
+                "addressee": "0030800002C3iLgAAJ",
+                "phone": "(302) 739-9631",
+                "terms": "7",
+                "a2Code": "US",
+                "taxCountry": "United States",
+                "attention": "0030800002C3iLgAAJ",
+                "vertical": "4",
+                "defaultTaxReg": "0",
+                "subsidiary": "9",
+                "marketSegment": "Enterprise"
+            },
+            "address": {
+                "addressLine1": "801 Silver Lake Blvd",
+                "addressLine2": "Dover",
+                "locality": "Null",
+                "region": "Delaware",
+                "postCode": "19904",
+                "country": "2"
+            },
+            "currency": "USD"
+        }
+    ],
+    "AccountPlans": [
+        {
+            "startDate": "2025-12-29T00:00:00.000Z",
+            "contractId": "edcf6d9e-11bf-4853-b261-01bc19e41aeb",
+            "childBillingMode": "PARENT_BREAKDOWN",
+            "planCode": "product_bundle_plan_006So00000XJj3HIAT",
+            "accountCode": "0010800002pezwdAAA"
+        },
+        {
+            "startDate": "2025-09-14T00:00:00.000Z",
+            "endDate": "2025-12-29T00:00:00.000Z",
+            "contractId": "edcf6d9e-11bf-4853-b261-01bc19e41aeb",
+            "childBillingMode": "PARENT_BREAKDOWN",
+            "planCode": "checks_006So00000R0Pi3IAF",
+            "accountCode": "0010800002pezwdAAA"
+        },
+        {
+            "startDate": "2025-12-29T00:00:00.000Z",
+            "contractId": "edcf6d9e-11bf-4853-b261-01bc19e41aeb",
+            "childBillingMode": "PARENT_BREAKDOWN",
+            "planCode": "checks_006So00000XJj3HIAT",
+            "accountCode": "0010800002pezwdAAA"
+        },
+        {
+            "startDate": "2025-09-14T00:00:00.000Z",
+            "endDate": "2025-12-29T00:00:00.000Z",
+            "contractId": "edcf6d9e-11bf-4853-b261-01bc19e41aeb",
+            "childBillingMode": "PARENT_BREAKDOWN",
+            "planCode": "product_bundle_plan_006So00000R0Pi3IAF",
+            "accountCode": "0010800002pezwdAAA"
+        }
+    ]
+}

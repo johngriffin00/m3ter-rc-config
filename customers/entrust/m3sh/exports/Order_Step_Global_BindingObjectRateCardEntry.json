@@ -1,0 +1,160 @@
+{
+  "name": "Order Step: Global BindingObjectRateCardEntry",
+  "code": "order_step_global_bindingobjectratecardentry",
+  "description": "Assumes m3Account",
+  "originalOrgId": "9a3a717e-40a0-4b92-9163-70db1110f21c",
+  "version": 3,
+  "versionDescription": "Assumes m3Account",
+  "functions": [
+    {
+      "functionId": "73b1ee20-c424-4f4e-ad7b-78b3f233442a",
+      "title": "Global RateCards",
+      "description": "",
+      "className": "SOQLSalesforceQueryFunction",
+      "parameters": {
+        "soqlQuery": {
+          "@type": "string",
+          "value": "SELECT Id, BindingObjectId, UsageResourceId, RateCardEntryId, NegotiatedRate, UsageResource.Name FROM BindingObjectRateCardEntry WHERE BindingObjectId = '{{body.m3AccountId}}'  AND NegotiatedRate != null"
+        },
+        "outputResultsStateVariable": {
+          "@type": "statevariable",
+          "value": "sfGRateCards"
+        },
+        "apiVersion": {
+          "@type": "string",
+          "value": "65.0"
+        },
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+        }
+      },
+      "exits": {
+        "NEXT": "c1811137-3a1b-4053-82ab-4a89e474ba90"
+      }
+    },
+    {
+      "functionId": "c1811137-3a1b-4053-82ab-4a89e474ba90",
+      "title": "Loop sfGRateCards",
+      "description": "",
+      "className": "LoopFunction",
+      "parameters": {
+        "sourceObjectPath": {
+          "@type": "statevariable",
+          "value": "sfGRateCards"
+        },
+        "counterVariableName": {
+          "@type": "string",
+          "value": "accGRC"
+        },
+        "elementVariableName": {
+          "@type": "string",
+          "value": "sfGRateCard"
+        }
+      },
+      "exits": {
+        "NEXT": "4a765ebf-fad5-4f0d-ac89-f21081d8954d"
+      },
+      "initialFunction": "b824d043-8e88-4885-a85e-410495659acc",
+      "functions": [
+        {
+          "functionId": "b824d043-8e88-4885-a85e-410495659acc",
+          "title": "If",
+          "description": "",
+          "className": "CalculationFunction",
+          "parameters": {
+            "calculation": {
+              "@type": "calculation",
+              "value": "usageResourceIndex.{{sfGRateCard.UsageResourceId}} == null"
+            }
+          },
+          "exits": {
+            "TRUE": "9374283f-4db5-48b6-a589-0603fd251c57",
+            "FALSE": "9378433b-de6b-40f9-8d66-ff537bcb8551"
+          }
+        },
+        {
+          "functionId": "9374283f-4db5-48b6-a589-0603fd251c57",
+          "title": "Create List",
+          "description": "",
+          "className": "CreateStateListFunction",
+          "parameters": {
+            "listName": {
+              "@type": "statevariable",
+              "value": "usageResourceIndex.{{sfGRateCard.UsageResourceId}}"
+            },
+            "listType": {
+              "@type": "string",
+              "value": "Object"
+            }
+          },
+          "exits": {
+            "NEXT": "9378433b-de6b-40f9-8d66-ff537bcb8551"
+          }
+        },
+        {
+          "functionId": "9378433b-de6b-40f9-8d66-ff537bcb8551",
+          "title": "Add to List",
+          "description": "",
+          "className": "AddToListFunction",
+          "parameters": {
+            "listName": {
+              "@type": "statevariable",
+              "value": "usageResourceIndex.{{sfGRateCard.UsageResourceId}}"
+            },
+            "path": {
+              "@type": "statevariable",
+              "value": "sfGRateCard"
+            }
+          },
+          "exits": {}
+        }
+      ]
+    },
+    {
+      "functionId": "4a765ebf-fad5-4f0d-ac89-f21081d8954d",
+      "title": "Create m3ter Entity",
+      "description": "",
+      "className": "CreateM3terEntityFunction",
+      "parameters": {
+        "m3terEntity": {
+          "@type": "string",
+          "value": "Account"
+        },
+        "payloadPath": {
+          "@type": "statevariable",
+          "value": "usageResourceIndex"
+        },
+        "responsePath": {
+          "@type": "statevariable"
+        },
+        "parentM3terEntityIdPath": {
+          "@type": "statevariable"
+        },
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+        }
+      },
+      "exits": {}
+    }
+  ],
+  "globalParameters": [],
+  "trigger": {
+    "enabled": true,
+    "firstFunction": "73b1ee20-c424-4f4e-ad7b-78b3f233442a",
+    "eventTypes": []
+  },
+  "credentials": [
+    {
+      "credentialsId": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30",
+      "destinationType": "M3TER",
+      "type": "M3TER_SERVICE_USER"
+    },
+    {
+      "credentialsId": "e089ad7e-8d96-4fb4-b527-4176dd055f81",
+      "destinationType": "SALESFORCE",
+      "type": "OAUTH_CLIENT_CREDENTIALS"
+    }
+  ]
+}

@@ -1,0 +1,475 @@
+{
+    "Products": [
+        {
+            "name": "Verification Check",
+            "code": "verification_check"
+        }
+    ],
+    "Meters": [
+        {
+            "name": "Document Check - Flash",
+            "code": "document_report_standard_auto",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check - Sherlock",
+            "code": "document_report_standard_manual",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check - Boost",
+            "code": "document_report_standard_hybrid",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        }
+    ],
+    "Aggregations": [
+        {
+            "name": "Document Check - Flash",
+            "code": "document_report_standard_auto_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [
+                {
+                    "country": "USA"
+                },
+                {}
+            ],
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [
+                "country"
+            ],
+            "defaultValue": 0,
+            "meterCode": "document_report_standard_auto"
+        },
+        {
+            "name": "Document Check - Sherlock",
+            "code": "document_report_standard_manual_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [
+                {
+                    "country": "USA"
+                },
+                {}
+            ],
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [
+                "country"
+            ],
+            "defaultValue": 0,
+            "meterCode": "document_report_standard_manual"
+        },
+        {
+            "name": "Document Check - Boost",
+            "code": "document_report_standard_hybrid_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segments": [
+                {
+                    "country": "USA"
+                },
+                {}
+            ],
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "segmentedFields": [
+                "country"
+            ],
+            "defaultValue": 0,
+            "meterCode": "document_report_standard_hybrid"
+        }
+    ],
+    "CompoundAggregations": [],
+    "PlanTemplates": [
+        {
+            "name": "USD Default Pricing",
+            "currency": "USD",
+            "standingCharge": 0.0,
+            "standingChargeInterval": 1,
+            "standingChargeOffset": 0,
+            "billFrequencyInterval": 1,
+            "billFrequency": "MONTHLY",
+            "ordinal": 1,
+            "code": "usd_default_pricing",
+            "productCode": "verification_check"
+        }
+    ],
+    "Plans": [
+        {
+            "name": "Document Check Plan 00000102 (Acme)",
+            "code": "vc_doc_check_00000102",
+            "customFields": {
+                "sfQuoteId": "0Q0Ws00000AJxufKAD",
+                "sfProductCode": "VC-DOC-CHECK",
+                "sfOrderNumber": "00000102",
+                "sfOrderId": "801Ws000067lLWcIAM",
+                "sfOrderItemId": "802Ws00000TbEjHIAV"
+            },
+            "productId": "7ff30f91-a25c-40d4-81ff-39bc40863386",
+            "standingCharge": 1000.0,
+            "standingChargeDescription": "Document Check commitment, order 00000102",
+            "bespoke": true,
+            "accountId": "20e17661-7e9f-4222-8ae9-1fae6b5294fa",
+            "planTemplateCode": "usd_default_pricing"
+        }
+    ],
+    "Pricings": [
+        {
+            "cumulative": true,
+            "startDate": "2026-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "4e636189-9e46-45bf-83ea-eeca3e159a5b",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.01
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "country": "USA"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "country:USA",
+            "overagePricingBands": [],
+            "planTemplateCode": "usd_default_pricing",
+            "aggregationCode": "document_report_standard_manual_count"
+        },
+        {
+            "cumulative": false,
+            "startDate": "2026-10-14T00:00:00.000Z",
+            "code": "pricing_1B0Ws000000SydzKAC",
+            "description": "Document Check - Boost - ANY negotiated rate, order 00000102",
+            "pricingBands": [
+                {
+                    "id": "e9fd0c4b-49a2-42ef-b1b5-47c26d915ff7",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.5
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {},
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "vc_doc_check_00000102",
+            "aggregationCode": "document_report_standard_hybrid_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2026-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "f56d1451-9033-4876-801a-7d5ee544fd64",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.2
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {},
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "usd_default_pricing",
+            "aggregationCode": "document_report_standard_hybrid_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2026-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "e5bcfb9f-537b-454f-8a10-795af1f95540",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.1
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {},
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "usd_default_pricing",
+            "aggregationCode": "document_report_standard_auto_count"
+        },
+        {
+            "cumulative": false,
+            "startDate": "2026-10-14T00:00:00.000Z",
+            "code": "pricing_1B0Ws000000Sye0KAC",
+            "description": "Document Check - Flash - USA negotiated rate, order 00000102",
+            "pricingBands": [
+                {
+                    "id": "482e650e-cde5-407f-8253-97ef1a3724b5",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.5
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "country": "USA"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "country:USA",
+            "overagePricingBands": [],
+            "planCode": "vc_doc_check_00000102",
+            "aggregationCode": "document_report_standard_auto_count"
+        },
+        {
+            "cumulative": false,
+            "startDate": "2026-10-14T00:00:00.000Z",
+            "code": "pricing_1B0Ws000000Sye1KAC",
+            "description": "Document Check - Sherlock - USA negotiated rate, order 00000102",
+            "pricingBands": [
+                {
+                    "id": "abd7118e-1aaa-4313-8b10-7fe3e416af6d",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.0
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "country": "USA"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "country:USA",
+            "overagePricingBands": [],
+            "planCode": "vc_doc_check_00000102",
+            "aggregationCode": "document_report_standard_manual_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2026-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "9cc79e3d-c446-4029-bccb-a7198bda4ec0",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.0
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "country": "USA"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "country:USA",
+            "overagePricingBands": [],
+            "planTemplateCode": "usd_default_pricing",
+            "aggregationCode": "document_report_standard_auto_count"
+        },
+        {
+            "cumulative": false,
+            "startDate": "2026-10-14T00:00:00.000Z",
+            "code": "pricing_1B0Ws000000Sye2KAC",
+            "description": "Document Check - Boost - USA negotiated rate, order 00000102",
+            "pricingBands": [
+                {
+                    "id": "2ce73d33-3362-40b5-bd10-56c3e6380e2b",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.0
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "country": "USA"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "country:USA",
+            "overagePricingBands": [],
+            "planCode": "vc_doc_check_00000102",
+            "aggregationCode": "document_report_standard_hybrid_count"
+        },
+        {
+            "cumulative": false,
+            "startDate": "2026-10-14T00:00:00.000Z",
+            "code": "pricing_1B0Ws000000SydyKAC",
+            "description": "Document Check - Flash - ANY negotiated rate, order 00000102",
+            "pricingBands": [
+                {
+                    "id": "56a956bd-834e-44c2-94d9-b43a78698f50",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.5
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {},
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "vc_doc_check_00000102",
+            "aggregationCode": "document_report_standard_auto_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2026-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "96242545-22a0-4c1e-a776-cfb0e6e7758b",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.31
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {
+                "country": "USA"
+            },
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "country:USA",
+            "overagePricingBands": [],
+            "planTemplateCode": "usd_default_pricing",
+            "aggregationCode": "document_report_standard_hybrid_count"
+        },
+        {
+            "cumulative": false,
+            "startDate": "2026-10-14T00:00:00.000Z",
+            "code": "pricing_1B0Ws000000SydxKAC",
+            "description": "Document Check - Sherlock - ANY negotiated rate, order 00000102",
+            "pricingBands": [
+                {
+                    "id": "a0dce9a8-8afa-4c95-b6a0-2c5c415738e2",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 0.5
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {},
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planCode": "vc_doc_check_00000102",
+            "aggregationCode": "document_report_standard_manual_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2026-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "id": "42238ee2-98ed-4ad8-85d2-a1d201fc891d",
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.1
+                }
+            ],
+            "type": "DEBIT",
+            "segment": {},
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segmentString": "",
+            "overagePricingBands": [],
+            "planTemplateCode": "usd_default_pricing",
+            "aggregationCode": "document_report_standard_manual_count"
+        }
+    ],
+    "Accounts": [
+        {
+            "name": "Acme",
+            "code": "001Ws00005YYRPSIA5",
+            "emailAddress": "info@salesforce.com",
+            "customFields": {
+                "sfAccountId": "001Ws00005YYRPSIA5",
+                "sfAccountName": "Acme"
+            },
+            "address": {
+                "addressLine1": "10 Main Rd.",
+                "locality": "New York",
+                "region": "NY",
+                "postCode": "31349",
+                "country": "USA"
+            },
+            "currency": "USD"
+        }
+    ],
+    "AccountPlans": [
+        {
+            "customFields": {
+                "sfAssetId": "02iWs00000SreQbIAJ",
+                "sfOrderNumber": "00000102",
+                "sfOrderItemId": "802Ws00000TbEjHIAV"
+            },
+            "startDate": "2026-10-14T00:00:00.000Z",
+            "endDate": "2026-11-14T00:00:00.000Z",
+            "code": "accountplan_02iWs00000SreQbIAJ",
+            "childBillingMode": "PARENT_BREAKDOWN",
+            "planCode": "vc_doc_check_00000102",
+            "accountCode": "001Ws00005YYRPSIA5"
+        }
+    ]
+}

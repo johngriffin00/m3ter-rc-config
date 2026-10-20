@@ -1,0 +1,161 @@
+{
+  "name": "Order Step:  hack Balance endDate",
+  "code": "order_step_hack_balance_enddate",
+  "description": "Assumes m3Balance",
+  "originalOrgId": "9a3a717e-40a0-4b92-9163-70db1110f21c",
+  "version": 1,
+  "versionDescription": "Assumes m3Balance",
+  "functions": [
+    {
+      "functionId": "4f555dfb-bc62-4b9f-8ace-f7d9841c31cb",
+      "title": "Set secOffset",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "secOffset"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "0",
+          "lookupType": "CALCULATION"
+        }
+      },
+      "exits": {
+        "NEXT": "38d2e1bf-a902-4192-8584-3f38e0c90d8a"
+      }
+    },
+    {
+      "functionId": "38d2e1bf-a902-4192-8584-3f38e0c90d8a",
+      "title": "If Hrs",
+      "description": "",
+      "className": "CalculationFunction",
+      "parameters": {
+        "calculation": {
+          "@type": "calculation",
+          "value": "m3Balance.currency == \"Hrs\""
+        }
+      },
+      "exits": {
+        "TRUE": "953b50b3-6159-447d-a28b-ab4955dfd7c2",
+        "FALSE": "49d14799-5de3-4915-90fe-44a51baf1002"
+      }
+    },
+    {
+      "functionId": "49d14799-5de3-4915-90fe-44a51baf1002",
+      "title": "If GBs",
+      "description": "",
+      "className": "CalculationFunction",
+      "parameters": {
+        "calculation": {
+          "@type": "calculation",
+          "value": "m3Balance.currency == \"GBs\""
+        }
+      },
+      "exits": {
+        "TRUE": "70c5a238-fd9a-4571-a0ea-18a7fb1ea61c",
+        "FALSE": "cf3c0340-7981-4f77-af1d-682f9b88e172"
+      }
+    },
+    {
+      "functionId": "cf3c0340-7981-4f77-af1d-682f9b88e172",
+      "title": "If TOK",
+      "description": "",
+      "className": "CalculationFunction",
+      "parameters": {
+        "calculation": {
+          "@type": "calculation",
+          "value": "m3Balance.currency == \"TOK\""
+        }
+      },
+      "exits": {
+        "TRUE": "a05a08d7-d47c-4306-8c4f-352d91dc5336"
+      }
+    },
+    {
+      "functionId": "a05a08d7-d47c-4306-8c4f-352d91dc5336",
+      "title": "Set TOK secOffset",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "secOffset"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "1",
+          "lookupType": "CALCULATION"
+        }
+      },
+      "exits": {
+        "NEXT": "2c57e0a7-6753-4a09-ba99-57f31af8e1b9"
+      }
+    },
+    {
+      "functionId": "2c57e0a7-6753-4a09-ba99-57f31af8e1b9",
+      "title": "Fix m3Balance",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "m3Balance.endDate"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "DateTime.dateSub(m3Balance.endDate, secOffset, \"SECONDS\")",
+          "lookupType": "CALCULATION"
+        }
+      },
+      "exits": {}
+    },
+    {
+      "functionId": "70c5a238-fd9a-4571-a0ea-18a7fb1ea61c",
+      "title": "Set GBs secOffset",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "secOffset"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "2",
+          "lookupType": "CALCULATION"
+        }
+      },
+      "exits": {
+        "NEXT": "2c57e0a7-6753-4a09-ba99-57f31af8e1b9"
+      }
+    },
+    {
+      "functionId": "953b50b3-6159-447d-a28b-ab4955dfd7c2",
+      "title": "Set Hrs secOffset",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "secOffset"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "3",
+          "lookupType": "CALCULATION"
+        }
+      },
+      "exits": {
+        "NEXT": "2c57e0a7-6753-4a09-ba99-57f31af8e1b9"
+      }
+    }
+  ],
+  "globalParameters": [],
+  "trigger": {
+    "enabled": true,
+    "firstFunction": "4f555dfb-bc62-4b9f-8ace-f7d9841c31cb",
+    "eventTypes": []
+  }
+}

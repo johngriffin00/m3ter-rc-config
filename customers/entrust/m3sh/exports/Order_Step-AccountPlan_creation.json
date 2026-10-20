@@ -1,0 +1,508 @@
+{
+  "name": "Order Step: AccountPlan creation",
+  "code": "order_step_accountplan_creation",
+  "description": "Converts transaction to AccountPlan. Note there's a TUE as context (sfTransactionUsageEntitlement). ",
+  "originalOrgId": "9a3a717e-40a0-4b92-9163-70db1110f21c",
+  "version": 2,
+  "versionDescription": "Converts transaction to AccountPlan. Note there's a TUE as context (sfTransactionUsageEntitlement). ",
+  "functions": [
+    {
+      "functionId": "d4554b04-465a-49d2-a8aa-26bb9176614f",
+      "title": "Set Account#ProductId",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "m3AccountProductId"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "m3AccountId + \"#\" + m3ProductId",
+          "lookupType": "CALCULATION"
+        }
+      },
+      "exits": {
+        "NEXT": "d7e064f7-4f9d-44fc-b91e-93f1f96c74d6"
+      }
+    },
+    {
+      "functionId": "d7e064f7-4f9d-44fc-b91e-93f1f96c74d6",
+      "title": "Lookup existing AccountPlan",
+      "description": "",
+      "className": "ExternalMappingExistsForSystemFunction",
+      "parameters": {
+        "externalSystem": {
+          "@type": "string",
+          "value": "Salesforce"
+        },
+        "externalTable": {
+          "@type": "string",
+          "value": "m3AccountPlan"
+        },
+        "externalIdPath": {
+          "@type": "statevariable",
+          "value": "m3AccountProductId"
+        },
+        "stateVariable": {
+          "@type": "statevariable",
+          "value": "m3AccountPlanId"
+        }
+      },
+      "exits": {
+        "FALSE": "d94b3881-6e30-4d80-bf11-d1ec8814a62c"
+      }
+    },
+    {
+      "functionId": "d94b3881-6e30-4d80-bf11-d1ec8814a62c",
+      "title": "Load related UBEs",
+      "description": "",
+      "className": "SOQLSalesforceQueryFunction",
+      "parameters": {
+        "soqlQuery": {
+          "@type": "string",
+          "value": "SELECT Id, EffectiveStartDateTime, EffectiveEndDateTime, UsageResourceId, BucketBalance, ParentId, Parent.Type FROM UsageEntitlementBucket WHERE TransactionUsageEntitlementId = '{{sfTransactionUsageEntitlement.Id}}'"
+        },
+        "outputResultsStateVariable": {
+          "@type": "statevariable",
+          "value": "sfUEBs"
+        },
+        "apiVersion": {
+          "@type": "string",
+          "value": "65.0"
+        },
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+        }
+      },
+      "exits": {
+        "NEXT": "8c06051d-6066-40f7-832b-f9028b7d0c5c"
+      }
+    },
+    {
+      "functionId": "8c06051d-6066-40f7-832b-f9028b7d0c5c",
+      "title": "Loop through UBEs",
+      "description": "",
+      "className": "LoopFunction",
+      "parameters": {
+        "sourceObjectPath": {
+          "@type": "statevariable",
+          "value": "sfUEBs"
+        },
+        "counterVariableName": {
+          "@type": "string",
+          "value": "accUEB"
+        },
+        "elementVariableName": {
+          "@type": "string",
+          "value": "sfUEB"
+        }
+      },
+      "exits": {
+        "NEXT": "85338baf-e971-46f9-a0af-01dc60234bd8"
+      },
+      "initialFunction": "77f31bb7-0219-447b-9b08-cbdd3e768d2c",
+      "functions": [
+        {
+          "functionId": "77f31bb7-0219-447b-9b08-cbdd3e768d2c",
+          "title": "If Parent.Type == \"UsageEntitlementBucket\"",
+          "description": "",
+          "className": "CalculationFunction",
+          "parameters": {
+            "calculation": {
+              "@type": "calculation",
+              "value": "sfUEB.Parent.Type == \"UsageEntitlementBucket\""
+            }
+          },
+          "exits": {
+            "TRUE": "da82bae7-d52e-4c4d-ae42-a900b8a4c7b5"
+          }
+        },
+        {
+          "functionId": "da82bae7-d52e-4c4d-ae42-a900b8a4c7b5",
+          "title": "Set tmpUEB",
+          "description": "",
+          "className": "SetFieldFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "tmpUEB"
+            },
+            "lookup": {
+              "@type": "lookup",
+              "value": "sfUEB",
+              "lookupType": "STATE_PATH"
+            }
+          },
+          "exits": {}
+        }
+      ]
+    },
+    {
+      "functionId": "85338baf-e971-46f9-a0af-01dc60234bd8",
+      "title": "Load available plans for a m3 Product",
+      "description": "",
+      "className": "ListM3terEntityFunction",
+      "parameters": {
+        "m3terEntity": {
+          "@type": "string",
+          "value": "Plan"
+        },
+        "stateVariable": {
+          "@type": "statevariable",
+          "value": "m3Plans"
+        },
+        "queryParameters": {
+          "@type": "keyvaluelookup",
+          "value": {
+            "productId": {
+              "@type": "lookup",
+              "value": "m3ProductId",
+              "lookupType": "STATE_PATH"
+            }
+          }
+        },
+        "parentM3terEntityIdPath": {
+          "@type": "statevariable",
+          "value": ""
+        },
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+        }
+      },
+      "exits": {
+        "NEXT": "8352a7c7-e738-49f2-8219-9d1265c2c971"
+      }
+    },
+    {
+      "functionId": "8352a7c7-e738-49f2-8219-9d1265c2c971",
+      "title": "Set refCurrency",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "refCurrency"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "m3Product.customFields.rateCurrency == \"TOK\" ? \"(TOK)\" : \"(USD)\"",
+          "lookupType": "CALCULATION"
+        }
+      },
+      "exits": {
+        "NEXT": "1f614660-506b-4e03-8629-d54adb727f49"
+      }
+    },
+    {
+      "functionId": "1f614660-506b-4e03-8629-d54adb727f49",
+      "title": "Loop through m3 Plans",
+      "description": "",
+      "className": "LoopFunction",
+      "parameters": {
+        "sourceObjectPath": {
+          "@type": "statevariable",
+          "value": "m3Plans"
+        },
+        "counterVariableName": {
+          "@type": "string",
+          "value": "accm3Plans"
+        },
+        "elementVariableName": {
+          "@type": "string",
+          "value": "m3Plan"
+        }
+      },
+      "exits": {},
+      "initialFunction": "ecec8d15-c381-484b-82ea-bd13239279d7",
+      "functions": [
+        {
+          "functionId": "ecec8d15-c381-484b-82ea-bd13239279d7",
+          "title": "If plan is in the right currency",
+          "description": "",
+          "className": "CalculationFunction",
+          "parameters": {
+            "calculation": {
+              "@type": "calculation",
+              "value": "String.contains( m3Plan.name, refCurrency) "
+            }
+          },
+          "exits": {
+            "TRUE": "67bafd9c-c79f-49c9-9f18-2a273eb3eee9"
+          }
+        },
+        {
+          "functionId": "67bafd9c-c79f-49c9-9f18-2a273eb3eee9",
+          "title": "Apply TUE Transformation to m3 Account Plan",
+          "description": "",
+          "className": "ApplyTransformationFunction",
+          "parameters": {
+            "sourceName": {
+              "@type": "statevariable",
+              "value": "sfTransactionUsageEntitlement"
+            },
+            "stateVariable": {
+              "@type": "statevariable",
+              "value": "m3AccountPlan"
+            },
+            "integrationTransformationId": {
+              "@type": "m3terEntity",
+              "value": "eaf018c6-e484-4eef-bb7a-a553846b09b4"
+            }
+          },
+          "exits": {
+            "NEXT": "3d216205-40af-4c49-8716-0d0f7d73b03c"
+          }
+        },
+        {
+          "functionId": "3d216205-40af-4c49-8716-0d0f7d73b03c",
+          "title": "Set Multiple Fields",
+          "description": "",
+          "className": "SetMultiFieldsFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "m3AccountPlan"
+            },
+            "lookups": {
+              "@type": "keyvaluelookup",
+              "value": {
+                "planId": {
+                  "@type": "lookup",
+                  "value": "m3Plan.id",
+                  "lookupType": "STATE_PATH"
+                },
+                "accountId": {
+                  "@type": "lookup",
+                  "value": "m3AccountId",
+                  "lookupType": "STATE_PATH"
+                },
+                "customFields.AssetId": {
+                  "@type": "lookup",
+                  "value": "sfTransactionUsageEntitlement.AssetId",
+                  "lookupType": "STATE_PATH"
+                },
+                "customFields.EntitlemntUomId": {
+                  "@type": "lookup",
+                  "value": "sfTransactionUsageEntitlement.EntitlementUomId",
+                  "lookupType": "STATE_PATH"
+                },
+                "customFields.EntitlemntUomClassId": {
+                  "@type": "lookup",
+                  "value": "sfTransactionUsageEntitlement.EntitlementUomClassId",
+                  "lookupType": "STATE_PATH"
+                },
+                "startDate": {
+                  "@type": "lookup",
+                  "value": "sfAsset.LifecycleStartDate",
+                  "lookupType": "STATE_PATH"
+                },
+                "endDate": {
+                  "@type": "lookup",
+                  "value": "DateTime.dateAdd(String.left( sfAsset.LifecycleEndDate, 22) + \"Z\", 1, \"SECONDS\")\n",
+                  "lookupType": "CALCULATION"
+                },
+                "customFields.TUEId": {
+                  "@type": "lookup",
+                  "value": "sfTransactionUsageEntitlement.Id",
+                  "lookupType": "STATE_PATH"
+                },
+                "code": {
+                  "@type": "lookup",
+                  "value": "sfTransactionUsageEntitlement.Id + \"-\" + m3Plan.code",
+                  "lookupType": "CALCULATION"
+                },
+                "customFields.UEBId": {
+                  "@type": "lookup",
+                  "value": "tmpUEB.Id",
+                  "lookupType": "STATE_PATH"
+                }
+              }
+            }
+          },
+          "exits": {
+            "NEXT": "9effadfa-bfcc-4d5a-9c0a-7aa8c39ba2d7"
+          }
+        },
+        {
+          "functionId": "9effadfa-bfcc-4d5a-9c0a-7aa8c39ba2d7",
+          "title": "Create m3 AccountPlan",
+          "description": "",
+          "className": "CreateM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "AccountPlan"
+            },
+            "payloadPath": {
+              "@type": "statevariable",
+              "value": "m3AccountPlan"
+            },
+            "responsePath": {
+              "@type": "statevariable",
+              "value": "m3AccountPlanResponse"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {
+            "NEXT": "90ea48fb-9ec4-4519-b48d-f3450b7f9289"
+          }
+        },
+        {
+          "functionId": "90ea48fb-9ec4-4519-b48d-f3450b7f9289",
+          "title": "Create m3ter external mapping for AccountPlan",
+          "description": "",
+          "className": "CreateExternalMappingFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "AccountPlan"
+            },
+            "m3terIdPath": {
+              "@type": "statevariable",
+              "value": "m3AccountPlanResponse.id"
+            },
+            "externalSystem": {
+              "@type": "string",
+              "value": "Salesforce"
+            },
+            "externalTable": {
+              "@type": "string",
+              "value": "TransactionUsageEntitlement"
+            },
+            "externalIdPath": {
+              "@type": "statevariable",
+              "value": "sfTransactionUsageEntitlement.Id"
+            },
+            "duplicateRunForEntity": {
+              "@type": "boolean",
+              "value": false
+            }
+          },
+          "exits": {
+            "NEXT": "0d0565e3-2ce7-466f-84a9-1030fd7970f1"
+          }
+        },
+        {
+          "functionId": "0d0565e3-2ce7-466f-84a9-1030fd7970f1",
+          "title": "Lookup m3ter entity UUID",
+          "description": "Repeat filter - we should have one AP per plan currency (so 3), but only creating one external mapping (per product)",
+          "className": "ExternalMappingExistsForSystemFunction",
+          "parameters": {
+            "externalSystem": {
+              "@type": "string",
+              "value": "Salesforce"
+            },
+            "externalTable": {
+              "@type": "string",
+              "value": "m3AccountPlan"
+            },
+            "externalIdPath": {
+              "@type": "statevariable",
+              "value": "m3AccountProductId"
+            },
+            "stateVariable": {
+              "@type": "statevariable"
+            }
+          },
+          "exits": {
+            "FALSE": "d0497685-b5de-4ea2-9869-5fdc84b123a5"
+          }
+        },
+        {
+          "functionId": "d0497685-b5de-4ea2-9869-5fdc84b123a5",
+          "title": "Create m3ter external mapping for m3AccountProductId",
+          "description": "",
+          "className": "CreateExternalMappingFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "AccountPlan"
+            },
+            "m3terIdPath": {
+              "@type": "statevariable",
+              "value": "m3AccountPlanResponse.id"
+            },
+            "externalSystem": {
+              "@type": "string",
+              "value": "Salesforce"
+            },
+            "externalTable": {
+              "@type": "string",
+              "value": "m3AccountPlan"
+            },
+            "externalIdPath": {
+              "@type": "statevariable",
+              "value": "m3AccountProductId"
+            },
+            "duplicateRunForEntity": {
+              "@type": "boolean",
+              "value": false
+            }
+          },
+          "exits": {}
+        }
+      ]
+    }
+  ],
+  "globalParameters": [],
+  "trigger": {
+    "enabled": true,
+    "firstFunction": "d4554b04-465a-49d2-a8aa-26bb9176614f",
+    "eventTypes": []
+  },
+  "transformations": [
+    {
+      "orgId": "9a3a717e-40a0-4b92-9163-70db1110f21c",
+      "transformationId": "eaf018c6-e484-4eef-bb7a-a553846b09b4",
+      "name": "SF TUE to m3 AccountPlan",
+      "description": "Converts a SF TransactionUsageEntitlement to a m3ter Account Plan",
+      "sourceSystem": "Salesforce",
+      "destinationSystem": "m3ter",
+      "sourceTable": "TransactionUsageEntitlement",
+      "destinationTable": "AccountPlan",
+      "transformations": [
+        {
+          "destinationField": "startDate",
+          "type": "LOOKUP",
+          "sourceField": "EffectiveStartDateTime"
+        },
+        {
+          "destinationField": "endDate",
+          "type": "LOOKUP",
+          "sourceField": "EffectiveEndDateTime"
+        },
+        {
+          "destinationField": "code",
+          "type": "LOOKUP",
+          "sourceField": "Id"
+        },
+        {
+          "destinationField": "childBillingMode",
+          "type": "STATIC",
+          "value": "PARENT_BREAKDOWN"
+        }
+      ]
+    }
+  ],
+  "credentials": [
+    {
+      "credentialsId": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30",
+      "destinationType": "M3TER",
+      "type": "M3TER_SERVICE_USER"
+    },
+    {
+      "credentialsId": "e089ad7e-8d96-4fb4-b527-4176dd055f81",
+      "destinationType": "SALESFORCE",
+      "type": "OAUTH_CLIENT_CREDENTIALS"
+    }
+  ]
+}

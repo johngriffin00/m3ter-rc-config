@@ -1,0 +1,630 @@
+{
+  "name": "m3ter -> SF RCA Usage Data",
+  "code": "m3ter_sf_rca_usage_data",
+  "description": "Sync of Usage data to RCA objects",
+  "originalOrgId": "9a3a717e-40a0-4b92-9163-70db1110f21c",
+  "version": 56,
+  "versionDescription": "Sync of Usage data to RCA objects",
+  "functions": [
+    {
+      "functionId": "0995e05e-8175-47b7-bb4b-c25a164c3594",
+      "title": "Lookup SFAccount ID from External Mapping",
+      "description": "",
+      "className": "ExternalMappingExistsForM3terFunction",
+      "parameters": {
+        "m3terEntity": {
+          "@type": "string",
+          "value": "Account"
+        },
+        "m3terIdPath": {
+          "@type": "statevariable",
+          "value": "body.accountId"
+        },
+        "externalSystem": {
+          "@type": "string",
+          "value": "Salesforce"
+        },
+        "externalTable": {
+          "@type": "string"
+        },
+        "stateVariable": {
+          "@type": "statevariable",
+          "value": "salesforceAccountId"
+        },
+        "duplicateRunForEntity": {
+          "@type": "boolean",
+          "value": false
+        }
+      },
+      "exits": {
+        "TRUE": "a3a284e2-8a2f-4ab4-8740-c711b0c8cd92"
+      }
+    },
+    {
+      "functionId": "a3a284e2-8a2f-4ab4-8740-c711b0c8cd92",
+      "title": "Loop",
+      "description": "",
+      "className": "LoopFunction",
+      "parameters": {
+        "sourceObjectPath": {
+          "@type": "statevariable",
+          "value": "body.lineitems"
+        },
+        "counterVariableName": {
+          "@type": "string",
+          "value": "count"
+        },
+        "elementVariableName": {
+          "@type": "string",
+          "value": "lineItem"
+        }
+      },
+      "exits": {},
+      "initialFunction": "63191856-b811-4744-a1eb-234fc7244a3a",
+      "functions": [
+        {
+          "functionId": "63191856-b811-4744-a1eb-234fc7244a3a",
+          "title": "Get m3ter Entity - AccountPlan",
+          "description": "",
+          "className": "GetM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "AccountPlan"
+            },
+            "m3terEntityIdPath": {
+              "@type": "statevariable",
+              "value": "lineItem.accountPlanId"
+            },
+            "responsePath": {
+              "@type": "statevariable",
+              "value": "currentAccountPlan"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {
+            "NEXT": "407193e9-c795-4e97-8044-e298d0a18df8"
+          }
+        },
+        {
+          "functionId": "407193e9-c795-4e97-8044-e298d0a18df8",
+          "title": "Query for UEB",
+          "description": "",
+          "className": "QuerySalesforceSingleObjectFunction",
+          "parameters": {
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+            },
+            "soqlQuery": {
+              "@type": "string",
+              "value": "SELECT Id, EffectiveStartDateTime, EffectiveEndDateTime FROM UsageEntitlementBucket WHERE TransactionUsageEntitlement.AccountId = '{{salesforceAccountId}}' AND Parent.Type = 'UsageEntitlementBucket'  AND BucketBalanceUoMId = '{{currentAccountPlan.customFields.EntitlemntUomId}}'  AND TransactionUsageEntitlementId = '{{currentAccountPlan.customFields.TUEId}}'"
+            },
+            "stateVariable": {
+              "@type": "statevariable",
+              "value": "sfUEB"
+            },
+            "apiVersion": {
+              "@type": "string",
+              "value": "65.0"
+            }
+          },
+          "exits": {
+            "NEXT": "77367b8d-705a-462d-a9ac-aa1b83eef78f"
+          }
+        },
+        {
+          "functionId": "77367b8d-705a-462d-a9ac-aa1b83eef78f",
+          "title": "Set BucketId",
+          "description": "",
+          "className": "SetFieldFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "UEBid"
+            },
+            "lookup": {
+              "@type": "lookup",
+              "value": "sfUEB.Id",
+              "lookupType": "STATE_PATH"
+            }
+          },
+          "exits": {
+            "NEXT": "b734ac63-9eba-4909-8ced-0ec49a01b8f3"
+          }
+        },
+        {
+          "functionId": "b734ac63-9eba-4909-8ced-0ec49a01b8f3",
+          "title": "Set UoM",
+          "description": "",
+          "className": "SetFieldFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "UoMid"
+            },
+            "lookup": {
+              "@type": "lookup",
+              "value": "currentAccountPlan.customFields.EntitlemntUomId",
+              "lookupType": "STATE_PATH"
+            }
+          },
+          "exits": {
+            "NEXT": "65f222fb-994a-4e6c-acc5-53d17b76c264"
+          }
+        },
+        {
+          "functionId": "65f222fb-994a-4e6c-acc5-53d17b76c264",
+          "title": "Set Multiple Fields on UsageSummary",
+          "description": "",
+          "className": "SetMultiFieldsFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "UsageSummaryToCreate"
+            },
+            "lookups": {
+              "@type": "keyvaluelookup",
+              "value": {
+                "AssetId": {
+                  "@type": "lookup",
+                  "value": "currentAccountPlan.customFields.AssetId",
+                  "lookupType": "STATE_PATH"
+                },
+                "AccountId": {
+                  "@type": "lookup",
+                  "value": "salesforceAccountId",
+                  "lookupType": "STATE_PATH"
+                },
+                "Status": {
+                  "@type": "lookup",
+                  "value": "New",
+                  "lookupType": "STATIC"
+                },
+                "StartDateTime": {
+                  "@type": "lookup",
+                  "value": "lineItem.StartDateTime",
+                  "lookupType": "STATE_PATH"
+                },
+                "EndDateTime": {
+                  "@type": "lookup",
+                  "value": "DateTime.dateSub(String.left(lineItem.EndDateTime, 22) + \"Z\", 1, \"SECONDS\")",
+                  "lookupType": "CALCULATION"
+                },
+                "DebitedUnits": {
+                  "@type": "lookup",
+                  "value": "lineItem.ConsumptionUnits",
+                  "lookupType": "STATE_PATH"
+                },
+                "ConsumptionUnits": {
+                  "@type": "lookup",
+                  "value": "Number(lineItem.ConsumptionUnits) + Number(lineItem.OverageUnits)",
+                  "lookupType": "CALCULATION"
+                },
+                "OverageUnits": {
+                  "@type": "lookup",
+                  "value": "lineItem.OverageUnits",
+                  "lookupType": "STATE_PATH"
+                },
+                "UomId": {
+                  "@type": "lookup",
+                  "value": "UoMid",
+                  "lookupType": "STATE_PATH"
+                },
+                "UsageEntitlementBucketId": {
+                  "@type": "lookup",
+                  "value": "UEBid",
+                  "lookupType": "STATE_PATH"
+                }
+              }
+            }
+          },
+          "exits": {
+            "NEXT": "077a5257-724b-472b-9b3f-cfbfb7f63d90"
+          }
+        },
+        {
+          "functionId": "077a5257-724b-472b-9b3f-cfbfb7f63d90",
+          "title": "Run UsageSummary",
+          "description": "",
+          "className": "RunWorkflowFunction",
+          "parameters": {
+            "integrationDestinationId": {
+              "@type": "m3terEntity",
+              "value": "cea4fafe-28b0-42d2-8b53-2b2200d90aef"
+            }
+          },
+          "exits": {
+            "NEXT": "ad25a552-b693-4ed3-a829-c38663b54366"
+          }
+        },
+        {
+          "functionId": "ad25a552-b693-4ed3-a829-c38663b54366",
+          "title": "Set Multiple Fields on UsageRatableSummary",
+          "description": "",
+          "className": "SetMultiFieldsFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "UsageRatableSummaryToCreate"
+            },
+            "lookups": {
+              "@type": "keyvaluelookup",
+              "value": {
+                "AssetId": {
+                  "@type": "lookup",
+                  "value": "currentAccountPlan.customFields.AssetId",
+                  "lookupType": "STATE_PATH"
+                },
+                "AccountId": {
+                  "@type": "lookup",
+                  "value": "salesforceAccountId",
+                  "lookupType": "STATE_PATH"
+                },
+                "Status": {
+                  "@type": "lookup",
+                  "value": "New",
+                  "lookupType": "STATIC"
+                },
+                "StartDateTime": {
+                  "@type": "lookup",
+                  "value": "lineItem.StartDateTime",
+                  "lookupType": "STATE_PATH"
+                },
+                "EndDateTime": {
+                  "@type": "lookup",
+                  "value": "DateTime.dateSub(String.left(lineItem.EndDateTime, 22) + \"Z\", 1, \"SECONDS\")",
+                  "lookupType": "CALCULATION"
+                },
+                "NetUnitRate": {
+                  "@type": "lookup",
+                  "value": "lineItem.NetUnitRate",
+                  "lookupType": "STATE_PATH"
+                },
+                "NetUnitRateUomId": {
+                  "@type": "lookup",
+                  "value": "UoMid",
+                  "lookupType": "STATE_PATH"
+                },
+                "OverageQuantity": {
+                  "@type": "lookup",
+                  "value": "lineItem.OverageQuantity",
+                  "lookupType": "STATE_PATH"
+                },
+                "OverageQuantityUomId": {
+                  "@type": "lookup",
+                  "value": "currentAccountPlan.customFields.EntitlemntUomId",
+                  "lookupType": "STATE_PATH"
+                },
+                "RatingDecisionDateTime": {
+                  "@type": "lookup",
+                  "value": "DateTime.dateSub(String.left(lineItem.RatingDecisionDateTime, 22) + \"Z\", 1, \"SECONDS\")",
+                  "lookupType": "CALCULATION"
+                },
+                "TierQuantity": {
+                  "@type": "lookup",
+                  "value": "lineItem.TierQuantity",
+                  "lookupType": "STATE_PATH"
+                },
+                "TierQuantityUomId": {
+                  "@type": "lookup",
+                  "value": "currentAccountPlan.customFields.EntitlemntUomId",
+                  "lookupType": "STATE_PATH"
+                },
+                "TotalAmount": {
+                  "@type": "lookup",
+                  "value": "lineItem.TotalAmount",
+                  "lookupType": "STATE_PATH"
+                },
+                "UsageEntitlementBucketId": {
+                  "@type": "lookup",
+                  "value": "UEBid",
+                  "lookupType": "STATE_PATH"
+                }
+              }
+            }
+          },
+          "exits": {
+            "NEXT": "f8b8e847-f6ea-48eb-bcea-25c5c6a5b819"
+          }
+        },
+        {
+          "functionId": "f8b8e847-f6ea-48eb-bcea-25c5c6a5b819",
+          "title": "Run UsageRatableSummary workflow",
+          "description": "",
+          "className": "RunWorkflowFunction",
+          "parameters": {
+            "integrationDestinationId": {
+              "@type": "m3terEntity",
+              "value": "f3a0cccf-9d81-44b5-bac6-59eb42abdb04"
+            }
+          },
+          "exits": {
+            "NEXT": "d2673171-4e5c-4712-ac7e-dd48f9018139"
+          }
+        },
+        {
+          "functionId": "d2673171-4e5c-4712-ac7e-dd48f9018139",
+          "title": "Set Fields for UsageBillingPeriodItem",
+          "description": "",
+          "className": "SetMultiFieldsFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "UsageBillingPeriodItemToCreate"
+            },
+            "lookups": {
+              "@type": "keyvaluelookup",
+              "value": {
+                "AssetId": {
+                  "@type": "lookup",
+                  "value": "currentAccountPlan.customFields.AssetId",
+                  "lookupType": "STATE_PATH"
+                },
+                "AccountId": {
+                  "@type": "lookup",
+                  "value": "salesforceAccountId",
+                  "lookupType": "STATE_PATH"
+                },
+                "Status": {
+                  "@type": "lookup",
+                  "value": "New",
+                  "lookupType": "STATIC"
+                },
+                "OverageAmount": {
+                  "@type": "lookup",
+                  "value": "lineItem.OverageAmount",
+                  "lookupType": "STATE_PATH"
+                },
+                "OverageQuantity": {
+                  "@type": "lookup",
+                  "value": "lineItem.OverageQuantity",
+                  "lookupType": "STATE_PATH"
+                },
+                "StartDateTime": {
+                  "@type": "lookup",
+                  "value": "lineItem.StartDateTime",
+                  "lookupType": "STATE_PATH"
+                },
+                "EndDateTime": {
+                  "@type": "lookup",
+                  "value": "lineItem.EndDateTime",
+                  "lookupType": "STATE_PATH"
+                },
+                "CurrencyIsoCode": {
+                  "@type": "lookup",
+                  "value": "lineItem.CurrencyIsoCode",
+                  "lookupType": "STATE_PATH"
+                },
+                "TotalUsedQuantity": {
+                  "@type": "lookup",
+                  "value": "lineItem.TotalUsedQuantity",
+                  "lookupType": "STATE_PATH"
+                },
+                "UoMId": {
+                  "@type": "lookup",
+                  "value": "UoMid",
+                  "lookupType": "STATE_PATH"
+                },
+                "UsageEntitlementBucketId": {
+                  "@type": "lookup",
+                  "value": "UEBid",
+                  "lookupType": "STATE_PATH"
+                }
+              }
+            }
+          },
+          "exits": {
+            "NEXT": "5ef5c0b2-3e90-488a-a665-7cdee053fb8a"
+          }
+        },
+        {
+          "functionId": "5ef5c0b2-3e90-488a-a665-7cdee053fb8a",
+          "title": "Run workflow - Usage Period Billing Item",
+          "description": "",
+          "className": "RunWorkflowFunction",
+          "parameters": {
+            "integrationDestinationId": {
+              "@type": "m3terEntity",
+              "value": "b5a34167-10aa-4a99-bce4-a4e59dce09bd"
+            }
+          },
+          "exits": {
+            "NEXT": "02fbd038-9aa1-4f53-a443-0422fdd19cab"
+          }
+        },
+        {
+          "functionId": "02fbd038-9aa1-4f53-a443-0422fdd19cab",
+          "title": "If isUsageSummaryNew",
+          "description": "",
+          "className": "CalculationFunction",
+          "parameters": {
+            "calculation": {
+              "@type": "calculation",
+              "value": "isUsageSummaryNew == \"true\""
+            }
+          },
+          "exits": {
+            "TRUE": "235f881d-fe6a-46e6-a751-551af5db9976",
+            "FALSE": "a71519d1-bd55-4518-8c08-43aa8e28e465"
+          }
+        },
+        {
+          "functionId": "235f881d-fe6a-46e6-a751-551af5db9976",
+          "title": "Update UsageSummaryToUpdate with RatableSummary and LiableSummary",
+          "description": "",
+          "className": "SetMultiFieldsFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "UsageSummaryToUpdate"
+            },
+            "lookups": {
+              "@type": "keyvaluelookup",
+              "value": {
+                "RatableSummaryId": {
+                  "@type": "lookup",
+                  "value": "sfUsageRatableSummaryId",
+                  "lookupType": "STATE_PATH"
+                },
+                "LiableSummaryId": {
+                  "@type": "lookup",
+                  "value": "sfUsageBillingPeriodItemId",
+                  "lookupType": "STATE_PATH"
+                }
+              }
+            }
+          },
+          "exits": {
+            "NEXT": "f1cb8f53-0d18-4659-a5b9-6bf6f203afd1"
+          }
+        },
+        {
+          "functionId": "f1cb8f53-0d18-4659-a5b9-6bf6f203afd1",
+          "title": "Update Salesforce UsageSummary with UsageRatableSummayId and LiableSummaryId",
+          "description": "",
+          "className": "UpdateSalesforceObjectFunction",
+          "parameters": {
+            "resourceName": {
+              "@type": "string",
+              "value": "UsageSummary"
+            },
+            "resourceIdStateVariable": {
+              "@type": "statevariable",
+              "value": "sfUsageSummaryId"
+            },
+            "resource": {
+              "@type": "string",
+              "value": "UsageSummaryToUpdate"
+            },
+            "apiVersion": {
+              "@type": "string",
+              "value": "65.0"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+            }
+          },
+          "exits": {
+            "NEXT": "a71519d1-bd55-4518-8c08-43aa8e28e465"
+          }
+        },
+        {
+          "functionId": "a71519d1-bd55-4518-8c08-43aa8e28e465",
+          "title": "Get  Bucket",
+          "description": "",
+          "className": "ReadSalesforceObjectFunction",
+          "parameters": {
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+            },
+            "resourceName": {
+              "@type": "string",
+              "value": "UsageEntitlementBucket"
+            },
+            "resourceIdStateVariable": {
+              "@type": "statevariable",
+              "value": "UEBid"
+            },
+            "resourceOutputStateVariable": {
+              "@type": "statevariable",
+              "value": "sfBucket"
+            },
+            "apiVersion": {
+              "@type": "string",
+              "value": "65.0"
+            }
+          },
+          "exits": {
+            "NEXT": "0478ce71-86f5-436c-a3bc-b4d443b3fb26"
+          }
+        },
+        {
+          "functionId": "0478ce71-86f5-436c-a3bc-b4d443b3fb26",
+          "title": "Set Multiple Fields on UEM",
+          "description": "",
+          "className": "SetMultiFieldsFunction",
+          "parameters": {
+            "statePath": {
+              "@type": "statevariable",
+              "value": "UsageEntitlementBucketToUpdate"
+            },
+            "lookups": {
+              "@type": "keyvaluelookup",
+              "value": {
+                "BucketBalance": {
+                  "@type": "lookup",
+                  "value": "lineItem.TotalUsedQuantity",
+                  "lookupType": "STATE_PATH"
+                },
+                "ConsumedEntitlement": {
+                  "@type": "lookup",
+                  "value": "lineItem.ConsumptionUnits",
+                  "lookupType": "STATE_PATH"
+                }
+              }
+            }
+          },
+          "exits": {
+            "NEXT": "97fe3137-31fe-4cbc-9e06-d52a52c2cc6b"
+          }
+        },
+        {
+          "functionId": "97fe3137-31fe-4cbc-9e06-d52a52c2cc6b",
+          "title": "Update UEM Bucket",
+          "description": "",
+          "className": "UpdateSalesforceObjectFunction",
+          "parameters": {
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+            },
+            "resourceName": {
+              "@type": "string",
+              "value": "UsageEntitlementBucket"
+            },
+            "resourceIdStateVariable": {
+              "@type": "statevariable",
+              "value": "UEBid"
+            },
+            "resource": {
+              "@type": "string",
+              "value": "UsageEntitlementBucketToUpdate"
+            },
+            "apiVersion": {
+              "@type": "string",
+              "value": "65.0"
+            }
+          },
+          "exits": {}
+        }
+      ]
+    }
+  ],
+  "globalParameters": [],
+  "trigger": {
+    "enabled": true,
+    "firstFunction": "0995e05e-8175-47b7-bb4b-c25a164c3594",
+    "eventTypes": []
+  },
+  "credentials": [
+    {
+      "credentialsId": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30",
+      "destinationType": "M3TER",
+      "type": "M3TER_SERVICE_USER"
+    },
+    {
+      "credentialsId": "e089ad7e-8d96-4fb4-b527-4176dd055f81",
+      "destinationType": "SALESFORCE",
+      "type": "OAUTH_CLIENT_CREDENTIALS"
+    }
+  ]
+}

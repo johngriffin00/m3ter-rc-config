@@ -1,0 +1,286 @@
+{
+    "Products": [
+        {
+            "name": "Verification Check",
+            "code": "verification_check"
+        }
+    ],
+    "Meters": [
+        {
+            "name": "Document Check - Boost",
+            "code": "document_report_standard_hybrid",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check - Flash",
+            "code": "document_report_standard_auto",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        },
+        {
+            "name": "Document Check - Sherlock",
+            "code": "document_report_standard_manual",
+            "dataFields": [
+                {
+                    "category": "MEASURE",
+                    "code": "check_count",
+                    "name": "Check Count",
+                    "unit": "check"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "rejected",
+                    "name": "Rejected"
+                },
+                {
+                    "category": "WHAT",
+                    "code": "country",
+                    "name": "Country"
+                }
+            ],
+            "derivedFields": []
+        }
+    ],
+    "Aggregations": [
+        {
+            "name": "Document Check - Flash",
+            "code": "document_report_standard_auto_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segmentedFields": ["country"],
+            "segments": [
+                {"country": "USA"},
+                {}
+            ],
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "defaultValue": 0,
+            "meterCode": "document_report_standard_auto"
+        },
+        {
+            "name": "Document Check - Boost",
+            "code": "document_report_standard_hybrid_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segmentedFields": ["country"],
+            "segments": [
+                {"country": "USA"},
+                {}
+            ],
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "defaultValue": 0,
+            "meterCode": "document_report_standard_hybrid"
+        },
+        {
+            "name": "Document Check - Sherlock",
+            "code": "document_report_standard_manual_count",
+            "rounding": "NONE",
+            "quantityPerUnit": 1,
+            "unit": "check",
+            "segmentedFields": ["country"],
+            "segments": [
+                {"country": "USA"},
+                {}
+            ],
+            "targetField": "check_count",
+            "aggregation": "SUM",
+            "defaultValue": 0,
+            "meterCode": "document_report_standard_manual"
+        }
+    ],
+    "CompoundAggregations": [],
+    "PlanTemplates": [
+        {
+            "name": "USD Default Pricing",
+            "currency": "USD",
+            "standingCharge": 0.0,
+            "standingChargeInterval": 1,
+            "standingChargeOffset": 0,
+            "billFrequencyInterval": 1,
+            "billFrequency": "MONTHLY",
+            "ordinal": 1,
+            "code": "usd_default_pricing",
+            "productCode": "verification_check"
+        }
+    ],
+    "Plans": [
+        {
+            "name": "Default Verification Check Plan",
+            "code": "default_verification_check_plan",
+            "bespoke": true,
+            "planTemplateCode": "usd_default_pricing"
+        }
+    ],
+    "Pricings": [
+        {
+            "cumulative": true,
+            "startDate": "2026-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.01
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segment": {"country": "USA"},
+            "overagePricingBands": [],
+            "planTemplateCode": "usd_default_pricing",
+            "aggregationCode": "document_report_standard_manual_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2026-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 2.10
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segment": {},
+            "overagePricingBands": [],
+            "planTemplateCode": "usd_default_pricing",
+            "aggregationCode": "document_report_standard_manual_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2026-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.0
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segment": {"country": "USA"},
+            "overagePricingBands": [],
+            "planTemplateCode": "usd_default_pricing",
+            "aggregationCode": "document_report_standard_auto_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2026-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.1
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segment": {},
+            "overagePricingBands": [],
+            "planTemplateCode": "usd_default_pricing",
+            "aggregationCode": "document_report_standard_auto_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2026-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.31
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segment": {"country": "USA"},
+            "overagePricingBands": [],
+            "planTemplateCode": "usd_default_pricing",
+            "aggregationCode": "document_report_standard_hybrid_count"
+        },
+        {
+            "cumulative": true,
+            "startDate": "2026-01-01T00:00:00.000Z",
+            "pricingBands": [
+                {
+                    "lowerLimit": 0.0,
+                    "fixedPrice": 0.0,
+                    "unitPrice": 1.20
+                }
+            ],
+            "type": "DEBIT",
+            "tiersSpanPlan": false,
+            "aggregationType": "SIMPLE",
+            "segment": {},
+            "overagePricingBands": [],
+            "planTemplateCode": "usd_default_pricing",
+            "aggregationCode": "document_report_standard_hybrid_count"
+        }
+    ],
+    "Accounts": [
+        {
+            "name": "Foris Limited",
+            "code": "foris",
+            "emailAddress": "fake.name@dummy.com",
+            "address": {
+                "addressLine1": "10 Avenue of the Americas",
+                "addressLine2": "",
+                "locality": "New York City",
+                "region": "New York",
+                "postCode": "10018",
+                "country": "USA"
+            },
+            "currency": "USD"
+        }
+    ],
+    "AccountPlans": [
+        {
+            "planCode": "default_verification_check_plan",
+            "accountCode": "foris",
+            "startDate": "2026-01-01T00:00:00.000Z",
+            "childBillingMode": "PARENT_BREAKDOWN"
+        }
+    ]
+}

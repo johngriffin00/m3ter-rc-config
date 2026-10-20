@@ -1,0 +1,141 @@
+{
+  "name": "Order Step: undo Grant Balances",
+  "code": "order_step_undo_grant_balances",
+  "description": "For a m3 Product, find the existing Balance starting on the same date and remove them",
+  "originalOrgId": "9a3a717e-40a0-4b92-9163-70db1110f21c",
+  "version": 1,
+  "versionDescription": "For a m3 Product, find the existing Balance starting on the same date and remove them",
+  "functions": [
+    {
+      "functionId": "82892a5f-2545-4ea7-9532-3ff4cb7cbd5d",
+      "title": "List Grant Balances for account",
+      "description": "",
+      "className": "ListM3terEntityFunction",
+      "parameters": {
+        "m3terEntity": {
+          "@type": "string",
+          "value": "Balance"
+        },
+        "stateVariable": {
+          "@type": "statevariable",
+          "value": "m3GrantBalances"
+        },
+        "queryParameters": {
+          "@type": "keyvaluelookup",
+          "value": {
+            "accountId": {
+              "@type": "lookup",
+              "value": "m3AccountId",
+              "lookupType": "STATE_PATH"
+            }
+          }
+        },
+        "parentM3terEntityIdPath": {
+          "@type": "statevariable",
+          "value": "m3Balance.endDate"
+        },
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+        }
+      },
+      "exits": {
+        "NEXT": "eee349b6-5e03-48b9-8ada-0c673e587c22"
+      }
+    },
+    {
+      "functionId": "eee349b6-5e03-48b9-8ada-0c673e587c22",
+      "title": "Loop",
+      "description": "",
+      "className": "LoopFunction",
+      "parameters": {
+        "sourceObjectPath": {
+          "@type": "statevariable",
+          "value": "m3GrantBalances"
+        },
+        "counterVariableName": {
+          "@type": "string",
+          "value": "accGrant"
+        },
+        "elementVariableName": {
+          "@type": "string",
+          "value": "m3GrantBalance"
+        }
+      },
+      "exits": {},
+      "initialFunction": "b9c3fe62-8439-48b9-bd47-24d080e51628",
+      "functions": [
+        {
+          "functionId": "b9c3fe62-8439-48b9-bd47-24d080e51628",
+          "title": "If is a Grant",
+          "description": "m3ProductBalance",
+          "className": "CalculationFunction",
+          "parameters": {
+            "calculation": {
+              "@type": "calculation",
+              "value": "String.contains( m3GrantBalance.name, \"Grant\")"
+            }
+          },
+          "exits": {
+            "TRUE": "149afe1d-3aa0-4871-ac5b-90dd20e70db6"
+          }
+        },
+        {
+          "functionId": "149afe1d-3aa0-4871-ac5b-90dd20e70db6",
+          "title": "If same products",
+          "description": "",
+          "className": "CalculationFunction",
+          "parameters": {
+            "calculation": {
+              "@type": "calculation",
+              "value": "m3GrantBalance.productIds == m3Balance.productIds"
+            }
+          },
+          "exits": {
+            "TRUE": "7287fba7-44e3-426a-a2f1-95417934a91a"
+          }
+        },
+        {
+          "functionId": "7287fba7-44e3-426a-a2f1-95417934a91a",
+          "title": "Delete m3GrantBalance",
+          "description": "",
+          "className": "DeleteM3terEntityFunction",
+          "parameters": {
+            "m3terEntity": {
+              "@type": "string",
+              "value": "Balance"
+            },
+            "m3terEntityIdPath": {
+              "@type": "statevariable",
+              "value": "m3GrantBalance.id"
+            },
+            "responsePath": {
+              "@type": "statevariable"
+            },
+            "parentM3terEntityIdPath": {
+              "@type": "statevariable"
+            },
+            "integrationCredentialsId": {
+              "@type": "m3terEntity",
+              "value": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30"
+            }
+          },
+          "exits": {}
+        }
+      ]
+    }
+  ],
+  "globalParameters": [],
+  "trigger": {
+    "enabled": true,
+    "firstFunction": "82892a5f-2545-4ea7-9532-3ff4cb7cbd5d",
+    "eventTypes": []
+  },
+  "credentials": [
+    {
+      "credentialsId": "ea89b47a-2ac4-473d-a85b-3a92e6edcc30",
+      "destinationType": "M3TER",
+      "type": "M3TER_SERVICE_USER"
+    }
+  ]
+}

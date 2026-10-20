@@ -1,0 +1,183 @@
+{
+  "name": "m3ter -> SF RCA Usage Data - UBPI",
+  "code": "m3ter_sf_rca_usage_data_ubpi",
+  "description": "Sync of Usage data to RCA objects - UsageBillingPeriodItem",
+  "originalOrgId": "9a3a717e-40a0-4b92-9163-70db1110f21c",
+  "version": 12,
+  "versionDescription": "Sync of Usage data to RCA objects - UsageBillingPeriodItem",
+  "functions": [
+    {
+      "functionId": "fe2343d4-ef8f-433b-bcf0-07019849de8a",
+      "title": "If sfUsageSummary.LiableSummaryId == null ",
+      "description": "",
+      "className": "CalculationFunction",
+      "parameters": {
+        "calculation": {
+          "@type": "calculation",
+          "value": "sfUsageSummary.LiableSummaryId == null "
+        }
+      },
+      "exits": {
+        "FALSE": "d26faf3d-23a1-491f-8026-1e57abe7b2aa",
+        "TRUE": "ad9fdb92-d0aa-4e91-a986-6ef93c2b5093"
+      }
+    },
+    {
+      "functionId": "d26faf3d-23a1-491f-8026-1e57abe7b2aa",
+      "title": "Read Liable Summary",
+      "description": "",
+      "className": "ReadSalesforceObjectFunction",
+      "parameters": {
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+        },
+        "resourceName": {
+          "@type": "string",
+          "value": "UsageBillingPeriodItem"
+        },
+        "resourceIdStateVariable": {
+          "@type": "statevariable",
+          "value": "sfUsageSummary.LiableSummaryId"
+        },
+        "resourceOutputStateVariable": {
+          "@type": "statevariable",
+          "value": "sfUsageBillingPeriodItem"
+        },
+        "apiVersion": {
+          "@type": "string",
+          "value": "65.0"
+        }
+      },
+      "exits": {
+        "NEXT": "04aacdbc-8341-4794-acc6-d11e5cbe5b05"
+      }
+    },
+    {
+      "functionId": "04aacdbc-8341-4794-acc6-d11e5cbe5b05",
+      "title": "Set sfUsageBillingPeriodItemId",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "sfUsageBillingPeriodItemId"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "sfUsageBillingPeriodItem.Id",
+          "lookupType": "STATE_PATH"
+        }
+      },
+      "exits": {
+        "NEXT": "eb27eed7-80e5-441b-b687-84635a62cc2f"
+      }
+    },
+    {
+      "functionId": "eb27eed7-80e5-441b-b687-84635a62cc2f",
+      "title": "Remove Status",
+      "description": "",
+      "className": "RemoveFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "UsageBillingPeriodItemToCreate.Status"
+        }
+      },
+      "exits": {
+        "NEXT": "b8519ac2-1a4e-4631-9bc5-fe9f061bf010"
+      }
+    },
+    {
+      "functionId": "b8519ac2-1a4e-4631-9bc5-fe9f061bf010",
+      "title": "Update UsageBillingPeriodItem",
+      "description": "",
+      "className": "UpdateSalesforceObjectFunction",
+      "parameters": {
+        "resourceName": {
+          "@type": "string",
+          "value": "UsageBillingPeriodItem"
+        },
+        "resourceIdStateVariable": {
+          "@type": "statevariable",
+          "value": "sfUsageBillingPeriodItemId"
+        },
+        "resource": {
+          "@type": "string",
+          "value": "UsageBillingPeriodItemToCreate"
+        },
+        "apiVersion": {
+          "@type": "string",
+          "value": "65.0"
+        },
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+        }
+      },
+      "exits": {}
+    },
+    {
+      "functionId": "ad9fdb92-d0aa-4e91-a986-6ef93c2b5093",
+      "title": "Create UsageBillingPeriodItem",
+      "description": "",
+      "className": "CreateSalesforceObjectFunction",
+      "parameters": {
+        "resourceName": {
+          "@type": "string",
+          "value": "UsageBillingPeriodItem"
+        },
+        "resource": {
+          "@type": "string",
+          "value": "UsageBillingPeriodItemToCreate"
+        },
+        "outputResourceIdStateVariable": {
+          "@type": "statevariable",
+          "value": "UsageBillingPeriodItemCreated"
+        },
+        "apiVersion": {
+          "@type": "string",
+          "value": "65.0"
+        },
+        "integrationCredentialsId": {
+          "@type": "m3terEntity",
+          "value": "e089ad7e-8d96-4fb4-b527-4176dd055f81"
+        }
+      },
+      "exits": {
+        "NEXT": "88987927-2dc7-4675-8c90-d394b5d63b90"
+      }
+    },
+    {
+      "functionId": "88987927-2dc7-4675-8c90-d394b5d63b90",
+      "title": "Set sfUsageRatableSummaryId",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "sfUsageBillingPeriodItemId"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "UsageBillingPeriodItemCreated",
+          "lookupType": "STATE_PATH"
+        }
+      },
+      "exits": {}
+    }
+  ],
+  "globalParameters": [],
+  "trigger": {
+    "enabled": true,
+    "firstFunction": "fe2343d4-ef8f-433b-bcf0-07019849de8a",
+    "eventTypes": []
+  },
+  "credentials": [
+    {
+      "credentialsId": "e089ad7e-8d96-4fb4-b527-4176dd055f81",
+      "destinationType": "SALESFORCE",
+      "type": "OAUTH_CLIENT_CREDENTIALS"
+    }
+  ]
+}

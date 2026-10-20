@@ -1,0 +1,112 @@
+{
+  "name": "Order Step: init",
+  "code": "order_step_init",
+  "description": "Bunch of initial setup",
+  "originalOrgId": "9a3a717e-40a0-4b92-9163-70db1110f21c",
+  "version": 2,
+  "versionDescription": "Bunch of initial setup",
+  "functions": [
+    {
+      "functionId": "3945e222-4871-4f8a-b480-c7c923352637",
+      "title": "Create lineItem list",
+      "description": "",
+      "className": "CreateStateListFunction",
+      "parameters": {
+        "listName": {
+          "@type": "statevariable",
+          "value": "m3LineItemTypes"
+        },
+        "listType": {
+          "@type": "string",
+          "value": "String"
+        }
+      },
+      "exits": {
+        "NEXT": "70763328-28b3-4c73-9b8d-558796bee347"
+      }
+    },
+    {
+      "functionId": "70763328-28b3-4c73-9b8d-558796bee347",
+      "title": "Set lineItemTypeUsg",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "lineItemTypeUsg"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "USAGE",
+          "lookupType": "STATIC"
+        }
+      },
+      "exits": {
+        "NEXT": "7fbb092e-da77-428a-a56e-0a19b450f29d"
+      }
+    },
+    {
+      "functionId": "7fbb092e-da77-428a-a56e-0a19b450f29d",
+      "title": "Add to List",
+      "description": "",
+      "className": "AddToListFunction",
+      "parameters": {
+        "listName": {
+          "@type": "statevariable",
+          "value": "m3LineItemTypes"
+        },
+        "path": {
+          "@type": "statevariable",
+          "value": "lineItemTypeUsg"
+        }
+      },
+      "exits": {
+        "NEXT": "78095e27-99ac-4db0-b27d-a7256a5fa2a8"
+      }
+    },
+    {
+      "functionId": "78095e27-99ac-4db0-b27d-a7256a5fa2a8",
+      "title": "Set grant TT id",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "m3TTGrant"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "01775f80-6c8a-4be9-8cfb-e64b12abb98d",
+          "lookupType": "STATIC"
+        }
+      },
+      "exits": {
+        "NEXT": "bc0a43f9-feaf-41f8-bf09-f871e3c9761d"
+      }
+    },
+    {
+      "functionId": "bc0a43f9-feaf-41f8-bf09-f871e3c9761d",
+      "title": "Set commit TT id",
+      "description": "",
+      "className": "SetFieldFunction",
+      "parameters": {
+        "statePath": {
+          "@type": "statevariable",
+          "value": "m3TTCommit"
+        },
+        "lookup": {
+          "@type": "lookup",
+          "value": "3750584b-fbda-48b8-98b4-4b27c2aef7b2",
+          "lookupType": "STATIC"
+        }
+      },
+      "exits": {}
+    }
+  ],
+  "globalParameters": [],
+  "trigger": {
+    "enabled": true,
+    "firstFunction": "3945e222-4871-4f8a-b480-c7c923352637",
+    "eventTypes": []
+  }
+}
